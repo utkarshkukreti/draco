@@ -1,0 +1,37 @@
+[package]
+name = "draco"
+version = "0.1.0"
+authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
+edition = "2018"
+description = "Draco is a Rust library for building client side web applications with Web Assembly."
+license = "MIT/Apache-2.0"
+
+[dependencies]
+int_hash = "0.1.1"
+js-sys = "0.3"
+wasm-bindgen = "0.2"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+    "Document",
+    "Element",
+    "Event",
+    "EventTarget",
+    "History",
+    "HtmlElement",
+    "HtmlInputElement",
+    "Location",
+    "MouseEvent",
+    "Node",
+    "NodeList",
+    "Performance",
+    "Text",
+    "Window",
+]
+
+[dev-dependencies]
+rand = "0.5"
+
+[profile.release]
+lto = true
