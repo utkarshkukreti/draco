@@ -49,6 +49,11 @@ impl Attr {
                         input.set_value(&self.value);
                     }
                 }
+                if let Some(textarea) = element.dyn_ref::<web::HtmlTextAreaElement>() {
+                    if textarea.value() != self.value {
+                        textarea.set_value(&self.value);
+                    }
+                }
             }
             name => {
                 if Some(self.value.as_ref()) != old_value {
