@@ -27,6 +27,7 @@ features = [
     "Node",
     "NodeList",
     "Performance",
+    "Storage",
     "Text",
     "Window",
 ]
