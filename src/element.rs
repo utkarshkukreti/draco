@@ -32,6 +32,35 @@ struct Attr {
     value: S,
 }
 
+impl Attr {
+    fn patch(&self, old_value: Option<&str>, element: &web::Element) {
+        match &*self.name {
+            "checked" => {
+                if let Some(input) = element.dyn_ref::<web::HtmlInputElement>() {
+                    let checked = &self.value == "true";
+                    if input.checked() != checked {
+                        input.set_checked(checked);
+                    }
+                }
+            }
+            "value" => {
+                if let Some(input) = element.dyn_ref::<web::HtmlInputElement>() {
+                    if input.value() != self.value {
+                        input.set_value(&self.value);
+                    }
+                }
+            }
+            name => {
+                if Some(self.value.as_ref()) != old_value {
+                    element
+                        .set_attribute(&name, &self.value)
+                        .expect("set_attribute");
+                }
+            }
+        }
+    }
+}
+
 struct Listener<Message> {
     name: S,
     handler: RefCell<Option<Box<FnMut(web::Event) -> Message>>>,
@@ -161,11 +190,7 @@ where
         };
 
         for attr in &self.attrs {
-            if attr.name == "checked" && attr.value != "true" {
-                continue;
-            }
-            node.set_attribute(&attr.name, &attr.value)
-                .expect("set_attribute");
+            attr.patch(None, &node);
         }
 
         if !self.class.is_empty() {
@@ -196,35 +221,12 @@ where
         }
 
         for attr in &self.attrs {
-            match &*attr.name {
-                "value" => {
-                    if let Some(input) = old_node.dyn_ref::<web::HtmlInputElement>() {
-                        if input.value() != attr.value {
-                            input.set_value(&attr.value);
-                        }
-                    }
-                }
-                "checked" => {
-                    if let Some(input) = old_node.dyn_ref::<web::HtmlInputElement>() {
-                        let checked = attr.value == "true";
-                        if input.checked() != checked {
-                            input.set_checked(checked);
-                        }
-                    }
-                }
-                _ => {
-                    if let Some(old_attr) =
-                        old.attrs.iter().find(|old_attr| old_attr.name == attr.name)
-                    {
-                        if attr.value == old_attr.value {
-                            continue;
-                        }
-                    }
-                    old_node
-                        .set_attribute(&attr.name, &attr.value)
-                        .expect("set_attribute");
-                }
-            }
+            let old_attr = old
+                .attrs
+                .iter()
+                .find(|old_attr| old_attr.name == attr.name)
+                .map(|attr| &*attr.value);
+            attr.patch(old_attr, &old_node);
         }
 
         for old_attr in &old.attrs {
