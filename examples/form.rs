@@ -5,6 +5,7 @@ pub struct Form {
     username: String,
     password: String,
     accept: bool,
+    is_submitting: bool,
 }
 
 pub enum Message {
@@ -12,12 +13,13 @@ pub enum Message {
     UpdatePassword(String),
     UpdateAccept(bool),
     Submit,
+    Notify,
 }
 
 impl draco::App for Form {
     type Message = Message;
 
-    fn update(&mut self, _: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
         use self::Message::*;
         match message {
             UpdateUsername(username) => {
@@ -30,6 +32,11 @@ impl draco::App for Form {
                 self.accept = accept;
             }
             Submit => {
+                self.is_submitting = true;
+                mailbox.send_after(1000, || Notify);
+            }
+            Notify => {
+                self.is_submitting = false;
                 web_sys::window()
                     .unwrap()
                     .alert_with_message(&format!("Submitted: {:?}", self))
@@ -41,7 +48,10 @@ impl draco::App for Form {
     fn render(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         h::form()
-            .on("submit", |_| Message::Submit)
+            .on("submit", |event| {
+                event.prevent_default();
+                Message::Submit
+            })
             .push(h::pre().push(format!("{:?}", self)))
             .push(h::label().attr("for", "username").push("Username: "))
             .push(
@@ -96,7 +106,11 @@ impl draco::App for Form {
                     .on("click", |_| Message::UpdateAccept(false)),
             )
             .push(h::br())
-            .push(h::button().push("Submit"))
+            .push(if self.is_submitting {
+                h::button().push("Submitting...").attr("disabled", "")
+            } else {
+                h::button().push("Submit")
+            })
             .into()
     }
 }
