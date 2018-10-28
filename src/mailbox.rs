@@ -1,5 +1,8 @@
 use crate::{Subscription, Unsubscribe};
 use std::rc::Rc;
+use wasm_bindgen::prelude::*;
+use wasm_bindgen::JsCast;
+use web_sys as web;
 
 pub struct Mailbox<Message: 'static> {
     func: Rc<Fn(Message)>,
@@ -14,6 +17,22 @@ impl<Message: 'static> Mailbox<Message> {
 
     pub fn send(&self, message: Message) {
         (self.func)(message)
+    }
+
+    pub fn send_after(&self, timeout: i32, f: impl Fn() -> Message + 'static) {
+        let cloned = self.clone();
+        let closure = Closure::wrap(Box::new(move || {
+            cloned.send(f());
+        }) as Box<FnMut()>);
+        web::window()
+            .unwrap()
+            .set_timeout_with_callback_and_timeout_and_arguments_0(
+                closure.as_ref().unchecked_ref(),
+                timeout,
+            )
+            .unwrap();
+        // TODO: Stash this closure in the Mailbox and drop it when the closure is first called.
+        closure.forget();
     }
 
     pub fn subscribe<S: Subscription + 'static>(
