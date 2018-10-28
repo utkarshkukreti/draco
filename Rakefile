@@ -1,10 +1,9 @@
 task :default do
-  filter = /#{ENV['filter'] || '.*'}/
   sh "cargo +nightly fmt --all"
   sh "cargo build --examples --target wasm32-unknown-unknown --release"
   mkdir_p "target/examples"
   index = File.open("target/examples/index.html", "wb")
-  FileList["examples/*.rs"].ext("").grep(filter).each do |name|
+  FileList["examples/*.rs"].ext("").each do |name|
     name = File.basename(name)
     dir = "target/examples/#{name}"
     mkdir_p dir
