@@ -41,6 +41,7 @@ impl Attr {
                     if input.checked() != checked {
                         input.set_checked(checked);
                     }
+                    return;
                 }
             }
             "value" => {
@@ -48,20 +49,21 @@ impl Attr {
                     if input.value() != self.value {
                         input.set_value(&self.value);
                     }
+                    return;
                 }
                 if let Some(textarea) = element.dyn_ref::<web::HtmlTextAreaElement>() {
                     if textarea.value() != self.value {
                         textarea.set_value(&self.value);
                     }
+                    return;
                 }
             }
-            name => {
-                if Some(self.value.as_ref()) != old_value {
-                    element
-                        .set_attribute(&name, &self.value)
-                        .expect("set_attribute");
-                }
-            }
+            _ => {}
+        }
+        if Some(self.value.as_ref()) != old_value {
+            element
+                .set_attribute(&self.name, &self.value)
+                .expect("set_attribute");
         }
     }
 }
