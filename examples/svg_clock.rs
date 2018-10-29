@@ -60,9 +60,8 @@ impl draco::App for Clock {
                 .attr("stroke-linecap", "round")
                 .attr(
                     "transform",
-                    format!("rotate({})", (rotate * 10.0).round() / 10.0),
+                    format!("rotate({} 100 100)", (rotate * 10.0).round() / 10.0),
                 )
-                .attr("style", "transform-origin: center;")
         };
 
         let d = &self.date;
