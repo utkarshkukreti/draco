@@ -1,7 +1,9 @@
 use crate::{Subscription, Unsubscribe};
+use futures::Future;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen_futures::future_to_promise;
 use web_sys as web;
 
 pub struct Mailbox<Message: 'static> {
@@ -51,6 +53,18 @@ impl<Message: 'static> Mailbox<Message> {
         Mailbox {
             func: Rc::new(move |message| (self.func)(f(message))),
         }
+    }
+
+    pub fn spawn<F>(&self, future: F, func: impl Fn(Result<F::Item, F::Error>) -> Message + 'static)
+    where
+        F: Future + 'static,
+    {
+        let cloned = self.clone();
+        let future = future.then(move |result| {
+            cloned.send(func(result));
+            futures::future::ok(wasm_bindgen::JsValue::UNDEFINED)
+        });
+        future_to_promise(future);
     }
 }
 
