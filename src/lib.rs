@@ -2,6 +2,7 @@
 pub mod console;
 pub mod app;
 pub mod element;
+pub mod fetch;
 pub mod html;
 pub mod mailbox;
 pub mod node;

@@ -7,11 +7,11 @@ task :default do
     name = File.basename(name)
     dir = "target/examples/#{name}"
     mkdir_p dir
-    sh "wasm-bindgen target/wasm32-unknown-unknown/release/examples/#{name}.wasm --out-dir #{dir} --no-modules --no-modules-global #{name}"
+    sh "wasm-bindgen target/wasm32-unknown-unknown/release/examples/#{name}.wasm --out-dir #{dir} --no-modules --no-modules-global Example"
     File.write "#{dir}/index.html", <<HTML
 <main></main>
 <script src="#{name}.js"></script>
-<script>#{name}("#{name}_bg.wasm").then(() => #{name}.start());</script>
+<script>Example("#{name}_bg.wasm").then(() => Example.start());</script>
 HTML
     index << <<HTML
 <h3><a href="./#{name}/index.html">#{name}</a></h3>
