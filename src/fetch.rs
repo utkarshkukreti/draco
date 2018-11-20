@@ -51,7 +51,17 @@ impl Response for Text {
     ) -> Box<Future<Item = Self::Item, Error = Error>> {
         Box::new(
             future
-                .and_then(|response| response.text())
+                .and_then(|response| {
+                    if response.ok() {
+                        Ok(response)
+                    } else {
+                        let err = format!("{} ({})", response.status(), response.status_text());
+                        Err(JsValue::from_str(&err))
+                    }
+                })
+                .and_then(|response| {
+                    response.text()
+                })
                 .and_then(JsFuture::from)
                 .map(|text| text.as_string().unwrap())
                 .map_err(Error),
