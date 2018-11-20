@@ -170,6 +170,9 @@ where
                 if let Some(input) = target.dyn_ref::<web::HtmlTextAreaElement>() {
                     return handler(input.value());
                 }
+                if let Some(input) = target.dyn_ref::<web::HtmlSelectElement>() {
+                    return handler(input.value());
+                }
             }
             return handler("".into());
         })
