@@ -10,7 +10,7 @@ pub enum Node<Message: 'static> {
 }
 
 impl<Message: 'static> Node<Message> {
-    pub fn create(&self, mailbox: Mailbox<Message>) -> web::Node {
+    pub fn create(&mut self, mailbox: Mailbox<Message>) -> web::Node {
         match self {
             Node::Element(element) => element.create(mailbox).into(),
             Node::KeyedElement(keyed_element) => keyed_element.create(mailbox).into(),
@@ -18,15 +18,17 @@ impl<Message: 'static> Node<Message> {
         }
     }
 
-    pub fn patch(&self, old: &Self, mailbox: Mailbox<Message>) -> web::Node {
+    pub fn patch(&mut self, old: &mut Self, mailbox: Mailbox<Message>) -> web::Node {
         match (self, old) {
-            (Node::Element(e1), Node::Element(e2)) => e1.patch(e2, mailbox).into(),
-            (Node::KeyedElement(e1), Node::KeyedElement(e2)) => e1.patch(e2, mailbox).into(),
-            (Node::Text(t1), Node::Text(t2)) => t1.patch(t2).into(),
-            _ => {
+            (Node::Element(ref mut e1), Node::Element(ref mut e2)) => e1.patch(e2, mailbox).into(),
+            (Node::KeyedElement(ref mut e1), Node::KeyedElement(ref mut e2)) => {
+                e1.patch(e2, mailbox).into()
+            }
+            (Node::Text(ref mut t1), Node::Text(ref mut t2)) => t1.patch(t2).into(),
+            (self_, old) => {
                 let old_node = old.node().expect("old.node");
                 let parent_node = old_node.parent_node().expect("old_node.parent_node");
-                let node = self.create(mailbox);
+                let node = self_.create(mailbox);
                 parent_node
                     .replace_child(&node, &old_node)
                     .expect("replace_child");

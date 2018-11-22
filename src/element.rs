@@ -17,7 +17,7 @@ pub struct Element<C: Children> {
     attrs: Vec<Attr>,
     listeners: Vec<Listener<C::Message>>,
     children: C,
-    node: RefCell<Option<web::Element>>,
+    node: Option<web::Element>,
 }
 
 #[derive(Debug)]
@@ -124,7 +124,7 @@ where
             attrs: Vec::new(),
             listeners: Vec::new(),
             children: C::new(),
-            node: RefCell::new(None),
+            node: None,
         }
     }
 
@@ -189,7 +189,7 @@ where
         })
     }
 
-    pub fn create(&self, mailbox: Mailbox<C::Message>) -> web::Element {
+    pub fn create(&mut self, mailbox: Mailbox<C::Message>) -> web::Element {
         let document = web::window().expect("window").document().expect("document");
 
         let node = match self.ns {
@@ -214,12 +214,12 @@ where
 
         self.children.create(node.as_ref() as &web::Node, mailbox);
 
-        self.node.replace(Some(node.clone()));
+        self.node = Some(node.clone());
         node
     }
 
-    pub fn patch(&self, old: &Self, mailbox: Mailbox<C::Message>) -> web::Element {
-        let old_node = old.node.replace(None).expect("old.node");
+    pub fn patch(&mut self, old: &mut Self, mailbox: Mailbox<C::Message>) -> web::Element {
+        let old_node = old.node.take().expect("old.node");
         if self.name != old.name {
             let new_node = self.create(mailbox);
             (old_node.as_ref() as &web::Node)
@@ -266,15 +266,15 @@ where
         }
 
         self.children
-            .patch(&old.children, old_node.as_ref(), mailbox.clone());
+            .patch(&mut old.children, old_node.as_ref(), mailbox.clone());
 
-        self.node.replace(Some(old_node.clone()));
+        self.node = Some(old_node.clone());
 
         old_node
     }
 
     pub fn node(&self) -> Option<web::Element> {
-        self.node.borrow().clone()
+        self.node.clone()
     }
 }
 
@@ -394,8 +394,8 @@ impl<Message: 'static> KeyedElement<Message> {
 pub trait Children {
     type Message;
     fn new() -> Self;
-    fn create(&self, node: &web::Node, mailbox: Mailbox<Self::Message>);
-    fn patch(&self, old: &Self, old_node: &web::Node, mailbox: Mailbox<Self::Message>);
+    fn create(&mut self, node: &web::Node, mailbox: Mailbox<Self::Message>);
+    fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: Mailbox<Self::Message>);
 }
 
 impl<Message: 'static> Children for NonKeyed<Message> {
@@ -405,15 +405,15 @@ impl<Message: 'static> Children for NonKeyed<Message> {
         NonKeyed(Vec::new())
     }
 
-    fn create(&self, node: &web::Node, mailbox: Mailbox<Message>) {
-        for child in &self.0 {
+    fn create(&mut self, node: &web::Node, mailbox: Mailbox<Message>) {
+        for child in &mut self.0 {
             let child_node = child.create(mailbox.clone());
             node.append_child(&child_node).expect("append_child");
         }
     }
 
-    fn patch(&self, old: &Self, old_node: &web::Node, mailbox: Mailbox<Message>) {
-        for (old, new) in old.0.iter().zip(&self.0) {
+    fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: Mailbox<Message>) {
+        for (old, new) in old.0.iter_mut().zip(&mut self.0) {
             new.patch(old, mailbox.clone());
         }
 
@@ -423,7 +423,7 @@ impl<Message: 'static> Children for NonKeyed<Message> {
             parent_node.remove_child(&old_node).expect("remove_child");
         }
 
-        for new in self.0.iter().skip(old.0.len()) {
+        for new in self.0.iter_mut().skip(old.0.len()) {
             let new_node = new.create(mailbox.clone());
             old_node
                 .append_child(&new_node)
@@ -439,56 +439,61 @@ impl<Message: 'static> Children for Keyed<Message> {
         Keyed(Vec::new())
     }
 
-    fn create(&self, node: &web::Node, mailbox: Mailbox<Message>) {
-        for (_, child) in &self.0 {
+    fn create(&mut self, node: &web::Node, mailbox: Mailbox<Message>) {
+        for (_, child) in &mut self.0 {
             let child_node = child.create(mailbox.clone());
             node.append_child(&child_node).expect("append_child");
         }
     }
 
-    fn patch(&self, old: &Self, parent_node: &web::Node, mailbox: Mailbox<Message>) {
+    fn patch(&mut self, old: &mut Self, parent_node: &web::Node, mailbox: Mailbox<Message>) {
         if self.0.is_empty() {
             parent_node.set_text_content(Some(""));
             return;
         }
 
         let mut skip: usize = 0;
-        for ((new_key, new_node), (old_key, old_node)) in self.0.iter().zip(&old.0) {
+        for ((new_key, new_node), (old_key, ref mut old_node)) in self.0.iter_mut().zip(&mut old.0)
+        {
             if new_key == old_key {
-                new_node.patch(&old_node, mailbox.clone());
+                new_node.patch(old_node, mailbox.clone());
                 skip += 1;
             } else {
                 break;
             }
         }
-        let new = &self.0[skip..];
-        let old = &old.0[skip..];
+        let new = &mut self.0[skip..];
+        let old = &mut old.0[skip..];
 
         let mut skip_end = 0;
-        for ((new_key, new_node), (old_key, old_node)) in new.iter().rev().zip(old.iter().rev()) {
+        for ((new_key, new_node), (old_key, ref mut old_node)) in
+            new.iter_mut().rev().zip(old.iter_mut().rev())
+        {
             if new_key == old_key {
-                new_node.patch(&old_node, mailbox.clone());
+                new_node.patch(old_node, mailbox.clone());
                 skip_end += 1;
             } else {
                 break;
             }
         }
-        let new = &new[..new.len() - skip_end];
-        let old = &old[..old.len() - skip_end];
+        let new_len = new.len();
+        let old_len = old.len();
+        let new = &mut new[..new_len - skip_end];
+        let old = &mut old[..old_len - skip_end];
 
         if new.is_empty() && old.is_empty() {
             return;
         }
         let mut key_to_old_index = IntHashMap::default();
-        for (index, (key, _)) in (skip..).zip(old) {
-            key_to_old_index.insert(key, index);
+        for (index, (key, _)) in (skip..).zip(old.iter_mut()) {
+            key_to_old_index.insert(key.clone(), index);
         }
 
         let child_nodes = parent_node.child_nodes();
         let child_nodes_length = child_nodes.length();
-        for (index, (key, new_node)) in (skip..).zip(new) {
+        for (index, (key, new_node)) in (skip..).zip(new.iter_mut()) {
             let reordered = if let Some(old_index) = key_to_old_index.remove(key) {
-                let (_, ref old_node) = old[old_index - skip];
+                let (_, ref mut old_node) = old[old_index - skip];
                 new_node.patch(old_node, mailbox.clone());
                 old_index != index
             } else {

@@ -41,8 +41,8 @@ impl<A: App> Instance<A> {
     }
 
     fn render(&self) {
-        let new_vnode = self.inner.app.borrow().render();
-        let new_node = new_vnode.patch(&self.inner.vnode.borrow(), self.mailbox());
+        let mut new_vnode = self.inner.app.borrow().render();
+        let new_node = new_vnode.patch(&mut self.inner.vnode.borrow_mut(), self.mailbox());
         self.inner.vnode.replace(new_vnode);
         self.inner.node.replace(new_node);
     }
@@ -71,7 +71,7 @@ impl<A: App> std::fmt::Debug for Instance<A> {
 
 pub fn start<A: App>(app: A, node: web::Node) -> Mailbox<A::Message> {
     set_panic_hook();
-    let vnode = Text::new("!");
+    let mut vnode = Text::new("!");
     let new_node = vnode.create().into();
     node.parent_node()
         .unwrap()
