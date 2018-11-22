@@ -1,6 +1,5 @@
 use crate::{Mailbox, Node, S};
 use int_hash::IntHashMap;
-use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -70,8 +69,8 @@ impl Attr {
 
 struct Listener<Message> {
     name: S,
-    handler: RefCell<Option<Box<FnMut(web::Event) -> Message>>>,
-    closure: RefCell<Option<Closure<FnMut(web::Event)>>>,
+    handler: Option<Box<FnMut(web::Event) -> Message>>,
+    closure: Option<Closure<FnMut(web::Event)>>,
 }
 
 impl<Message: 'static> Listener<Message> {
@@ -81,14 +80,14 @@ impl<Message: 'static> Listener<Message> {
     ) -> Listener<NewMessage> {
         let Listener {
             name,
-            handler,
+            mut handler,
             closure,
         } = self;
         let handler =
-            match handler.borrow_mut().take() {
-                Some(mut handler) => RefCell::new(Some(Box::new(move |event| f(handler(event)))
-                    as Box<FnMut(web::Event) -> NewMessage>)),
-                None => RefCell::new(None),
+            match handler.take() {
+                Some(mut handler) => Some(Box::new(move |event| f(handler(event)))
+                    as Box<FnMut(web::Event) -> NewMessage>),
+                None => None,
             };
         Listener {
             name,
@@ -155,8 +154,8 @@ where
     ) -> Self {
         self.listeners.push(Listener {
             name: name.into(),
-            handler: RefCell::new(Some(Box::new(handler))),
-            closure: RefCell::new(None),
+            handler: Some(Box::new(handler)),
+            closure: None,
         });
         self
     }
@@ -208,7 +207,7 @@ where
                 .expect("set_attribute");
         }
 
-        for listener in &self.listeners {
+        for listener in &mut self.listeners {
             listener.attach(&node, mailbox.clone());
         }
 
@@ -261,7 +260,7 @@ where
             listener.detach(&old_node);
         }
 
-        for listener in &self.listeners {
+        for listener in &mut self.listeners {
             listener.attach(&old_node, mailbox.clone());
         }
 
@@ -527,8 +526,8 @@ impl<Message> std::fmt::Debug for Listener<Message> {
 }
 
 impl<Message: 'static> Listener<Message> {
-    fn attach(&self, element: &web::Element, mailbox: Mailbox<Message>) {
-        let mut handler = self.handler.borrow_mut().take().unwrap();
+    fn attach(&mut self, element: &web::Element, mailbox: Mailbox<Message>) {
+        let mut handler = self.handler.take().unwrap();
         let closure = Closure::wrap(
             Box::new(move |event: web::Event| mailbox.send(handler(event)))
                 as Box<FnMut(web::Event) + 'static>,
@@ -536,12 +535,11 @@ impl<Message: 'static> Listener<Message> {
         (element.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .expect("add_event_listener_with_callback");
-        self.closure.replace(Some(closure));
+        self.closure = Some(closure);
     }
 
     fn detach(&self, element: &web::Element) {
-        let closure = self.closure.borrow();
-        let closure = closure.as_ref().unwrap();
+        let closure = self.closure.as_ref().unwrap();
         (element.as_ref() as &web::EventTarget)
             .remove_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .expect("remove_event_listener_with_callback");
