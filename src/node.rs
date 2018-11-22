@@ -7,6 +7,7 @@ pub enum Node<Message: 'static> {
     Element(NonKeyedElement<Message>),
     KeyedElement(KeyedElement<Message>),
     Text(Text),
+    Keep,
 }
 
 impl<Message: 'static> Node<Message> {
@@ -14,12 +15,18 @@ impl<Message: 'static> Node<Message> {
         match self {
             Node::Element(element) => element.create(mailbox).into(),
             Node::KeyedElement(keyed_element) => keyed_element.create(mailbox).into(),
+            Node::Keep => unreachable!("a Keep node cannot be created"),
             Node::Text(text) => text.create().into(),
         }
     }
 
     pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<Message>) -> web::Node {
         match (self, old) {
+            (self_ @ Node::Keep, old) => {
+                std::mem::swap(self_, old);
+                self_.node().unwrap()
+            }
+            (_, Node::Keep) => unreachable!("the old node in patch cannot be a Keep node"),
             (Node::Element(ref mut e1), Node::Element(ref mut e2)) => e1.patch(e2, mailbox).into(),
             (Node::KeyedElement(ref mut e1), Node::KeyedElement(ref mut e2)) => {
                 e1.patch(e2, mailbox).into()
@@ -41,6 +48,7 @@ impl<Message: 'static> Node<Message> {
         match self {
             Node::Element(element) => element.node().map(Into::into),
             Node::KeyedElement(keyed_element) => keyed_element.node().map(Into::into),
+            Node::Keep => None,
             Node::Text(text) => text.node().map(Into::into),
         }
     }
@@ -67,6 +75,7 @@ impl<Message: 'static> Node<Message> {
         match self {
             Node::Element(element) => Node::Element(element.do_map(f)),
             Node::KeyedElement(keyed_element) => Node::KeyedElement(keyed_element.do_map(f)),
+            Node::Keep => unreachable!("a Keep node cannot be mapped"),
             Node::Text(text) => Node::Text(text),
         }
     }
