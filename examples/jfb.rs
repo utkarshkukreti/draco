@@ -2,6 +2,8 @@ use rand::{
     prng::XorShiftRng,
     {Rng, SeedableRng},
 };
+use std::cell::Cell;
+use std::ops::{Deref, DerefMut};
 use wasm_bindgen::prelude::*;
 use web_sys as web;
 
@@ -10,7 +12,7 @@ pub fn start() {
     let non_keyed = web::window()
         .unwrap()
         .location()
-        .pathname()
+        .href()
         .unwrap()
         .contains("non-keyed");
     draco::start(
@@ -20,7 +22,7 @@ pub fn start() {
 }
 
 pub struct Jfb {
-    rows: Vec<Row>,
+    rows: Vec<Tracked<Row>>,
     next_id: usize,
     selected_id: Option<usize>,
     rng: XorShiftRng,
@@ -44,33 +46,41 @@ impl Row {
         Row { id, label }
     }
 
-    fn render<Message>(&self, selected_id: Option<usize>) -> draco::Node<Message> {
+    fn render<Message>(
+        &self,
+        is_changed: bool,
+        selected_id: Option<usize>,
+    ) -> draco::Node<Message> {
         use draco::html as h;
-        h::tr()
-            .class(if selected_id == Some(self.id) {
-                "danger"
-            } else {
-                ""
-            })
-            .push(h::td().class("col-md-1").push(self.id))
-            .push(
-                h::td()
-                    .class("col-md-4")
-                    .push(h::a().class("lbl").push(&self.label)),
-            )
-            .push(
-                h::td().class("col-md-1").push(
-                    h::a()
-                        .class("remove")
-                        .push(
-                            h::span()
-                                .class("glyphicon glyphicon-remove remove")
-                                .attr("aria-hidden", "true"),
-                        )
-                        .push(h::td().class("col-md-6")),
-                ),
-            )
-            .into()
+        let mut tr = h::tr().class(if selected_id == Some(self.id) {
+            "danger"
+        } else {
+            ""
+        });
+        if is_changed {
+            tr.push(h::td().class("col-md-1").push(self.id))
+                .push(
+                    h::td()
+                        .class("col-md-4")
+                        .push(h::a().class("lbl").push(&self.label)),
+                )
+                .push(
+                    h::td().class("col-md-1").push(
+                        h::a()
+                            .class("remove")
+                            .push(
+                                h::span()
+                                    .class("glyphicon glyphicon-remove remove")
+                                    .attr("aria-hidden", "true"),
+                            )
+                            .push(h::td().class("col-md-6")),
+                    ),
+                )
+                .into()
+        } else {
+            tr.cache_children();
+            tr.into()
+        }
     }
 }
 
@@ -196,7 +206,7 @@ impl draco::App for Jfb {
                 self.update(mailbox, Message::Append(amount));
             }
             Message::Append(amount) => {
-                rows.extend((0..amount).map(|index| Row::new(*next_id + index, rng)));
+                rows.extend((0..amount).map(|index| Tracked::new(Row::new(*next_id + index, rng))));
                 *next_id += amount;
             }
             Message::UpdateEvery(step) => {
@@ -249,16 +259,21 @@ impl draco::App for Jfb {
                         let node: draco::Node<Message> = if self.keyed {
                             draco::html::keyed::tbody()
                                 .attr("id", "tbody")
-                                .append(
-                                    self.rows
-                                        .iter()
-                                        .map(|row| (row.id as u64, row.render(self.selected_id))),
-                                )
+                                .append(self.rows.iter().map(|row| {
+                                    (
+                                        row.id as u64,
+                                        row.render(row.is_changed(), self.selected_id),
+                                    )
+                                }))
                                 .into()
                         } else {
                             h::tbody()
                                 .attr("id", "tbody")
-                                .append(self.rows.iter().map(|row| row.render(self.selected_id)))
+                                .append(
+                                    self.rows
+                                        .iter()
+                                        .map(|row| row.render(row.is_changed(), self.selected_id)),
+                                )
                                 .into()
                         };
                         node
@@ -312,3 +327,38 @@ static NOUNS: &[&str] = &[
 ];
 
 fn main() {}
+
+pub struct Tracked<T> {
+    value: T,
+    changed: Cell<bool>, //actual Tracked should use HashSet or something else, so there could be many readers
+}
+
+impl<T> Tracked<T> {
+    pub fn new(t: T) -> Self {
+        Tracked {
+            value: t,
+            changed: Cell::new(true),
+        }
+    }
+    pub fn is_changed(&self) -> bool {
+        if self.changed.get() {
+            self.changed.set(false);
+            true
+        } else {
+            false
+        }
+    }
+}
+impl<T> Deref for Tracked<T> {
+    type Target = T;
+
+    fn deref(&self) -> &T {
+        &self.value
+    }
+}
+impl<T> DerefMut for Tracked<T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.changed.set(true);
+        &mut self.value
+    }
+}
