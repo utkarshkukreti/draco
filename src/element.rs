@@ -17,6 +17,7 @@ pub struct Element<C: Children> {
     listeners: Vec<Listener<C::Message>>,
     children: C,
     node: Option<web::Element>,
+    cache_children: bool,
 }
 
 #[derive(Debug)]
@@ -124,6 +125,7 @@ where
             listeners: Vec::new(),
             children: C::new(),
             node: None,
+            cache_children: false,
         }
     }
 
@@ -264,8 +266,12 @@ where
             listener.attach(&old_node, mailbox.clone());
         }
 
-        self.children
+        if self.cache_children && self.children.is_empty() {
+            std::mem::swap(&mut self.children, &mut old.children);
+        } else {
+            self.children
             .patch(&mut old.children, old_node.as_ref(), mailbox.clone());
+        }
 
         self.node = Some(old_node.clone());
 
@@ -274,6 +280,10 @@ where
 
     pub fn node(&self) -> Option<web::Element> {
         self.node.clone()
+    }
+
+    pub fn cache_children(&mut self) {
+        self.cache_children = true;
     }
 }
 
@@ -307,6 +317,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
             listeners,
             children,
             node,
+            cache_children,
         } = self;
         let listeners = listeners
             .into_iter()
@@ -327,6 +338,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
             listeners,
             children,
             node,
+            cache_children,
         }
     }
 }
@@ -366,6 +378,7 @@ impl<Message: 'static> KeyedElement<Message> {
             listeners,
             children,
             node,
+            cache_children,
         } = self;
         let listeners = listeners
             .into_iter()
@@ -386,6 +399,7 @@ impl<Message: 'static> KeyedElement<Message> {
             listeners,
             children,
             node,
+            cache_children,
         }
     }
 }
@@ -395,6 +409,7 @@ pub trait Children {
     fn new() -> Self;
     fn create(&mut self, node: &web::Node, mailbox: Mailbox<Self::Message>);
     fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: Mailbox<Self::Message>);
+    fn is_empty(&self) -> bool;
 }
 
 impl<Message: 'static> Children for NonKeyed<Message> {
@@ -428,6 +443,9 @@ impl<Message: 'static> Children for NonKeyed<Message> {
                 .append_child(&new_node)
                 .expect("old_node.append_child");
         }
+    }
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 
@@ -514,6 +532,10 @@ impl<Message: 'static> Children for Keyed<Message> {
         for index in key_to_old_index.values() {
             old[*index - skip].1.remove();
         }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.0.is_empty()
     }
 }
 
