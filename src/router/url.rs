@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Url {
     pub path: Vec<String>,
     pub query: Vec<(String, String)>,
