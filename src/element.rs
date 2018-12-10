@@ -1,5 +1,5 @@
 use crate::{Mailbox, Node, S};
-use int_hash::IntHashMap;
+use rustc_hash::FxHashMap as IntHashMap;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
