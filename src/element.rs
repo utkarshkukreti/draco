@@ -1,5 +1,5 @@
 use crate::{Mailbox, Node, S};
-use int_hash::IntHashMap;
+use rustc_hash::FxHashMap;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -483,7 +483,7 @@ impl<Message: 'static> Children for Keyed<Message> {
         if new.is_empty() && old.is_empty() {
             return;
         }
-        let mut key_to_old_index = IntHashMap::default();
+        let mut key_to_old_index = FxHashMap::default();
         for (index, (key, _)) in (skip..).zip(old.iter_mut()) {
             key_to_old_index.insert(key.clone(), index);
         }
