@@ -28,3 +28,15 @@ pub fn select(selector: &str) -> Option<web_sys::Element> {
         .query_selector(selector)
         .ok()?
 }
+
+pub fn set_panic_hook() {
+    use std::sync::Once;
+
+    static PANIC_HOOK: Once = Once::new();
+
+    PANIC_HOOK.call_once(|| {
+        std::panic::set_hook(Box::new(|panic| {
+            crate::console::error(&panic.to_string());
+        }));
+    });
+}
