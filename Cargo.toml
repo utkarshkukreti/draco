@@ -1,6 +1,6 @@
 [package]
 name = "draco"
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
 edition = "2018"
 description = "Draco is a Rust library for building client side web applications with Web Assembly."

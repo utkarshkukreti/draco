@@ -68,7 +68,7 @@ dependencies = [
 
 [[package]]
 name = "draco"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
  "js-sys 0.3.8 (registry+https://github.com/rust-lang/crates.io-index)",
