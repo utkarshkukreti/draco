@@ -5,6 +5,7 @@ authors = ["Utkarsh Kukreti <utkarshkukreti@gmail.com>"]
 edition = "2018"
 description = "Draco is a Rust library for building client side web applications with Web Assembly."
 license = "MIT/Apache-2.0"
+repository = "https://github.com/utkarshkukreti/draco"
 
 [dependencies]
 futures = "0.1.25"
