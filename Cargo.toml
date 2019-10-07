@@ -39,8 +39,19 @@ features = [
     "Window",
 ]
 
-[dev-dependencies]
-rand = "0.5"
-
 [profile.release]
 lto = true
+
+[workspace]
+members = [
+  "examples/counter",
+  "examples/counters",
+  "examples/fetch",
+  "examples/form",
+  "examples/hello_world",
+  "examples/jfb",
+  "examples/local_storage",
+  "examples/mouse_tracker",
+  "examples/router",
+  "examples/svg_clock",
+]

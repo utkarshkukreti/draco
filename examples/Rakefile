@@ -1,0 +1,43 @@
+task :default do
+  index = File.open("index.html", "wb")
+
+  FileList["*/"].gsub(/\/$/, "").each do |name|
+    File.write "#{name}/Cargo.toml", <<TOML
+[package]
+name = "#{name}"
+version = "0.1.0"
+edition = "2018"
+description = "Draco Example :: #{name}"
+repository = "https://github.com/utkarshkukreti/draco"
+license = "MIT/Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+draco = { path = "../.." }
+
+js-sys = "0.3"
+rand = "0.5"
+wasm-bindgen = "0.2"
+
+[dependencies.web-sys]
+version = "0.3"
+features = [
+    "Window"
+]
+TOML
+    File.write "#{name}/index.html", <<HTML
+<main></main>
+<script type="module">
+  import init, { start } from './pkg/#{name}.js';
+  init().then(() => start());
+</script>
+HTML
+    sh "cd #{name} && wasm-pack build --target web"
+
+    index << <<HTML
+<h3><a href="./#{name}/index.html">#{name}</a></h3>
+HTML
+  end
+end
