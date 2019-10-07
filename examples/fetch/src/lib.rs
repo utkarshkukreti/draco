@@ -1,6 +1,6 @@
 use wasm_bindgen::prelude::*;
 
-type Response = Result<String, draco::fetch::Error>;
+type Response = Result<String, reqwest::Error>;
 
 #[derive(Debug)]
 pub struct Fetch {
@@ -30,8 +30,9 @@ impl draco::App for Fetch {
         use self::Message::*;
         match message {
             Send => {
+                let url = self.url.parse::<reqwest::Url>().unwrap();
                 mailbox.spawn(
-                    draco::fetch::get(&self.url).send::<draco::fetch::Text>(),
+                    async { Ok(reqwest::get(url).await?.text().await?) },
                     Message::UpdateResponse,
                 );
             }

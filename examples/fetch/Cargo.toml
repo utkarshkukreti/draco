@@ -9,3 +9,5 @@ crate-type = ["cdylib"]
 [dependencies]
 draco = { path = "../.." }
 wasm-bindgen = "0.2"
+
+reqwest = { git = "https://github.com/seanmonstar/reqwest" }
