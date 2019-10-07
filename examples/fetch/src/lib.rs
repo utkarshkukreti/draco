@@ -29,13 +29,13 @@ impl draco::App for Fetch {
     fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
         use self::Message::*;
         match message {
-            Send => {
-                let url = self.url.parse::<reqwest::Url>().unwrap();
-                mailbox.spawn(
+            Send => match self.url.parse::<reqwest::Url>() {
+                Ok(url) => mailbox.spawn(
                     async { Ok(reqwest::get(url).await?.text().await?) },
                     Message::UpdateResponse,
-                );
-            }
+                ),
+                Err(err) => draco::console::error(&err.to_string()),
+            },
             UpdateResponse(response) => self.response = Some(response),
             UpdateUrl(url) => self.url = url,
         }
