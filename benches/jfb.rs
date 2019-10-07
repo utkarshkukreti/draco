@@ -2,7 +2,7 @@
 
 extern crate test;
 
-#[path = "../examples/jfb.rs"]
+#[path = "../examples/jfb/src/lib.rs"]
 #[allow(dead_code)]
 mod jfb;
 
