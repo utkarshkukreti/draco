@@ -37,7 +37,7 @@ pub trait Response {
 
     fn send(
         future: impl Future<Item = web::Response, Error = JsValue> + 'static,
-    ) -> Box<Future<Item = Self::Item, Error = Error>>;
+    ) -> Box<dyn Future<Item = Self::Item, Error = Error>>;
 }
 
 #[derive(Debug)]
@@ -48,7 +48,7 @@ impl Response for Text {
 
     fn send(
         future: impl Future<Item = web::Response, Error = JsValue> + 'static,
-    ) -> Box<Future<Item = Self::Item, Error = Error>> {
+    ) -> Box<dyn Future<Item = Self::Item, Error = Error>> {
         Box::new(
             future
                 .and_then(|response| response.text())

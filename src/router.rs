@@ -54,7 +54,7 @@ impl Subscription for Router {
                 }
             };
             send(Url::new(url));
-        }) as Box<FnMut()>);
+        }) as Box<dyn FnMut()>);
         (window.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
             .unwrap();

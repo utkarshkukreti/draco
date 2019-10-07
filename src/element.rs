@@ -69,8 +69,8 @@ impl Attr {
 
 struct Listener<Message> {
     name: S,
-    handler: Option<Box<FnMut(web::Event) -> Message>>,
-    closure: Option<Closure<FnMut(web::Event)>>,
+    handler: Option<Box<dyn FnMut(web::Event) -> Message>>,
+    closure: Option<Closure<dyn FnMut(web::Event)>>,
 }
 
 impl<Message: 'static> Listener<Message> {
@@ -83,12 +83,11 @@ impl<Message: 'static> Listener<Message> {
             mut handler,
             closure,
         } = self;
-        let handler =
-            match handler.take() {
-                Some(mut handler) => Some(Box::new(move |event| f(handler(event)))
-                    as Box<FnMut(web::Event) -> NewMessage>),
-                None => None,
-            };
+        let handler = match handler.take() {
+            Some(mut handler) => Some(Box::new(move |event| f(handler(event)))
+                as Box<dyn FnMut(web::Event) -> NewMessage>),
+            None => None,
+        };
         Listener {
             name,
             handler,
@@ -530,7 +529,7 @@ impl<Message: 'static> Listener<Message> {
         let mut handler = self.handler.take().unwrap();
         let closure = Closure::wrap(
             Box::new(move |event: web::Event| mailbox.send(handler(event)))
-                as Box<FnMut(web::Event) + 'static>,
+                as Box<dyn FnMut(web::Event) + 'static>,
         );
         (element.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())

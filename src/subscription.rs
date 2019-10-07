@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys as web;
 
-pub type Send<Message> = Rc<Fn(Message)>;
+pub type Send<Message> = Rc<dyn Fn(Message)>;
 
 pub trait Subscription {
     type Message;
@@ -12,7 +12,7 @@ pub trait Subscription {
     fn subscribe(self, send: Send<Self::Message>) -> Unsubscribe;
 }
 
-pub struct Unsubscribe(Option<Box<FnMut()>>);
+pub struct Unsubscribe(Option<Box<dyn FnMut()>>);
 
 impl Unsubscribe {
     pub fn new(f: impl FnMut() + 'static) -> Self {
@@ -52,7 +52,7 @@ impl Subscription for OnWindow {
         let window = web::window().unwrap();
         let closure = Closure::wrap(Box::new(move |event: web::Event| {
             send(event);
-        }) as Box<FnMut(web::Event)>);
+        }) as Box<dyn FnMut(web::Event)>);
         (window.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .unwrap();
@@ -82,7 +82,7 @@ impl Subscription for Interval {
         let window = web::window().unwrap();
         let closure = Closure::wrap(Box::new(move || {
             send(());
-        }) as Box<FnMut()>);
+        }) as Box<dyn FnMut()>);
         let id = window
             .set_interval_with_callback_and_timeout_and_arguments(
                 closure.as_ref().unchecked_ref(),

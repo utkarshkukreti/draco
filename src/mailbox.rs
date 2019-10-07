@@ -7,7 +7,7 @@ use wasm_bindgen_futures::future_to_promise;
 use web_sys as web;
 
 pub struct Mailbox<Message: 'static> {
-    func: Rc<Fn(Message)>,
+    func: Rc<dyn Fn(Message)>,
 }
 
 impl<Message: 'static> Mailbox<Message> {
@@ -25,7 +25,7 @@ impl<Message: 'static> Mailbox<Message> {
         let cloned = self.clone();
         let closure = Closure::wrap(Box::new(move || {
             cloned.send(f());
-        }) as Box<FnMut()>);
+        }) as Box<dyn FnMut()>);
         web::window()
             .unwrap()
             .set_timeout_with_callback_and_timeout_and_arguments_0(
