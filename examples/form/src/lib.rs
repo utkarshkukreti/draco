@@ -96,12 +96,14 @@ impl draco::App for Form {
             .push(
                 h::button()
                     .type_("button")
+                    .disabled(self.accept)
                     .push("Agree")
                     .on("click", |_| Message::UpdateAccept(true)),
             )
             .push(
                 h::button()
                     .type_("button")
+                    .disabled(!self.accept)
                     .push("Disagree")
                     .on("click", |_| Message::UpdateAccept(false)),
             )
