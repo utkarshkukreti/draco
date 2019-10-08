@@ -1,4 +1,5 @@
 use js_sys as js;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -95,5 +96,45 @@ impl Subscription for Interval {
             let _ = closure;
             window.clear_interval_with_handle(id);
         })
+    }
+}
+
+#[derive(Debug)]
+pub struct AnimationFrame {}
+
+impl AnimationFrame {
+    pub fn new() -> Self {
+        AnimationFrame {}
+    }
+}
+
+impl Subscription for AnimationFrame {
+    type Message = ();
+
+    fn subscribe(self, send: Send<Self::Message>) -> Unsubscribe {
+        let closure = Rc::new(RefCell::new(None));
+        let closure2 = closure.clone();
+        let done = Rc::new(Cell::new(false));
+        let done2 = done.clone();
+
+        *closure2.borrow_mut() = Some(Closure::wrap(Box::new(move || {
+            send(());
+            if done.get() == false {
+                request_animation_frame(closure.borrow().as_ref().unwrap());
+            }
+        }) as Box<dyn FnMut()>));
+
+        request_animation_frame(closure2.borrow().as_ref().unwrap());
+
+        return Unsubscribe::new(move || {
+            done2.set(true);
+        });
+
+        fn request_animation_frame(f: &Closure<dyn FnMut()>) {
+            web::window()
+                .unwrap()
+                .request_animation_frame(f.as_ref().unchecked_ref())
+                .unwrap();
+        }
     }
 }
