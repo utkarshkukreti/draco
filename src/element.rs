@@ -28,41 +28,72 @@ pub enum Ns {
 #[derive(Debug)]
 struct Attr {
     name: S,
-    value: S,
+    value: AttrValue,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AttrValue {
+    String(S),
+    Bool(bool),
+}
+
+impl From<&'static str> for AttrValue {
+    fn from(str: &'static str) -> Self {
+        AttrValue::String(str.into())
+    }
+}
+
+impl From<String> for AttrValue {
+    fn from(string: String) -> Self {
+        AttrValue::String(string.into())
+    }
+}
+
+impl From<bool> for AttrValue {
+    fn from(bool: bool) -> Self {
+        AttrValue::Bool(bool)
+    }
 }
 
 impl Attr {
-    fn patch(&self, old_value: Option<&str>, element: &web::Element) {
-        match &*self.name {
-            "checked" => {
+    fn patch(&self, old_value: Option<&AttrValue>, element: &web::Element) {
+        match (&*self.name, &self.value) {
+            ("checked", AttrValue::Bool(checked)) => {
                 if let Some(input) = element.dyn_ref::<web::HtmlInputElement>() {
-                    let checked = &self.value == "true";
-                    if input.checked() != checked {
-                        input.set_checked(checked);
+                    if input.checked() != *checked {
+                        input.set_checked(*checked);
                     }
                     return;
                 }
             }
-            "value" => {
+            ("value", AttrValue::String(value)) => {
                 if let Some(input) = element.dyn_ref::<web::HtmlInputElement>() {
-                    if input.value() != self.value {
-                        input.set_value(&self.value);
+                    if &input.value() != value {
+                        input.set_value(&value);
                     }
                     return;
                 }
                 if let Some(textarea) = element.dyn_ref::<web::HtmlTextAreaElement>() {
-                    if textarea.value() != self.value {
-                        textarea.set_value(&self.value);
+                    if &textarea.value() != value {
+                        textarea.set_value(&value);
                     }
                     return;
                 }
             }
             _ => {}
         }
-        if Some(self.value.as_ref()) != old_value {
-            element
-                .set_attribute(&self.name, &self.value)
-                .expect("set_attribute");
+        if Some(&self.value) != old_value {
+            match &self.value {
+                AttrValue::String(value) => element
+                    .set_attribute(&self.name, &value)
+                    .expect("set_attribute"),
+                AttrValue::Bool(true) => element
+                    .set_attribute(&self.name, "")
+                    .expect("set_attribute"),
+                AttrValue::Bool(false) => element
+                    .remove_attribute(&self.name)
+                    .expect("remove_attribute"),
+            }
         }
     }
 }
@@ -126,7 +157,7 @@ where
         }
     }
 
-    pub fn attr<N: Into<S>, V: Into<S>>(mut self, name: N, value: V) -> Self {
+    pub fn attr<N: Into<S>, V: Into<AttrValue>>(mut self, name: N, value: V) -> Self {
         self.attrs.push(Attr {
             name: name.into(),
             value: value.into(),
@@ -135,7 +166,7 @@ where
     }
 
     pub fn checked(self, checked: bool) -> Self {
-        self.attr("checked", if checked { "true" } else { "false" })
+        self.attr("checked", if checked { true } else { false })
     }
 
     pub fn class(mut self, str: &str) -> Self {
@@ -233,7 +264,7 @@ where
                 .attrs
                 .iter()
                 .find(|old_attr| old_attr.name == attr.name)
-                .map(|attr| &*attr.value);
+                .map(|attr| &attr.value);
             attr.patch(old_attr, &old_node);
         }
 

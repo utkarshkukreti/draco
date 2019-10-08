@@ -1,4 +1,7 @@
-use crate::{element::Children, element::Ns, Element, NonKeyedElement, S};
+use crate::{
+    element::{AttrValue, Children, Ns},
+    Element, NonKeyedElement, S,
+};
 
 macro_rules! names {
     ($($ident:ident)+) => {
@@ -39,8 +42,8 @@ macro_rules! attributes {
     ) => {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
-                pub fn $ident(self, value: impl Into<$ty> + std::fmt::Display) -> Self {
-                    self.attr($name, value.to_string())
+                pub fn $ident<Value: Into<$ty> + Into<AttrValue>>(self, value: Value) -> Self {
+                    self.attr($name, <Value as Into<AttrValue>>::into(value))
                 }
             )+
         }
