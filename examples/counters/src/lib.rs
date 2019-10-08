@@ -90,5 +90,3 @@ pub fn start() {
         draco::select("main").expect("main").into(),
     );
 }
-
-pub fn main() {}

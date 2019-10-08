@@ -108,5 +108,3 @@ pub fn start() {
     let mailbox = draco::start(Clock::new(), draco::select("main").expect("main").into());
     mailbox.send(Message::Toggle);
 }
-
-pub fn main() {}

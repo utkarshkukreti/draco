@@ -59,5 +59,3 @@ impl draco::App for Fetch {
 pub fn start() {
     draco::start(Fetch::new(), draco::select("main").expect("main").into());
 }
-
-pub fn main() {}

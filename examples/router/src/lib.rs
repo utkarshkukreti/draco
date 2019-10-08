@@ -119,5 +119,3 @@ pub fn start() {
     );
     mailbox.send(Message::Subscribe);
 }
-
-pub fn main() {}

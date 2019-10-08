@@ -14,5 +14,3 @@ impl draco::App for HelloWorld {
 pub fn start() {
     draco::start(HelloWorld, draco::select("main").expect("main").into());
 }
-
-pub fn main() {}

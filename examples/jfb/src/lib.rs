@@ -310,5 +310,3 @@ static NOUNS: &[&str] = &[
     "table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger",
     "pizza", "mouse", "keyboard",
 ];
-
-fn main() {}

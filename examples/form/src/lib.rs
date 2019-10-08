@@ -119,5 +119,3 @@ impl draco::App for Form {
 pub fn start() {
     draco::start(Form::default(), draco::select("main").expect("main").into());
 }
-
-pub fn main() {}
