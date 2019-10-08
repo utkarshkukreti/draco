@@ -46,7 +46,7 @@ impl draco::App for Fetch {
         h::div()
             .push(
                 h::input()
-                    .attr("value", self.url.clone())
+                    .value(self.url.clone())
                     .on_input(Message::UpdateUrl),
             )
             .push(h::button().push("GET").on("click", |_| Message::Send))

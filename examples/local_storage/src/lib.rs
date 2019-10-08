@@ -51,7 +51,7 @@ impl draco::App for LocalStorage {
             ))
             .push(
                 h::textarea()
-                    .attr("value", self.value.clone())
+                    .value(self.value.clone())
                     .on_input(Message::Update),
             )
             .push(

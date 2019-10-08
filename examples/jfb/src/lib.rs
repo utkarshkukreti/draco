@@ -168,9 +168,9 @@ impl Jfb {
                 .class("col-sm-6 smallpad")
                 .push(
                     h::button()
-                        .attr("id", button.id)
+                        .id(button.id)
                         .class("btn btn-primary btn-block")
-                        .attr("type", "button")
+                        .type_("button")
                         .on("click", move |_| button.message.clone())
                         .push(button.description),
                 )
@@ -248,7 +248,7 @@ impl draco::App for Jfb {
                     .push({
                         let node: draco::Node<Message> = if self.keyed {
                             draco::html::keyed::tbody()
-                                .attr("id", "tbody")
+                                .id("tbody")
                                 .append(
                                     self.rows
                                         .iter()
@@ -257,7 +257,7 @@ impl draco::App for Jfb {
                                 .into()
                         } else {
                             h::tbody()
-                                .attr("id", "tbody")
+                                .id("tbody")
                                 .append(self.rows.iter().map(|row| row.render(self.selected_id)))
                                 .into()
                         };

@@ -53,61 +53,61 @@ impl draco::App for Form {
                 Message::Submit
             })
             .push(h::pre().push(format!("{:?}", self)))
-            .push(h::label().attr("for", "username").push("Username: "))
+            .push(h::label().for_("username").push("Username: "))
             .push(
                 h::input()
-                    .attr("id", "username")
-                    .attr("name", "username")
-                    .attr("value", self.username.clone())
+                    .id("username")
+                    .name("username")
+                    .value(self.username.clone())
                     .on_input(Message::UpdateUsername),
             )
             .push(
                 h::button()
-                    .attr("type", "button")
+                    .type_("button")
                     .push("Clear")
                     .on("click", |_| Message::UpdateUsername("".into())),
             )
             .push(h::br())
-            .push(h::label().attr("for", "password").push("Password: "))
+            .push(h::label().for_("password").push("Password: "))
             .push(
                 h::input()
-                    .attr("id", "password")
-                    .attr("name", "password")
-                    .attr("type", "password")
-                    .attr("value", self.password.clone())
+                    .id("password")
+                    .name("password")
+                    .type_("password")
+                    .value(self.password.clone())
                     .on_input(Message::UpdatePassword),
             )
             .push(
                 h::button()
-                    .attr("type", "button")
+                    .type_("button")
                     .push("Clear")
                     .on("click", |_| Message::UpdatePassword("".into())),
             )
             .push(h::br())
-            .push(h::label().attr("for", "accept").push("Accept "))
+            .push(h::label().for_("accept").push("Accept "))
             .push(
                 h::input()
-                    .attr("id", "accept")
-                    .attr("name", "accept")
-                    .attr("type", "checkbox")
+                    .id("accept")
+                    .name("accept")
+                    .type_("checkbox")
                     .checked(self.accept)
                     .on_checked(Message::UpdateAccept),
             )
             .push(
                 h::button()
-                    .attr("type", "button")
+                    .type_("button")
                     .push("Agree")
                     .on("click", |_| Message::UpdateAccept(true)),
             )
             .push(
                 h::button()
-                    .attr("type", "button")
+                    .type_("button")
                     .push("Disagree")
                     .on("click", |_| Message::UpdateAccept(false)),
             )
             .push(h::br())
             .push(if self.is_submitting {
-                h::button().push("Submitting...").attr("disabled", "")
+                h::button().push("Submitting...").disabled(true)
             } else {
                 h::button().push("Submit")
             })
