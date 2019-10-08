@@ -29,8 +29,9 @@ impl draco::App for Clock {
                 if let Some(_) = self.subscription.take() {
                 } else {
                     self.subscription = Some(
-                        mailbox
-                            .subscribe(draco::subscription::Interval::new(16), |()| Message::Tick),
+                        mailbox.subscribe(draco::subscription::AnimationFrame::new(), |()| {
+                            Message::Tick
+                        }),
                     );
                 }
             }
