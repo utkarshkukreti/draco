@@ -10,7 +10,7 @@ impl draco::App for HelloWorld {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     draco::start(HelloWorld, draco::select("main").expect("main").into());
 }

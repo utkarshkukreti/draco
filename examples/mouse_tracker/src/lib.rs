@@ -52,7 +52,7 @@ impl draco::App for MouseTracker {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     draco::start(
         MouseTracker::default(),

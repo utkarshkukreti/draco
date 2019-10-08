@@ -64,7 +64,7 @@ impl draco::App for LocalStorage {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     draco::start(
         LocalStorage::new(),

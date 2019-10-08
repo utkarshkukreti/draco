@@ -5,7 +5,7 @@ use rand::{
 use wasm_bindgen::prelude::*;
 use web_sys as web;
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     let non_keyed = web::window()
         .unwrap()

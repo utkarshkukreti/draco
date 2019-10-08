@@ -34,7 +34,7 @@ impl draco::App for Counter {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     draco::start(
         Counter::default(),

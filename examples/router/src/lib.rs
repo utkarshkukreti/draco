@@ -111,7 +111,7 @@ impl draco::App for Router {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     let mailbox = draco::start(
         Router::default(),

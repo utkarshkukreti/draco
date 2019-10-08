@@ -103,7 +103,7 @@ impl draco::App for Clock {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     let mailbox = draco::start(Clock::new(), draco::select("main").expect("main").into());
     mailbox.send(Message::Toggle);

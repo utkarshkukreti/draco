@@ -115,7 +115,7 @@ impl draco::App for Form {
     }
 }
 
-#[wasm_bindgen]
+#[wasm_bindgen(start)]
 pub fn start() {
     draco::start(Form::default(), draco::select("main").expect("main").into());
 }

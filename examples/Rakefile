@@ -5,8 +5,8 @@ task :default do
     File.write "#{name}/index.html", <<HTML
 <main></main>
 <script type="module">
-  import init, { start } from './pkg/#{name}.js';
-  init().then(() => start());
+  import init from './pkg/#{name}.js';
+  init();
 </script>
 HTML
     sh "cd #{name} && wasm-pack build --target web"
