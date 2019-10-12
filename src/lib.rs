@@ -1,6 +1,7 @@
 #[macro_use]
 pub mod console;
 pub mod app;
+pub mod attr;
 pub mod element;
 pub mod html;
 pub mod mailbox;
@@ -11,6 +12,7 @@ pub mod svg;
 pub mod text;
 
 pub use self::app::{start, App, Instance};
+pub use self::attr::Attr;
 pub use self::element::{h, s};
 pub use self::element::{Element, KeyedElement, NonKeyedElement};
 pub use self::mailbox::Mailbox;

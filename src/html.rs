@@ -1,5 +1,6 @@
 use crate::{
-    element::{AttrValue, Children, Ns},
+    attr,
+    element::{Children, Ns},
     Element, NonKeyedElement, S,
 };
 
@@ -42,8 +43,8 @@ macro_rules! attributes {
     ) => {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
-                pub fn $ident<Value: Into<$ty> + Into<AttrValue>>(self, value: Value) -> Self {
-                    self.attr($name, <Value as Into<AttrValue>>::into(value))
+                pub fn $ident<Value: Into<$ty> + Into<attr::Value>>(self, value: Value) -> Self {
+                    self.attr($name, <Value as Into<attr::Value>>::into(value))
                 }
             )+
         }

@@ -1,4 +1,4 @@
-use crate::{Mailbox, Node, S};
+use crate::{attr, Attr, Mailbox, Node, S};
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
@@ -24,79 +24,6 @@ pub struct Element<C: Children> {
 pub enum Ns {
     Html,
     Svg,
-}
-
-#[derive(Debug)]
-struct Attr {
-    name: S,
-    value: AttrValue,
-}
-
-#[derive(Debug, PartialEq)]
-pub enum AttrValue {
-    String(S),
-    Bool(bool),
-}
-
-impl From<&'static str> for AttrValue {
-    fn from(str: &'static str) -> Self {
-        AttrValue::String(str.into())
-    }
-}
-
-impl From<String> for AttrValue {
-    fn from(string: String) -> Self {
-        AttrValue::String(string.into())
-    }
-}
-
-impl From<bool> for AttrValue {
-    fn from(bool: bool) -> Self {
-        AttrValue::Bool(bool)
-    }
-}
-
-impl Attr {
-    fn patch(&self, old_value: Option<&AttrValue>, element: &web::Element) {
-        match (&*self.name, &self.value) {
-            ("checked", AttrValue::Bool(checked)) => {
-                if let Some(input) = element.dyn_ref::<web::HtmlInputElement>() {
-                    if input.checked() != *checked {
-                        input.set_checked(*checked);
-                    }
-                    return;
-                }
-            }
-            ("value", AttrValue::String(value)) => {
-                if let Some(input) = element.dyn_ref::<web::HtmlInputElement>() {
-                    if &input.value() != value {
-                        input.set_value(&value);
-                    }
-                    return;
-                }
-                if let Some(textarea) = element.dyn_ref::<web::HtmlTextAreaElement>() {
-                    if &textarea.value() != value {
-                        textarea.set_value(&value);
-                    }
-                    return;
-                }
-            }
-            _ => {}
-        }
-        if Some(&self.value) != old_value {
-            match &self.value {
-                AttrValue::String(value) => element
-                    .set_attribute(&self.name, &value)
-                    .expect("set_attribute"),
-                AttrValue::Bool(true) => element
-                    .set_attribute(&self.name, "")
-                    .expect("set_attribute"),
-                AttrValue::Bool(false) => element
-                    .remove_attribute(&self.name)
-                    .expect("remove_attribute"),
-            }
-        }
-    }
 }
 
 struct Listener<Message> {
@@ -158,7 +85,7 @@ where
         }
     }
 
-    pub fn attr<N: Into<S>, V: Into<AttrValue>>(mut self, name: N, value: V) -> Self {
+    pub fn attr<N: Into<S>, V: Into<attr::Value>>(mut self, name: N, value: V) -> Self {
         self.attrs.push(Attr {
             name: name.into(),
             value: value.into(),
