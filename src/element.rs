@@ -218,7 +218,7 @@ where
         })
     }
 
-    pub fn create(&mut self, mailbox: Mailbox<C::Message>) -> web::Element {
+    pub fn create(&mut self, mailbox: &Mailbox<C::Message>) -> web::Element {
         let document = web::window().expect("window").document().expect("document");
 
         let node = match self.ns {
@@ -238,7 +238,7 @@ where
         }
 
         for listener in &mut self.listeners {
-            listener.attach(&node, mailbox.clone());
+            listener.attach(&node, mailbox);
         }
 
         self.children.create(node.as_ref() as &web::Node, mailbox);
@@ -247,7 +247,7 @@ where
         node
     }
 
-    pub fn patch(&mut self, old: &mut Self, mailbox: Mailbox<C::Message>) -> web::Element {
+    pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<C::Message>) -> web::Element {
         let old_node = old.node.take().expect("old.node");
         if self.name != old.name {
             let new_node = self.create(mailbox);
@@ -291,11 +291,11 @@ where
         }
 
         for listener in &mut self.listeners {
-            listener.attach(&old_node, mailbox.clone());
+            listener.attach(&old_node, mailbox);
         }
 
         self.children
-            .patch(&mut old.children, old_node.as_ref(), mailbox.clone());
+            .patch(&mut old.children, old_node.as_ref(), mailbox);
 
         self.node = Some(old_node.clone());
 
@@ -423,8 +423,8 @@ impl<Message: 'static> KeyedElement<Message> {
 pub trait Children {
     type Message;
     fn new() -> Self;
-    fn create(&mut self, node: &web::Node, mailbox: Mailbox<Self::Message>);
-    fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: Mailbox<Self::Message>);
+    fn create(&mut self, node: &web::Node, mailbox: &Mailbox<Self::Message>);
+    fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: &Mailbox<Self::Message>);
 }
 
 impl<Message: 'static> Children for NonKeyed<Message> {
@@ -434,16 +434,16 @@ impl<Message: 'static> Children for NonKeyed<Message> {
         NonKeyed(Vec::new())
     }
 
-    fn create(&mut self, node: &web::Node, mailbox: Mailbox<Message>) {
+    fn create(&mut self, node: &web::Node, mailbox: &Mailbox<Message>) {
         for child in &mut self.0 {
-            let child_node = child.create(mailbox.clone());
+            let child_node = child.create(mailbox);
             node.append_child(&child_node).expect("append_child");
         }
     }
 
-    fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: Mailbox<Message>) {
+    fn patch(&mut self, old: &mut Self, old_node: &web::Node, mailbox: &Mailbox<Message>) {
         for (old, new) in old.0.iter_mut().zip(&mut self.0) {
-            new.patch(old, mailbox.clone());
+            new.patch(old, mailbox);
         }
 
         for old in old.0.iter().skip(self.0.len()) {
@@ -453,7 +453,7 @@ impl<Message: 'static> Children for NonKeyed<Message> {
         }
 
         for new in self.0.iter_mut().skip(old.0.len()) {
-            let new_node = new.create(mailbox.clone());
+            let new_node = new.create(mailbox);
             old_node
                 .append_child(&new_node)
                 .expect("old_node.append_child");
@@ -468,14 +468,14 @@ impl<Message: 'static> Children for Keyed<Message> {
         Keyed(Vec::new())
     }
 
-    fn create(&mut self, node: &web::Node, mailbox: Mailbox<Message>) {
+    fn create(&mut self, node: &web::Node, mailbox: &Mailbox<Message>) {
         for (_, child) in &mut self.0 {
-            let child_node = child.create(mailbox.clone());
+            let child_node = child.create(mailbox);
             node.append_child(&child_node).expect("append_child");
         }
     }
 
-    fn patch(&mut self, old: &mut Self, parent_node: &web::Node, mailbox: Mailbox<Message>) {
+    fn patch(&mut self, old: &mut Self, parent_node: &web::Node, mailbox: &Mailbox<Message>) {
         if self.0.is_empty() {
             parent_node.set_text_content(Some(""));
             return;
@@ -485,7 +485,7 @@ impl<Message: 'static> Children for Keyed<Message> {
         for ((new_key, new_node), (old_key, ref mut old_node)) in self.0.iter_mut().zip(&mut old.0)
         {
             if new_key == old_key {
-                new_node.patch(old_node, mailbox.clone());
+                new_node.patch(old_node, mailbox);
                 skip += 1;
             } else {
                 break;
@@ -499,7 +499,7 @@ impl<Message: 'static> Children for Keyed<Message> {
             new.iter_mut().rev().zip(old.iter_mut().rev())
         {
             if new_key == old_key {
-                new_node.patch(old_node, mailbox.clone());
+                new_node.patch(old_node, mailbox);
                 skip_end += 1;
             } else {
                 break;
@@ -523,10 +523,10 @@ impl<Message: 'static> Children for Keyed<Message> {
         for (index, (key, new_node)) in (skip..).zip(new.iter_mut()) {
             let reordered = if let Some(old_index) = key_to_old_index.remove(key) {
                 let (_, ref mut old_node) = old[old_index - skip];
-                new_node.patch(old_node, mailbox.clone());
+                new_node.patch(old_node, mailbox);
                 old_index != index
             } else {
-                new_node.create(mailbox.clone());
+                new_node.create(mailbox);
                 true
             };
             if reordered {
@@ -556,7 +556,8 @@ impl<Message> std::fmt::Debug for Listener<Message> {
 }
 
 impl<Message: 'static> Listener<Message> {
-    fn attach(&mut self, element: &web::Element, mailbox: Mailbox<Message>) {
+    fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
+        let mailbox = mailbox.clone();
         let mut handler = self.handler.take().unwrap();
         let closure = Closure::wrap(
             Box::new(move |event: web::Event| mailbox.send(handler(event)))

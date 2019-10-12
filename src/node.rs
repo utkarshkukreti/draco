@@ -10,7 +10,7 @@ pub enum Node<Message: 'static> {
 }
 
 impl<Message: 'static> Node<Message> {
-    pub fn create(&mut self, mailbox: Mailbox<Message>) -> web::Node {
+    pub fn create(&mut self, mailbox: &Mailbox<Message>) -> web::Node {
         match self {
             Node::Element(element) => element.create(mailbox).into(),
             Node::KeyedElement(keyed_element) => keyed_element.create(mailbox).into(),
@@ -18,7 +18,7 @@ impl<Message: 'static> Node<Message> {
         }
     }
 
-    pub fn patch(&mut self, old: &mut Self, mailbox: Mailbox<Message>) -> web::Node {
+    pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<Message>) -> web::Node {
         match (self, old) {
             (Node::Element(ref mut e1), Node::Element(ref mut e2)) => e1.patch(e2, mailbox).into(),
             (Node::KeyedElement(ref mut e1), Node::KeyedElement(ref mut e2)) => {
