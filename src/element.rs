@@ -1,5 +1,6 @@
 use crate::{Mailbox, Node, S};
-use std::collections::HashMap;
+// use std::collections::HashMap;
+use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
@@ -513,7 +514,7 @@ impl<Message: 'static> Children for Keyed<Message> {
         if new.is_empty() && old.is_empty() {
             return;
         }
-        let mut key_to_old_index = HashMap::new();
+        let mut key_to_old_index = HashMap::default();
         for (index, (key, _)) in (skip..).zip(old.iter_mut()) {
             key_to_old_index.insert(key.clone(), index);
         }
