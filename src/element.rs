@@ -167,7 +167,7 @@ where
     }
 
     pub fn checked(self, checked: bool) -> Self {
-        self.attr("checked", if checked { true } else { false })
+        self.attr("checked", checked)
     }
 
     pub fn class(mut self, str: &str) -> Self {
