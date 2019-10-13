@@ -6,18 +6,22 @@ use wasm_bindgen::JsCast;
 use web_sys as web;
 
 pub struct Mailbox<Message: 'static> {
-    func: Rc<dyn Fn(Message)>,
+    inner: Rc<Inner<Message>>,
+}
+
+struct Inner<Message: 'static> {
+    f: Box<dyn Fn(Message)>,
 }
 
 impl<Message: 'static> Mailbox<Message> {
-    pub fn new(func: impl Fn(Message) + 'static) -> Self {
+    pub fn new(f: impl Fn(Message) + 'static) -> Self {
         Mailbox {
-            func: Rc::new(func),
+            inner: Rc::new(Inner { f: Box::new(f) }),
         }
     }
 
     pub fn send(&self, message: Message) {
-        (self.func)(message)
+        (self.inner.f)(message)
     }
 
     pub fn send_after(&self, timeout: i32, f: impl Fn() -> Message + 'static) {
@@ -50,17 +54,19 @@ impl<Message: 'static> Mailbox<Message> {
         f: impl Fn(NewMessage) -> Message + 'static,
     ) -> Mailbox<NewMessage> {
         Mailbox {
-            func: Rc::new(move |message| (self.func)(f(message))),
+            inner: Rc::new(Inner {
+                f: Box::new(move |message| (self.inner.f)(f(message))),
+            }),
         }
     }
 
-    pub fn spawn<F>(&self, future: F, func: impl Fn(F::Output) -> Message + 'static)
+    pub fn spawn<F>(&self, future: F, f: impl Fn(F::Output) -> Message + 'static)
     where
         F: Future + 'static,
     {
         let cloned = self.clone();
         wasm_bindgen_futures::spawn_local(async move {
-            cloned.send(func(future.await));
+            cloned.send(f(future.await));
         });
     }
 }
@@ -68,7 +74,7 @@ impl<Message: 'static> Mailbox<Message> {
 impl<Message> Clone for Mailbox<Message> {
     fn clone(&self) -> Self {
         Mailbox {
-            func: self.func.clone(),
+            inner: Rc::clone(&self.inner),
         }
     }
 }
