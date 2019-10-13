@@ -9,6 +9,23 @@ pub struct Url {
     pub hash: Option<String>,
 }
 
+impl Url {
+    pub fn path(mut self, path: impl Into<String>) -> Self {
+        self.path.push(path.into());
+        self
+    }
+
+    pub fn query(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
+        self.query.push((name.into(), value.into()));
+        self
+    }
+
+    pub fn hash(mut self, hash: impl Into<String>) -> Self {
+        self.hash = Some(hash.into());
+        self
+    }
+}
+
 impl<T: Into<String>> From<T> for Url {
     fn from(t: T) -> Self {
         let string = t.into();
@@ -44,7 +61,10 @@ impl fmt::Display for Url {
         if !self.query.is_empty() {
             write!(f, "?")?;
         }
-        for (name, value) in &self.query {
+        for (index, (name, value)) in self.query.iter().enumerate() {
+            if index > 0 {
+                write!(f, "&")?;
+            }
             write!(f, "{}", name)?;
             if !value.is_empty() {
                 write!(f, "={}", value)?;
@@ -76,5 +96,12 @@ mod tests {
             assert_eq!(url, Url::from(url).to_string());
         }
         assert_eq!("/foo", Url::from("/foo#").to_string());
+
+        let url = Url::from("/foo?bar=baz#quux")
+            .path("quux")
+            .query("baz", "bar")
+            .hash("foo");
+
+        assert_eq!("/foo/quux?bar=baz&baz=bar#foo", url.to_string());
     }
 }
