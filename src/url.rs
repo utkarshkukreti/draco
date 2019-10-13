@@ -2,7 +2,7 @@ use std::fmt;
 
 pub mod parse;
 
-#[derive(PartialEq, Eq, Clone, Debug)]
+#[derive(PartialEq, Eq, Clone, Debug, Default)]
 pub struct Url {
     pub path: Vec<String>,
     pub query: Vec<(String, String)>,
