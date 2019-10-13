@@ -10,18 +10,18 @@ pub struct Url {
 }
 
 impl Url {
-    pub fn path(mut self, path: impl Into<String>) -> Self {
-        self.path.push(path.into());
+    pub fn path(mut self, path: impl ToString) -> Self {
+        self.path.push(path.to_string());
         self
     }
 
-    pub fn query(mut self, name: impl Into<String>, value: impl Into<String>) -> Self {
-        self.query.push((name.into(), value.into()));
+    pub fn query(mut self, name: impl ToString, value: impl ToString) -> Self {
+        self.query.push((name.to_string(), value.to_string()));
         self
     }
 
-    pub fn hash(mut self, hash: impl Into<String>) -> Self {
-        self.hash = Some(hash.into());
+    pub fn hash(mut self, hash: impl ToString) -> Self {
+        self.hash = Some(hash.to_string());
         self
     }
 }
@@ -100,8 +100,9 @@ mod tests {
         let url = Url::from("/foo?bar=baz#quux")
             .path("quux")
             .query("baz", "bar")
+            .query(1, 2)
             .hash("foo");
 
-        assert_eq!("/foo/quux?bar=baz&baz=bar#foo", url.to_string());
+        assert_eq!("/foo/quux?bar=baz&baz=bar&1=2#foo", url.to_string());
     }
 }
