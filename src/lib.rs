@@ -10,6 +10,7 @@ pub mod router;
 pub mod subscription;
 pub mod svg;
 pub mod text;
+pub mod url;
 
 pub use self::app::{start, App, Instance};
 pub use self::attr::Attr;

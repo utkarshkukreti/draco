@@ -1,4 +1,4 @@
-use crate::router::Url;
+use crate::url::Url;
 use std::marker::PhantomData;
 use std::str::FromStr;
 

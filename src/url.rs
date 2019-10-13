@@ -1,3 +1,5 @@
+pub mod parse;
+
 #[derive(PartialEq, Eq, Clone, Debug)]
 pub struct Url {
     pub path: Vec<String>,
@@ -5,8 +7,8 @@ pub struct Url {
     pub hash: Option<String>,
 }
 
-impl Url {
-    pub fn new<T: Into<String>>(t: T) -> Url {
+impl<T: Into<String>> From<T> for Url {
+    fn from(t: T) -> Self {
         let string = t.into();
         let (path_and_query, hash) = split(&string, '#');
         let (path, query) = split(path_and_query, '?');

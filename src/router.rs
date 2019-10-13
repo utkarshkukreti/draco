@@ -3,11 +3,10 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys as web;
 
-mod parse;
-mod url;
-
-pub use self::parse::{hash, param, parse, query, Parse};
-pub use self::url::Url;
+pub use crate::url::{
+    parse::{hash, param, parse, query, Parse},
+    Url,
+};
 
 #[derive(Copy, Clone, Debug)]
 pub enum Mode {
@@ -53,7 +52,7 @@ impl Subscription for Router {
                         + &location.hash().unwrap()
                 }
             };
-            send(Url::new(url));
+            send(Url::from(url));
         }) as Box<dyn FnMut()>);
         (window.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
