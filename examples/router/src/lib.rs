@@ -1,15 +1,15 @@
+use draco::url::Url;
 use wasm_bindgen::prelude::*;
 
 #[derive(Default)]
 struct Router {
-    url: Option<draco::router::Url>,
-    route: Option<Route>,
+    page: Page,
     subscription: Option<draco::Unsubscribe>,
 }
 
 enum Message {
     Subscribe,
-    Navigate(draco::router::Url),
+    Navigate(Page),
     NoOp,
 }
 
@@ -19,31 +19,61 @@ impl Default for Message {
     }
 }
 
-#[derive(Debug)]
-enum Route {
+#[derive(Clone, Debug)]
+enum Page {
     Index,
     PostIndex { sort: Option<String> },
     PostShow { id: i32, hash: Option<String> },
+    NotFound,
 }
 
-impl Route {
-    fn new(url: &draco::router::Url) -> Option<Self> {
+impl Default for Page {
+    fn default() -> Self {
+        Page::Index
+    }
+}
+
+impl draco::router::Route for Page {
+    fn from_url(url: Url) -> Self {
         use draco::router::*;
-        parse(url)
+        parse(&url)
             // /
-            .alt((), |()| Route::Index)
+            .alt((), |()| Page::Index)
             // /posts
             // /posts?sort=some-string
             .alt(("posts", query("sort").optional()), |((), sort)| {
-                Route::PostIndex { sort }
+                Page::PostIndex { sort }
             })
             // /posts/123
             // /posts/123#some-string
-            .alt(("posts", param()), |((), id)| Route::PostShow {
+            .alt(("posts", param()), |((), id)| Page::PostShow {
                 id,
                 hash: url.hash.clone(),
             })
             .value()
+            .unwrap_or(Page::NotFound)
+    }
+
+    fn to_url(&self) -> Url {
+        let url = Url::default();
+        match self {
+            Page::Index => url,
+            Page::PostIndex { sort } => {
+                let url = url.path("posts");
+                match sort {
+                    Some(sort) => url.query("sort", sort),
+                    None => url,
+                }
+            }
+            Page::PostShow { id, hash } => {
+                let url = url.path("posts").path(id);
+                match hash {
+                    Some(hash) => url.hash(hash),
+                    None => url,
+                }
+            }
+            Page::NotFound => url,
+        }
     }
 }
 
@@ -58,9 +88,8 @@ impl draco::App for Router {
                     Message::Navigate,
                 ));
             }
-            Message::Navigate(url) => {
-                self.route = Route::new(&url);
-                self.url = Some(url);
+            Message::Navigate(page) => {
+                self.page = page;
             }
             Message::NoOp => {}
         }
@@ -69,40 +98,49 @@ impl draco::App for Router {
     fn render(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         use draco::router::Mode::Hash;
-        let links = [
-            "/",
-            "/posts",
-            "/posts?sort=id",
-            "/posts?sort=title",
-            "/posts/1",
-            "/posts/1#section-1",
-            "/posts/2",
-            "/posts/2#section-1",
+        let pages = [
+            Page::Index,
+            Page::PostIndex { sort: None },
+            Page::PostIndex {
+                sort: Some("id".into()),
+            },
+            Page::PostIndex {
+                sort: Some("title".into()),
+            },
+            Page::PostShow { id: 1, hash: None },
+            Page::PostShow {
+                id: 1,
+                hash: Some("section-1".into()),
+            },
+            Page::PostShow { id: 2, hash: None },
+            Page::PostShow {
+                id: 2,
+                hash: Some("section-1".into()),
+            },
         ];
 
         h::div()
-            .push(h::div().push(format!("Url: {:?}", &self.url)))
-            .push(h::div().push(format!("Route: {:?}", &self.route)))
-            .append(links.iter().map(|link| {
+            .push(h::div().push(format!("Page: {:?}", &self.page)))
+            .append(pages.iter().map(|page| {
                 h::h2()
                     .push(
                         h::span().push(
-                            draco::router::link(Hash, link)
-                                .push(link.to_string())
+                            draco::router::link(Hash, page.clone())
+                                .push(format!("{:?}", page))
                                 .attr("style", "margin-right: .5rem;"),
                         ),
                     )
                     .push(h::button().push("Push").on("click", {
-                        let link = link.clone();
+                        let page = page.clone();
                         move |_| {
-                            draco::router::push(Hash, link);
+                            draco::router::push(Hash, &page);
                             Message::NoOp
                         }
                     }))
                     .push(h::button().push("Replace").on("click", {
-                        let link = link.clone();
+                        let page = page.clone();
                         move |_| {
-                            draco::router::replace(Hash, link);
+                            draco::router::replace(Hash, &page);
                             Message::NoOp
                         }
                     }))

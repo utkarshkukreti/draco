@@ -15,18 +15,22 @@ pub enum Mode {
 }
 
 #[derive(Debug)]
-pub struct Router {
+pub struct Router<R: Route> {
     mode: Mode,
+    phantom: std::marker::PhantomData<R>,
 }
 
-impl Router {
+impl<R: Route> Router<R> {
     pub fn new(mode: Mode) -> Self {
-        Router { mode }
+        Router {
+            mode,
+            phantom: std::marker::PhantomData,
+        }
     }
 }
 
-impl Subscription for Router {
-    type Message = Url;
+impl<R: Route + 'static> Subscription for Router<R> {
+    type Message = R;
 
     fn subscribe(self, send: subscription::Send<Self::Message>) -> Unsubscribe {
         let window = web::window().unwrap();
@@ -52,7 +56,7 @@ impl Subscription for Router {
                         + &location.hash().unwrap()
                 }
             };
-            send(Url::from(url));
+            send(R::from_url(Url::from(url)));
         }) as Box<dyn FnMut()>);
         (window.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
@@ -69,33 +73,48 @@ impl Subscription for Router {
     }
 }
 
-pub fn link<Message: Default + 'static>(mode: Mode, url: &str) -> NonKeyedElement<Message> {
-    let url = url.to_string();
+pub trait Route {
+    fn from_url(url: Url) -> Self;
+    fn to_url(&self) -> Url;
+}
+
+pub fn link<Message: Default + 'static, R: Route + 'static>(
+    mode: Mode,
+    r: R,
+) -> NonKeyedElement<Message> {
     crate::html::a()
-        .attr("href", url.clone())
+        .attr("href", r.to_url().to_string())
         .on("click", move |event| {
             event.prevent_default();
-            push(mode, &url);
+            push(mode, &r);
             Message::default()
         })
 }
 
-pub fn push(mode: Mode, url: &str) {
+pub fn push<R: Route>(mode: Mode, r: &R) {
     web::window()
         .unwrap()
         .history()
         .unwrap()
-        .push_state_with_url(&JsValue::NULL, "", Some(&href(mode, url)))
+        .push_state_with_url(
+            &JsValue::NULL,
+            "",
+            Some(&href(mode, &r.to_url().to_string())),
+        )
         .unwrap();
     popstate();
 }
 
-pub fn replace(mode: Mode, url: &str) {
+pub fn replace<R: Route>(mode: Mode, r: &R) {
     web::window()
         .unwrap()
         .history()
         .unwrap()
-        .replace_state_with_url(&JsValue::NULL, "", Some(&href(mode, url)))
+        .replace_state_with_url(
+            &JsValue::NULL,
+            "",
+            Some(&href(mode, &r.to_url().to_string())),
+        )
         .unwrap();
     popstate();
 }
