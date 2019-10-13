@@ -1,9 +1,11 @@
 use crate::{Subscription, Unsubscribe};
+use std::any::Any;
 use std::future::Future;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys as web;
+use std::cell::RefCell;
 
 pub struct Mailbox<Message: 'static> {
     inner: Rc<Inner<Message>>,
@@ -11,12 +13,17 @@ pub struct Mailbox<Message: 'static> {
 
 struct Inner<Message: 'static> {
     f: Box<dyn Fn(Message)>,
+    // XXX: Is this a good idea?
+    stash: RefCell<Vec<Box<dyn Any>>>,
 }
 
 impl<Message: 'static> Mailbox<Message> {
     pub fn new(f: impl Fn(Message) + 'static) -> Self {
         Mailbox {
-            inner: Rc::new(Inner { f: Box::new(f) }),
+            inner: Rc::new(Inner {
+                f: Box::new(f),
+                stash: RefCell::new(Vec::new()),
+            }),
         }
     }
 
@@ -56,6 +63,7 @@ impl<Message: 'static> Mailbox<Message> {
         Mailbox {
             inner: Rc::new(Inner {
                 f: Box::new(move |message| (self.inner.f)(f(message))),
+                stash: RefCell::new(Vec::new()),
             }),
         }
     }
@@ -68,6 +76,10 @@ impl<Message: 'static> Mailbox<Message> {
         wasm_bindgen_futures::spawn_local(async move {
             cloned.send(f(future.await));
         });
+    }
+
+    pub fn stash(&self, t: impl Any) {
+        self.inner.stash.borrow_mut().push(Box::new(t));
     }
 }
 

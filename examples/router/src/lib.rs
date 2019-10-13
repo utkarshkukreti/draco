@@ -4,11 +4,9 @@ use wasm_bindgen::prelude::*;
 #[derive(Default)]
 struct Router {
     page: Page,
-    subscription: Option<draco::Unsubscribe>,
 }
 
 enum Message {
-    Subscribe,
     Navigate(Page),
     NoOp,
 }
@@ -80,14 +78,8 @@ impl draco::router::Route for Page {
 impl draco::App for Router {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, _mailbox: &draco::Mailbox<Message>, message: Self::Message) {
         match message {
-            Message::Subscribe => {
-                self.subscription = Some(mailbox.subscribe(
-                    draco::router::Router::new(draco::router::Mode::Hash),
-                    Message::Navigate,
-                ));
-            }
             Message::Navigate(page) => {
                 self.page = page;
             }
@@ -155,5 +147,9 @@ pub fn start() {
         Router::default(),
         draco::select("main").expect("main").into(),
     );
-    mailbox.send(Message::Subscribe);
+
+    mailbox.stash(mailbox.subscribe(
+        draco::router::Router::new(draco::router::Mode::Hash),
+        Message::Navigate,
+    ));
 }
