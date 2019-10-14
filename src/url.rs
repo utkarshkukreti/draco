@@ -20,8 +20,15 @@ impl Url {
         self
     }
 
-    pub fn hash(mut self, hash: impl ToString) -> Self {
-        self.hash = Some(hash.to_string());
+    pub fn query_optional(mut self, name: impl ToString, value: Option<impl ToString>) -> Self {
+        if let Some(value) = value {
+            self.query.push((name.to_string(), value.to_string()));
+        }
+        self
+    }
+
+    pub fn hash(mut self, hash: Option<impl ToString>) -> Self {
+        self.hash = hash.map(|v| v.to_string());
         self
     }
 }
@@ -101,7 +108,8 @@ mod tests {
             .path("quux")
             .query("baz", "bar")
             .query(1, 2)
-            .hash("foo");
+            .query_optional("???", None::<String>)
+            .hash(Some("foo"));
 
         assert_eq!("/foo/quux?bar=baz&baz=bar&1=2#foo", url.to_string());
     }

@@ -56,20 +56,8 @@ impl draco::router::Route for Page {
         let url = Url::default();
         match self {
             Page::Index => url,
-            Page::PostIndex { sort } => {
-                let url = url.path("posts");
-                match sort {
-                    Some(sort) => url.query("sort", sort),
-                    None => url,
-                }
-            }
-            Page::PostShow { id, hash } => {
-                let url = url.path("posts").path(id);
-                match hash {
-                    Some(hash) => url.hash(hash),
-                    None => url,
-                }
-            }
+            Page::PostIndex { sort } => url.path("posts").query_optional("sort", sort.clone()),
+            Page::PostShow { id, hash } => url.path("posts").path(id).hash(hash.clone()),
             Page::NotFound => url,
         }
     }
