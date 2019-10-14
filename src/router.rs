@@ -83,7 +83,7 @@ pub fn link<Message: Default + 'static, R: Route + 'static>(
     r: R,
 ) -> NonKeyedElement<Message> {
     crate::html::a()
-        .attr("href", r.to_url().to_string())
+        .href(r.to_url().to_string())
         .on("click", move |event| {
             event.prevent_default();
             push(mode, &r);
