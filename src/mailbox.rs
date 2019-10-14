@@ -1,11 +1,11 @@
 use crate::{Subscription, Unsubscribe};
 use std::any::Any;
+use std::cell::RefCell;
 use std::future::Future;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys as web;
-use std::cell::RefCell;
 
 pub struct Mailbox<Message: 'static> {
     inner: Rc<Inner<Message>>,
