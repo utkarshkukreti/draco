@@ -53,13 +53,14 @@ impl draco::router::Route for Page {
     }
 
     fn to_url(&self) -> Url {
-        let url = Url::default();
+        let root = draco::url::root();
         match self {
-            Page::Index => url,
-            Page::PostIndex { sort } => url.path("posts").query_optional("sort", sort.clone()),
-            Page::PostShow { id, hash } => url.path("posts").path(id).hash(hash.clone()),
-            Page::NotFound => url,
+            Page::Index => root,
+            Page::PostIndex { sort } => root.path("posts").query_optional("sort", sort.clone()),
+            Page::PostShow { id, hash } => root.path("posts").path(id).hash(hash.clone()),
+            Page::NotFound => root,
         }
+        .finish()
     }
 }
 

@@ -9,30 +9,6 @@ pub struct Url {
     pub hash: Option<String>,
 }
 
-impl Url {
-    pub fn path(mut self, path: impl ToString) -> Self {
-        self.path.push(path.to_string());
-        self
-    }
-
-    pub fn query(mut self, name: impl ToString, value: impl ToString) -> Self {
-        self.query.push((name.to_string(), value.to_string()));
-        self
-    }
-
-    pub fn query_optional(mut self, name: impl ToString, value: Option<impl ToString>) -> Self {
-        if let Some(value) = value {
-            self.query.push((name.to_string(), value.to_string()));
-        }
-        self
-    }
-
-    pub fn hash(mut self, hash: Option<impl ToString>) -> Self {
-        self.hash = hash.map(|v| v.to_string());
-        self
-    }
-}
-
 impl<T: Into<String>> From<T> for Url {
     fn from(t: T) -> Self {
         let string = t.into();
@@ -82,6 +58,43 @@ impl fmt::Display for Url {
         }
         Ok(())
     }
+}
+
+#[derive(Default)]
+pub struct Builder {
+    url: Url,
+}
+
+impl Builder {
+    pub fn path(mut self, path: impl ToString) -> Self {
+        self.url.path.push(path.to_string());
+        self
+    }
+
+    pub fn query(mut self, name: impl ToString, value: impl ToString) -> Self {
+        self.url.query.push((name.to_string(), value.to_string()));
+        self
+    }
+
+    pub fn query_optional(mut self, name: impl ToString, value: Option<impl ToString>) -> Self {
+        if let Some(value) = value {
+            self.url.query.push((name.to_string(), value.to_string()));
+        }
+        self
+    }
+
+    pub fn hash(mut self, hash: Option<impl ToString>) -> Self {
+        self.url.hash = hash.map(|v| v.to_string());
+        self
+    }
+
+    pub fn finish(self) -> Url {
+        self.url
+    }
+}
+
+pub fn root() -> Builder {
+    Builder::default()
 }
 
 #[cfg(test)]
