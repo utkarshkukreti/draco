@@ -99,7 +99,7 @@ pub fn root() -> Builder {
 
 #[cfg(test)]
 mod tests {
-    use super::Url;
+    use super::{Builder, Url};
     #[test]
     fn t() {
         let urls = [
@@ -112,18 +112,20 @@ mod tests {
             "/foo?bar=baz#quux",
         ];
         for &url in &urls {
-            dbg!(Url::from(url));
+            std::dbg!(Url::from(url));
             assert_eq!(url, Url::from(url).to_string());
         }
         assert_eq!("/foo", Url::from("/foo#").to_string());
 
-        let url = Url::from("/foo?bar=baz#quux")
+        let url = Builder::default()
+            .path("foo")
+            .query("bar", "baz")
             .path("quux")
-            .query("baz", "bar")
             .query(1, 2)
             .query_optional("???", None::<String>)
-            .hash(Some("foo"));
+            .hash(Some("foo"))
+            .finish();
 
-        assert_eq!("/foo/quux?bar=baz&baz=bar&1=2#foo", url.to_string());
+        assert_eq!("/foo/quux?bar=baz&1=2#foo", url.to_string());
     }
 }
