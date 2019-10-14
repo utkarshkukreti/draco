@@ -43,8 +43,8 @@ impl<Message: 'static> Mailbox<Message> {
                 timeout,
             )
             .unwrap();
-        // TODO: Stash this closure in the Mailbox and drop it when the closure is first called.
-        closure.forget();
+        // TODO: Drop the closure when it is first called.
+        self.stash(closure);
     }
 
     pub fn subscribe<S: Subscription + 'static>(
