@@ -15,4 +15,6 @@ HTML
 <h3><a href="./#{name}/index.html">#{name}</a></h3>
 HTML
   end
+
+  sh "wasm-opt -O4 -o jfb/pkg/jfb_bg.wasm jfb/pkg/jfb_bg.wasm"
 end
