@@ -56,8 +56,8 @@ impl draco::router::Route for Page {
         let root = draco::url::root();
         match self {
             Page::Index => root,
-            Page::PostIndex { sort } => root.path("posts").query_optional("sort", sort.clone()),
-            Page::PostShow { id, hash } => root.path("posts").path(id).hash(hash.clone()),
+            Page::PostIndex { sort } => root.path("posts").query_optional("sort", sort.as_ref()),
+            Page::PostShow { id, hash } => root.path("posts").path(id).hash(hash.as_ref()),
             Page::NotFound => root,
         }
         .finish()
