@@ -133,7 +133,7 @@ impl draco::App for Router {
 pub fn start() {
     let mailbox = draco::start(
         Router::default(),
-        draco::select("main").expect("main").into(),
+        draco::select("main").expect("<main>").into(),
     );
 
     mailbox.stash(mailbox.subscribe(

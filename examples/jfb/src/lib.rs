@@ -15,7 +15,7 @@ pub fn start() {
         .contains("non-keyed");
     draco::start(
         Jfb::new(!non_keyed),
-        draco::select("main").expect("main").into(),
+        draco::select("main").expect("<main>").into(),
     );
 }
 

@@ -57,5 +57,5 @@ impl draco::App for Fetch {
 
 #[wasm_bindgen(start)]
 pub fn start() {
-    draco::start(Fetch::new(), draco::select("main").expect("main").into());
+    draco::start(Fetch::new(), draco::select("main").expect("<main>").into());
 }

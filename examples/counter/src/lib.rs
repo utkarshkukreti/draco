@@ -38,6 +38,6 @@ impl draco::App for Counter {
 pub fn start() {
     draco::start(
         Counter::default(),
-        draco::select("main").expect("main").into(),
+        draco::select("main").expect("<main>").into(),
     );
 }

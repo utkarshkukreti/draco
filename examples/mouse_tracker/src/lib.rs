@@ -56,6 +56,6 @@ impl draco::App for MouseTracker {
 pub fn start() {
     draco::start(
         MouseTracker::default(),
-        draco::select("main").expect("main").into(),
+        draco::select("main").expect("<main>").into(),
     );
 }

@@ -68,6 +68,6 @@ impl draco::App for LocalStorage {
 pub fn start() {
     draco::start(
         LocalStorage::new(),
-        draco::select("main").expect("main").into(),
+        draco::select("main").expect("<main>").into(),
     );
 }
