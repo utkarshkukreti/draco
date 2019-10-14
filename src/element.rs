@@ -11,7 +11,7 @@ pub type KeyedElement<Message> = Element<Keyed<Message>>;
 
 #[derive(Debug)]
 pub struct Element<C: Children> {
-    name: S,
+    name: &'static str,
     ns: Ns,
     class: String,
     attrs: Vec<Attr>,
@@ -61,11 +61,11 @@ pub struct Keyed<Message: 'static>(Vec<(u64, Node<Message>)>);
 #[derive(Debug, Default)]
 pub struct NonKeyed<Message: 'static>(Vec<Node<Message>>);
 
-pub fn h<N: Into<S>, Message: 'static>(name: N) -> NonKeyedElement<Message> {
+pub fn h<Message: 'static>(name: &'static str) -> NonKeyedElement<Message> {
     Element::new(Ns::Html, name)
 }
 
-pub fn s<N: Into<S>, Message: 'static>(name: N) -> NonKeyedElement<Message> {
+pub fn s<Message: 'static>(name: &'static str) -> NonKeyedElement<Message> {
     Element::new(Ns::Svg, name)
 }
 
@@ -73,9 +73,9 @@ impl<C: Children> Element<C>
 where
     C::Message: 'static,
 {
-    pub fn new<N: Into<S>>(ns: Ns, name: N) -> Self {
+    pub fn new(ns: Ns, name: &'static str) -> Self {
         Element {
-            name: name.into(),
+            name,
             ns,
             class: String::new(),
             attrs: Vec::new(),
