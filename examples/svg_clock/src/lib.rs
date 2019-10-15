@@ -3,11 +3,9 @@ use wasm_bindgen::prelude::*;
 
 struct Clock {
     date: js::Date,
-    subscription: Option<draco::Unsubscribe>,
 }
 
 enum Message {
-    Toggle,
     Tick,
 }
 
@@ -15,7 +13,6 @@ impl Clock {
     fn new() -> Self {
         Clock {
             date: js::Date::new_0(),
-            subscription: None,
         }
     }
 }
@@ -23,18 +20,8 @@ impl Clock {
 impl draco::App for Clock {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, _mailbox: &draco::Mailbox<Message>, message: Self::Message) {
         match message {
-            Message::Toggle => {
-                if let Some(_) = self.subscription.take() {
-                } else {
-                    self.subscription = Some(
-                        mailbox.subscribe(draco::subscription::AnimationFrame::new(), |()| {
-                            Message::Tick
-                        }),
-                    );
-                }
-            }
             Message::Tick => {
                 self.date = js::Date::new_0();
             }
@@ -79,18 +66,6 @@ impl draco::App for Clock {
                 "display: flex; align-items: center; flex-direction: column;",
             )
             .push(
-                h::div().push(
-                    h::button()
-                        .attr("style", "margin: 1rem;")
-                        .push(if self.subscription.is_some() {
-                            "Stop"
-                        } else {
-                            "Start"
-                        })
-                        .on("click", |_| Message::Toggle),
-                ),
-            )
-            .push(
                 s::svg()
                     .attr("width", "400")
                     .attr("height", "400")
@@ -107,5 +82,9 @@ impl draco::App for Clock {
 #[wasm_bindgen(start)]
 pub fn start() {
     let mailbox = draco::start(Clock::new(), draco::select("main").expect("<main>").into());
-    mailbox.send(Message::Toggle);
+    mailbox.stash(
+        mailbox.subscribe(draco::subscription::AnimationFrame::new(), |()| {
+            Message::Tick
+        }),
+    );
 }
