@@ -1,3 +1,5 @@
+/examples/*/index.html
+/examples/index.html
 /target
 **/*.rs.bk
 Cargo.lock
