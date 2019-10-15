@@ -31,29 +31,8 @@ impl<R: Route + 'static> Subscription for Router<R> {
 
     fn subscribe(self, send: subscription::Send<Self::Message>) -> Unsubscribe {
         let window = web::window().unwrap();
-        let mode = self.mode;
         let closure = Closure::wrap(Box::new(move || {
-            let location = web::window()
-                .unwrap()
-                .document()
-                .unwrap()
-                .location()
-                .unwrap();
-            let url = match mode {
-                Mode::Hash => {
-                    let mut hash = location.hash().unwrap();
-                    if !hash.is_empty() {
-                        hash.remove(0);
-                    }
-                    hash
-                }
-                Mode::History => {
-                    location.pathname().unwrap()
-                        + &location.search().unwrap()
-                        + &location.hash().unwrap()
-                }
-            };
-            send(R::from_url(Url::from(url)));
+            send(R::from_url(current_url(self.mode)));
         }) as Box<dyn FnMut()>);
         (window.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
@@ -114,6 +93,27 @@ pub fn replace<R: Route>(mode: Mode, r: &R) {
         )
         .unwrap();
     popstate();
+}
+
+pub fn current_url(mode: Mode) -> Url {
+    let location = web::window()
+        .unwrap()
+        .document()
+        .unwrap()
+        .location()
+        .unwrap();
+    Url::from(match mode {
+        Mode::Hash => {
+            let mut hash = location.hash().unwrap();
+            if !hash.is_empty() {
+                hash.remove(0);
+            }
+            hash
+        }
+        Mode::History => {
+            location.pathname().unwrap() + &location.search().unwrap() + &location.hash().unwrap()
+        }
+    })
 }
 
 fn href(mode: Mode, href: &str) -> String {
