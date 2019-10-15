@@ -43,11 +43,23 @@ impl draco::App for MouseTracker {
             } else {
                 "Not Tracking"
             }))
-            .push(h::button().push("Toggle").on("click", |_| Message::Toggle))
-            .push("x = ")
-            .push(self.x)
-            .push("y = ")
-            .push(self.y)
+            .push(
+                h::button()
+                    .push(if self.subscription.is_some() {
+                        "Stop"
+                    } else {
+                        "Start"
+                    })
+                    .on("click", |_| Message::Toggle),
+            )
+            .push(
+                h::div()
+                    .push("x = ")
+                    .push(self.x)
+                    .push("; ")
+                    .push("y = ")
+                    .push(self.y),
+            )
             .into()
     }
 }
