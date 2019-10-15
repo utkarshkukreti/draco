@@ -14,20 +14,17 @@ pub mod counter {
         Remove,
     }
 
-    impl draco::App for Counter {
-        type Message = Message;
-
-        fn update(&mut self, _: &draco::Mailbox<Message>, message: Self::Message) {
-            use self::Message::*;
+    impl Counter {
+        pub fn update(&mut self, message: Message) {
             match message {
-                Increment => self.value += 1,
-                Decrement => self.value -= 1,
-                Reset => self.value = 0,
-                Remove => {}
+                Message::Increment => self.value += 1,
+                Message::Decrement => self.value -= 1,
+                Message::Reset => self.value = 0,
+                Message::Remove => {}
             }
         }
 
-        fn render(&self) -> draco::Node<Self::Message> {
+        pub fn render(&self) -> draco::Node<Message> {
             use draco::html as h;
             h::div()
                 .push(h::button().push("-").on("click", |_| Message::Decrement))
@@ -57,19 +54,14 @@ pub enum Message {
 impl draco::App for Counters {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, _mailbox: &draco::Mailbox<Message>, message: Self::Message) {
         match message {
             Message::Append => self.counters.push(Counter::default()),
             Message::Counter(index, counter::Message::Remove) => {
                 self.counters.remove(index);
             }
             Message::Counter(index, message) => {
-                self.counters[index].update(
-                    &mailbox
-                        .clone()
-                        .map(move |message| Message::Counter(index, message)),
-                    message,
-                );
+                self.counters[index].update(message);
             }
         }
     }
