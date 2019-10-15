@@ -68,6 +68,7 @@ attributes! {
     autofocus: bool => "autofocus",
     autoplay: bool => "autoplay",
     charset: S => "charset",
+    checked: bool => "checked",
     cite: S => "cite",
     color: S => "color",
     cols: i32 => "cols",

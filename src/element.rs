@@ -93,10 +93,6 @@ where
         self
     }
 
-    pub fn checked(self, checked: bool) -> Self {
-        self.attr("checked", checked)
-    }
-
     pub fn class(mut self, str: &str) -> Self {
         if !self.class.is_empty() {
             self.class += " ";
