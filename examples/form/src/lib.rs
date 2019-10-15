@@ -39,7 +39,7 @@ impl draco::App for Form {
                 self.is_submitting = false;
                 web_sys::window()
                     .unwrap()
-                    .alert_with_message(&format!("Submitted: {:?}", self))
+                    .alert_with_message(&format!("Submitted: {:#?}", self))
                     .unwrap();
             }
         }
