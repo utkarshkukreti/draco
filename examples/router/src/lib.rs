@@ -17,7 +17,7 @@ impl Default for Message {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 enum Page {
     Index,
     PostIndex { sort: Option<String> },
@@ -101,9 +101,17 @@ impl draco::App for Router {
         ];
 
         h::div()
-            .push(h::div().push(format!("Page: {:?}", &self.page)))
+            .push(h::h3().push(format!("Current Page: {:?}", &self.page)))
             .append(pages.iter().map(|page| {
                 h::div()
+                    .attr(
+                        "style",
+                        if page == &self.page {
+                            "padding: .25rem .5rem; border: 1px dashed #333"
+                        } else {
+                            "padding: .25rem .5rem; border: 1px dashed transparent"
+                        },
+                    )
                     .push(
                         h::span().push(
                             draco::router::link(Hash, page.clone())

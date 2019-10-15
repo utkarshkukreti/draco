@@ -9,7 +9,8 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   text-align: center;
   margin: 0 0 1rem 0;
 }
