@@ -1,5 +1,4 @@
 use crate::{
-    attr,
     element::{Children, Ns},
     Element, NonKeyedElement, S,
 };
@@ -31,146 +30,174 @@ names! {
     time tr track u ul var video wbr
 }
 
-macro_rules! attributes {
+macro_rules! string_attributes {
     (
-        $(
-            $ident:ident
-            :
-            $ty:ty
-            =>
-            $name:literal
-        ,)+
+        $($ident:ident => $name:expr,)+
     ) => {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
-                pub fn $ident<Value: Into<$ty> + Into<attr::Value>>(self, value: Value) -> Self {
-                    self.attr($name, <Value as Into<attr::Value>>::into(value))
+                pub fn $ident<Value: Into<S>>(self, value: Value) -> Self {
+                    self.attr($name, value.into())
                 }
             )+
         }
     }
 }
 
-attributes! {
-    abbr: S => "abbr",
-    accept: S => "accept",
-    accept_charset: S => "accept-charset",
-    accesskey: S => "accesskey",
-    action: S => "action",
-    allow: S => "allow",
-    allowfullscreen: bool => "allowfullscreen",
-    allowpaymentrequest: bool => "allowpaymentrequest",
-    alt: S => "alt",
-    as_: S => "as",
-    async_: bool => "async",
-    autocapitalize: S => "autocapitalize",
-    autocomplete: bool => "autocomplete",
-    autofocus: bool => "autofocus",
-    autoplay: bool => "autoplay",
-    charset: S => "charset",
-    checked: bool => "checked",
-    cite: S => "cite",
-    color: S => "color",
+macro_rules! bool_attributes {
+    (
+        $($ident:ident => $name:expr,)+
+    ) => {
+        impl<C: Children> Element<C> where C::Message: 'static {
+            $(
+                pub fn $ident(self, value: bool) -> Self {
+                    self.attr($name, value)
+                }
+            )+
+        }
+    }
+}
+
+macro_rules! to_string_attributes {
+    (
+        $($ident:ident: $ty:ty => $name:expr,)+
+    ) => {
+        impl<C: Children> Element<C> where C::Message: 'static {
+            $(
+                pub fn $ident(self, value: $ty) -> Self {
+                    self.attr($name, value.to_string())
+                }
+            )+
+        }
+    }
+}
+
+string_attributes! {
+    abbr => "abbr",
+    accept => "accept",
+    accept_charset => "accept-charset",
+    accesskey => "accesskey",
+    action => "action",
+    allow => "allow",
+    alt => "alt",
+    as_ => "as",
+    autocapitalize => "autocapitalize",
+    charset => "charset",
+    cite => "cite",
+    color => "color",
+    content => "content",
+    coords => "coords",
+    crossorigin => "crossorigin",
+    data => "data",
+    datetime => "datetime",
+    decoding => "decoding",
+    dir => "dir",
+    dirname => "dirname",
+    download => "download",
+    enctype => "enctype",
+    enterkeyhint => "enterkeyhint",
+    for_ => "for",
+    form => "form",
+    formaction => "formaction",
+    formenctype => "formenctype",
+    formmethod => "formmethod",
+    formtarget => "formtarget",
+    headers => "headers",
+    height => "height",
+    href => "href",
+    hreflang => "hreflang",
+    http_equiv => "http-equiv",
+    id => "id",
+    inputmode => "inputmode",
+    integrity => "integrity",
+    is => "is",
+    itemid => "itemid",
+    itemprop => "itemprop",
+    itemref => "itemref",
+    itemtype => "itemtype",
+    kind => "kind",
+    label => "label",
+    lang => "lang",
+    list => "list",
+    manifest => "manifest",
+    maxlength => "maxlength",
+    media => "media",
+    method => "method",
+    name => "name",
+    nonce => "nonce",
+    pattern => "pattern",
+    ping => "ping",
+    placeholder => "placeholder",
+    poster => "poster",
+    preload => "preload",
+    referrerpolicy => "referrerpolicy",
+    rel => "rel",
+    sandbox => "sandbox",
+    scope => "scope",
+    shape => "shape",
+    sizes => "sizes",
+    slot => "slot",
+    src => "src",
+    srcdoc => "srcdoc",
+    srclang => "srclang",
+    srcset => "srcset",
+    target => "target",
+    title => "title",
+    type_ => "type",
+    usemap => "usemap",
+    value => "value",
+    wrap => "wrap",
+}
+
+bool_attributes! {
+    allowfullscreen => "allowfullscreen",
+    allowpaymentrequest => "allowpaymentrequest",
+    async_ => "async",
+    autocomplete => "autocomplete",
+    autofocus => "autofocus",
+    autoplay => "autoplay",
+    checked => "checked",
+    contenteditable => "contenteditable",
+    controls => "controls",
+    default => "default",
+    defer => "defer",
+    disabled => "disabled",
+    draggable => "draggable",
+    formnovalidate => "formnovalidate",
+    hidden => "hidden",
+    ismap => "ismap",
+    itemscope => "itemscope",
+    loop_ => "loop",
+    multiple => "multiple",
+    muted => "muted",
+    nomodule => "nomodule",
+    novalidate => "novalidate",
+    open => "open",
+    playsinline => "playsinline",
+    readonly => "readonly",
+    required => "required",
+    reversed => "reversed",
+    selected => "selected",
+    spellcheck => "spellcheck",
+    translate => "translate",
+    typemustmatch => "typemustmatch",
+}
+
+to_string_attributes! {
     cols: i32 => "cols",
     colspan: i32 => "colspan",
-    content: S => "content",
-    contenteditable: bool => "contenteditable",
-    controls: bool => "controls",
-    coords: S => "coords",
-    crossorigin: S => "crossorigin",
-    data: S => "data",
-    datetime: S => "datetime",
-    decoding: S => "decoding",
-    default: bool => "default",
-    defer: bool => "defer",
-    dir: S => "dir",
-    dirname: S => "dirname",
-    disabled: bool => "disabled",
-    download: S => "download",
-    draggable: bool => "draggable",
-    enctype: S => "enctype",
-    enterkeyhint: S => "enterkeyhint",
-    for_: S => "for",
-    form: S => "form",
-    formaction: S => "formaction",
-    formenctype: S => "formenctype",
-    formmethod: S => "formmethod",
-    formnovalidate: bool => "formnovalidate",
-    formtarget: S => "formtarget",
-    headers: S => "headers",
-    height: S => "height",
-    hidden: bool => "hidden",
     high: f64 => "high",
-    href: S => "href",
-    hreflang: S => "hreflang",
-    http_equiv: S => "http-equiv",
-    id: S => "id",
-    inputmode: S => "inputmode",
-    integrity: S => "integrity",
-    is: S => "is",
-    ismap: bool => "ismap",
-    itemid: S => "itemid",
-    itemprop: S => "itemprop",
-    itemref: S => "itemref",
-    itemscope: bool => "itemscope",
-    itemtype: S => "itemtype",
-    kind: S => "kind",
-    label: S => "label",
-    lang: S => "lang",
-    list: S => "list",
-    loop_: bool => "loop",
     low: f64 => "low",
-    manifest: S => "manifest",
     max: f64 => "max",
-    maxlength: S => "maxlength",
-    media: S => "media",
-    method: S => "method",
     min: f64 => "min",
     minlength: i32 => "minlength",
-    multiple: bool => "multiple",
-    muted: bool => "muted",
-    name: S => "name",
-    nomodule: bool => "nomodule",
-    nonce: S => "nonce",
-    novalidate: bool => "novalidate",
-    open: bool => "open",
     optimum: f64 => "optimum",
-    pattern: S => "pattern",
-    ping: S => "ping",
-    placeholder: S => "placeholder",
-    playsinline: bool => "playsinline",
-    poster: S => "poster",
-    preload: S => "preload",
-    readonly: bool => "readonly",
-    referrerpolicy: S => "referrerpolicy",
-    rel: S => "rel",
-    required: bool => "required",
-    reversed: bool => "reversed",
     rows: i32 => "rows",
     rowspan: i32 => "rowspan",
-    sandbox: S => "sandbox",
-    scope: S => "scope",
-    selected: bool => "selected",
-    shape: S => "shape",
     size: i32 => "size",
-    sizes: S => "sizes",
-    slot: S => "slot",
     span: i32 => "span",
-    spellcheck: bool => "spellcheck",
-    src: S => "src",
-    srcdoc: S => "srcdoc",
-    srclang: S => "srclang",
-    srcset: S => "srcset",
     start: i32 => "start",
     step: f64 => "step",
     tabindex: i32 => "tabindex",
-    target: S => "target",
-    title: S => "title",
-    translate: bool => "translate",
-    type_: S => "type",
-    typemustmatch: bool => "typemustmatch",
-    usemap: S => "usemap",
-    value: S => "value",
     width: i32 => "width",
-    wrap: S => "wrap",
 }
