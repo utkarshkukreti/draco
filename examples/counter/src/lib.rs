@@ -27,8 +27,11 @@ impl draco::App for Counter {
         use draco::html as h;
         h::div()
             .push(h::button().push("-").on("click", |_| Message::Decrement))
+            .push(" ")
             .push(self.value)
+            .push(" ")
             .push(h::button().push("+").on("click", |_| Message::Increment))
+            .push(" ")
             .push(h::button().push("Reset").on("click", |_| Message::Reset))
             .into()
     }
