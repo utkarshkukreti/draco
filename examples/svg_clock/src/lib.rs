@@ -37,14 +37,14 @@ impl draco::App for Clock {
             .attr("fill", "none")
             .attr("stroke", "#1a202c");
 
-        let line = |rotate: f64, stroke, stroke_width, height: u32| {
+        let line = |rotate: f64, stroke, stroke_width: u32, height: u32| {
             s::line()
                 .attr("x1", "100")
                 .attr("y1", "100")
                 .attr("x2", (100 - height).to_string())
                 .attr("y2", "100")
                 .attr("stroke", stroke)
-                .attr("stroke-width", stroke_width)
+                .attr("stroke-width", stroke_width.to_string())
                 .attr("stroke-linecap", "round")
                 .attr(
                     "transform",
@@ -72,10 +72,10 @@ impl draco::App for Clock {
                     .attr("height", "400")
                     .attr("viewBox", "0 0 200 200")
                     .push(circle)
-                    .push(line(subsecond_rotate, "#e2e8f0", "10", 90))
-                    .push(line(hour_rotate, "#2d3748", "4", 50))
-                    .push(line(minute_rotate, "#2d3748", "3", 70))
-                    .push(line(second_rotate, "#e53e3e", "2", 90)),
+                    .push(line(subsecond_rotate, "#e2e8f0", 10, 90))
+                    .push(line(hour_rotate, "#2d3748", 4, 50))
+                    .push(line(minute_rotate, "#2d3748", 3, 70))
+                    .push(line(second_rotate, "#e53e3e", 2, 90)),
             )
             .into()
     }
