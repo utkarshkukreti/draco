@@ -1,4 +1,8 @@
 examples:
 	cd examples && rake
 
-.PHONY: examples
+deploy:
+	make examples
+	cd examples && netlifyctl deploy -P .
+
+.PHONY: examples deploy
