@@ -56,7 +56,7 @@ impl Row {
             .push(
                 h::td()
                     .class("col-md-4")
-                    .push(h::a().class("lbl").push(&self.label)),
+                    .push(h::a().class("lbl").push(self.label.clone())),
             )
             .push(
                 h::td().class("col-md-1").push(

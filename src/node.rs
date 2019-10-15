@@ -90,8 +90,34 @@ impl<Message: 'static> From<KeyedElement<Message>> for Node<Message> {
     }
 }
 
-impl<Message, T: std::fmt::Display> From<T> for Node<Message> {
-    fn from(t: T) -> Self {
-        Text::new(t.to_string()).into()
+impl<Message> From<&'static str> for Node<Message> {
+    fn from(str: &'static str) -> Self {
+        Text::new(str).into()
     }
+}
+
+impl<Message> From<String> for Node<Message> {
+    fn from(string: String) -> Self {
+        Text::new(string).into()
+    }
+}
+
+macro_rules! from_to_string {
+    ($($ty:ty)*) => {
+        $(
+            impl<Message> From<$ty> for Node<Message> {
+                fn from(t: $ty) -> Self {
+                    Text::new(t.to_string()).into()
+                }
+            }
+        )*
+    };
+}
+
+from_to_string! {
+    bool
+    char
+    u8 u16 u32 u64 u128 usize
+    i8 i16 i32 i64 i128 isize
+    f32 f64
 }
