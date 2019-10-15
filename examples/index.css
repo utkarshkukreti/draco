@@ -23,6 +23,12 @@ h2 {
   border-radius: 4px;
 }
 
+@media screen and (max-width: 768px) {
+  .hljs {
+    font-size: 14px;
+  }
+}
+
 footer {
   margin-top: 1rem;
   text-align: right;
