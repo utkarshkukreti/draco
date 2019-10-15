@@ -56,6 +56,7 @@ impl draco::App for Clock {
         let ms = ((((d.get_hours() * 60 + d.get_minutes()) * 60) + d.get_seconds()) * 1000
             + d.get_milliseconds()) as f64;
 
+        let subsecond_rotate = 90.0 + ((ms / 1000.0) % 1.0) * 360.0;
         let second_rotate = 90.0 + ((ms / 1000.0) % 60.0) * 360.0 / 60.0;
         let minute_rotate = 90.0 + ((ms / 1000.0 / 60.0) % 60.0) * 360.0 / 60.0;
         let hour_rotate = 90.0 + ((ms / 1000.0 / 60.0 / 60.0) % 12.0) * 360.0 / 12.0;
@@ -71,6 +72,7 @@ impl draco::App for Clock {
                     .attr("height", "400")
                     .attr("viewBox", "0 0 200 200")
                     .push(circle)
+                    .push(line(subsecond_rotate, "#eee", "10", 90))
                     .push(line(hour_rotate, "#333", "4", 50))
                     .push(line(minute_rotate, "#333", "3", 70))
                     .push(line(second_rotate, "crimson", "2", 90)),
