@@ -1,5 +1,6 @@
 use crate::{Attribute, Listener, Mailbox, Property};
 use std::rc::Rc;
+use wasm_bindgen::JsValue;
 use web_sys as web;
 
 #[derive(Debug)]
@@ -60,7 +61,15 @@ pub fn patch<Message>(
                         .expect("remove_attribute");
                 }
             }
-            Aspect::Property(_property) => {}
+            Aspect::Property(property) => {
+                if find!(new_aspects, property, Property).is_none() {
+                    let _ = js_sys::Reflect::set(
+                        element,
+                        &JsValue::from_str(&property.name),
+                        &JsValue::UNDEFINED,
+                    );
+                }
+            }
             Aspect::Listener(listener) => listener.detach(element),
         }
     }
