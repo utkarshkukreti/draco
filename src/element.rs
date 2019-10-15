@@ -1,4 +1,4 @@
-use crate::{attribute, Attribute, Listener, Mailbox, Node, S};
+use crate::{property, Attribute, Listener, Mailbox, Node, Property, S};
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
@@ -13,6 +13,7 @@ pub struct Element<C: Children> {
     name: &'static str,
     ns: Ns,
     attributes: Vec<Attribute>,
+    properties: Vec<Property>,
     listeners: Vec<Listener<C::Message>>,
     children: C,
     node: Option<web::Element>,
@@ -47,14 +48,23 @@ where
             name,
             ns,
             attributes: Vec::new(),
+            properties: Vec::new(),
             listeners: Vec::new(),
             children: C::new(),
             node: None,
         }
     }
 
-    pub fn attribute<N: Into<S>, V: Into<attribute::Value>>(mut self, name: N, value: V) -> Self {
+    pub fn attribute(mut self, name: impl Into<S>, value: impl Into<S>) -> Self {
         self.attributes.push(Attribute {
+            name: name.into(),
+            value: value.into(),
+        });
+        self
+    }
+
+    pub fn property(mut self, name: impl Into<S>, value: impl Into<property::Value>) -> Self {
+        self.properties.push(Property {
             name: name.into(),
             value: value.into(),
         });
@@ -112,6 +122,10 @@ where
             attribute.patch(None, &node);
         }
 
+        for property in &self.properties {
+            property.patch(None, &node);
+        }
+
         for listener in &mut self.listeners {
             listener.attach(&node, mailbox);
         }
@@ -138,8 +152,7 @@ where
             let old_attribute = old
                 .attributes
                 .iter()
-                .find(|old_attribute| old_attribute.name == attribute.name)
-                .map(|attribute| &attribute.value);
+                .find(|old_attribute| old_attribute.name == attribute.name);
             attribute.patch(old_attribute, &old_node);
         }
 
@@ -153,6 +166,14 @@ where
                     .remove_attribute(&old_attribute.name)
                     .expect("remove_attribute");
             }
+        }
+
+        for property in &self.properties {
+            let old_property = old
+                .properties
+                .iter()
+                .find(|old_property| old_property.name == property.name);
+            property.patch(old_property, &old_node);
         }
 
         for listener in &old.listeners {
@@ -202,6 +223,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
             name,
             ns,
             attributes,
+            properties,
             listeners,
             children,
             node,
@@ -221,6 +243,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
             name,
             ns,
             attributes,
+            properties,
             listeners,
             children,
             node,
@@ -259,6 +282,7 @@ impl<Message: 'static> KeyedElement<Message> {
             name,
             ns,
             attributes,
+            properties,
             listeners,
             children,
             node,
@@ -278,6 +302,7 @@ impl<Message: 'static> KeyedElement<Message> {
             name,
             ns,
             attributes,
+            properties,
             listeners,
             children,
             node,

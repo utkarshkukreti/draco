@@ -12,9 +12,11 @@ pub mod subscription;
 pub mod svg;
 pub mod text;
 pub mod url;
+pub mod property;
 
 pub use self::app::{start, App, Instance};
 pub use self::attribute::Attribute;
+pub use self::property::Property;
 pub use self::element::{h, s};
 pub use self::element::{Element, KeyedElement, NonKeyedElement};
 pub use self::listener::Listener;

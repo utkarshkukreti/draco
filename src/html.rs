@@ -30,6 +30,15 @@ elements! {
     time tr track u ul var video wbr
 }
 
+impl<C: Children> Element<C>
+where
+    C::Message: 'static,
+{
+    pub fn value(self, value: impl Into<S>) -> Self {
+        self.property("value", value.into())
+    }
+}
+
 macro_rules! string_attributes {
     (
         $($ident:ident => $name:expr,)+
@@ -44,14 +53,14 @@ macro_rules! string_attributes {
     }
 }
 
-macro_rules! bool_attributes {
+macro_rules! bool_properties {
     (
         $($ident:ident => $name:expr,)+
     ) => {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: bool) -> Self {
-                    self.attribute($name, value)
+                    self.property($name, value)
                 }
             )+
         }
@@ -146,42 +155,42 @@ string_attributes! {
     title => "title",
     type_ => "type",
     usemap => "usemap",
-    value => "value",
+//    value => "value",
     wrap => "wrap",
 }
 
-bool_attributes! {
-    allowfullscreen => "allowfullscreen",
-    allowpaymentrequest => "allowpaymentrequest",
-    async_ => "async",
-    autocomplete => "autocomplete",
-    autofocus => "autofocus",
-    autoplay => "autoplay",
+bool_properties! {
+//    allowfullscreen => "allowfullscreen",
+//    allowpaymentrequest => "allowpaymentrequest",
+//    async_ => "async",
+//    autocomplete => "autocomplete",
+//    autofocus => "autofocus",
+//    autoplay => "autoplay",
     checked => "checked",
-    contenteditable => "contenteditable",
-    controls => "controls",
-    default => "default",
-    defer => "defer",
+//    contenteditable => "contenteditable",
+//    controls => "controls",
+//    default => "default",
+//    defer => "defer",
     disabled => "disabled",
-    draggable => "draggable",
-    formnovalidate => "formnovalidate",
-    hidden => "hidden",
-    ismap => "ismap",
-    itemscope => "itemscope",
-    loop_ => "loop",
-    multiple => "multiple",
-    muted => "muted",
-    nomodule => "nomodule",
-    novalidate => "novalidate",
-    open => "open",
-    playsinline => "playsinline",
-    readonly => "readonly",
-    required => "required",
-    reversed => "reversed",
-    selected => "selected",
-    spellcheck => "spellcheck",
-    translate => "translate",
-    typemustmatch => "typemustmatch",
+//    draggable => "draggable",
+//    formnovalidate => "formnovalidate",
+//    hidden => "hidden",
+//    ismap => "ismap",
+//    itemscope => "itemscope",
+//    loop_ => "loop",
+//    multiple => "multiple",
+//    muted => "muted",
+//    nomodule => "nomodule",
+//    novalidate => "novalidate",
+//    open => "open",
+//    playsinline => "playsinline",
+//    readonly => "readonly",
+//    required => "required",
+//    reversed => "reversed",
+//    selected => "selected",
+//    spellcheck => "spellcheck",
+//    translate => "translate",
+//    typemustmatch => "typemustmatch",
 }
 
 to_string_attributes! {
