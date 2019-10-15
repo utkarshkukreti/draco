@@ -93,7 +93,7 @@ impl Builder {
     }
 }
 
-pub fn root() -> Builder {
+pub fn build() -> Builder {
     Builder::default()
 }
 

@@ -53,7 +53,7 @@ impl draco::router::Route for Page {
     }
 
     fn to_url(&self) -> Url {
-        let root = draco::url::root();
+        let root = draco::url::build();
         match self {
             Page::Index => root,
             Page::PostIndex { sort } => root.path("posts").query_optional("sort", sort.as_ref()),
