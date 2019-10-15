@@ -1,4 +1,5 @@
 use crate::S;
+use std::borrow::Cow;
 use wasm_bindgen::JsCast;
 use web_sys as web;
 
@@ -66,6 +67,12 @@ impl From<&'static str> for Value {
 impl From<String> for Value {
     fn from(string: String) -> Self {
         Value::String(string.into())
+    }
+}
+
+impl From<Cow<'static, str>> for Value {
+    fn from(s: Cow<'static, str>) -> Self {
+        Value::String(s)
     }
 }
 
