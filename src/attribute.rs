@@ -4,7 +4,7 @@ use wasm_bindgen::JsCast;
 use web_sys as web;
 
 #[derive(Debug)]
-pub struct Attr {
+pub struct Attribute {
     pub name: S,
     pub value: Value,
 }
@@ -15,7 +15,7 @@ pub enum Value {
     Bool(bool),
 }
 
-impl Attr {
+impl Attribute {
     pub fn patch(&self, old_value: Option<&Value>, element: &web::Element) {
         match (&*self.name, &self.value) {
             ("checked", Value::Bool(checked)) => {

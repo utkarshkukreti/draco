@@ -31,22 +31,22 @@ impl draco::App for Clock {
     fn render(&self) -> draco::Node<Self::Message> {
         use draco::{html as h, svg as s};
         let circle = s::circle()
-            .attr("cx", "100")
-            .attr("cy", "100")
-            .attr("r", "98")
-            .attr("fill", "none")
-            .attr("stroke", "#1a202c");
+            .attribute("cx", "100")
+            .attribute("cy", "100")
+            .attribute("r", "98")
+            .attribute("fill", "none")
+            .attribute("stroke", "#1a202c");
 
         let line = |rotate: f64, stroke, stroke_width: u32, height: u32| {
             s::line()
-                .attr("x1", "100")
-                .attr("y1", "100")
-                .attr("x2", (100 - height).to_string())
-                .attr("y2", "100")
-                .attr("stroke", stroke)
-                .attr("stroke-width", stroke_width.to_string())
-                .attr("stroke-linecap", "round")
-                .attr(
+                .attribute("x1", "100")
+                .attribute("y1", "100")
+                .attribute("x2", (100 - height).to_string())
+                .attribute("y2", "100")
+                .attribute("stroke", stroke)
+                .attribute("stroke-width", stroke_width.to_string())
+                .attribute("stroke-linecap", "round")
+                .attribute(
                     "transform",
                     format!("rotate({} 100 100)", (rotate * 10.0).round() / 10.0),
                 )
@@ -62,15 +62,15 @@ impl draco::App for Clock {
         let hour_rotate = 90.0 + ((ms / 1000.0 / 60.0 / 60.0) % 12.0) * 360.0 / 12.0;
 
         h::div()
-            .attr(
+            .attribute(
                 "style",
                 "display: flex; align-items: center; flex-direction: column;",
             )
             .push(
                 s::svg()
-                    .attr("width", "400")
-                    .attr("height", "400")
-                    .attr("viewBox", "0 0 200 200")
+                    .attribute("width", "400")
+                    .attribute("height", "400")
+                    .attribute("viewBox", "0 0 200 200")
                     .push(circle)
                     .push(line(subsecond_rotate, "#e2e8f0", 10, 90))
                     .push(line(hour_rotate, "#2d3748", 4, 50))

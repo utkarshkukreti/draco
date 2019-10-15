@@ -37,7 +37,7 @@ macro_rules! string_attributes {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: impl Into<S>) -> Self {
-                    self.attr($name, value.into())
+                    self.attribute($name, value.into())
                 }
             )+
         }
@@ -51,7 +51,7 @@ macro_rules! bool_attributes {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: bool) -> Self {
-                    self.attr($name, value)
+                    self.attribute($name, value)
                 }
             )+
         }
@@ -65,7 +65,7 @@ macro_rules! to_string_attributes {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: $ty) -> Self {
-                    self.attr($name, value.to_string())
+                    self.attribute($name, value.to_string())
                 }
             )+
         }

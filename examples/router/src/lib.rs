@@ -104,7 +104,7 @@ impl draco::App for Router {
             .push(h::h3().push(format!("Current Page: {:?}", &self.page)))
             .append(pages.iter().map(|page| {
                 h::div()
-                    .attr(
+                    .attribute(
                         "style",
                         if page == &self.page {
                             "padding: .25rem .75rem; background: #fefcbf; border: 1px solid #ecc94b; border-radius: 4px;"
@@ -116,7 +116,7 @@ impl draco::App for Router {
                         h::span().push(
                             draco::router::link(Hash, page.clone())
                                 .push(format!("{:?}", page))
-                                .attr("style", "margin-right: .5rem;"),
+                                .attribute("style", "margin-right: .5rem;"),
                         ),
                     )
                     .push(
@@ -129,7 +129,7 @@ impl draco::App for Router {
                                     Message::NoOp
                                 }
                             })
-                            .attr("style", "margin-right: .5rem;"),
+                            .attribute("style", "margin-right: .5rem;"),
                     )
                     .push(h::button().push("Replace").on("click", {
                         let page = page.clone();

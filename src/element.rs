@@ -1,4 +1,4 @@
-use crate::{attr, Attr, Listener, Mailbox, Node, S};
+use crate::{attribute, Attribute, Listener, Mailbox, Node, S};
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
@@ -12,7 +12,7 @@ pub type KeyedElement<Message> = Element<Keyed<Message>>;
 pub struct Element<C: Children> {
     name: &'static str,
     ns: Ns,
-    attrs: Vec<Attr>,
+    attributes: Vec<Attribute>,
     listeners: Vec<Listener<C::Message>>,
     children: C,
     node: Option<web::Element>,
@@ -46,15 +46,15 @@ where
         Element {
             name,
             ns,
-            attrs: Vec::new(),
+            attributes: Vec::new(),
             listeners: Vec::new(),
             children: C::new(),
             node: None,
         }
     }
 
-    pub fn attr<N: Into<S>, V: Into<attr::Value>>(mut self, name: N, value: V) -> Self {
-        self.attrs.push(Attr {
+    pub fn attribute<N: Into<S>, V: Into<attribute::Value>>(mut self, name: N, value: V) -> Self {
+        self.attributes.push(Attribute {
             name: name.into(),
             value: value.into(),
         });
@@ -108,8 +108,8 @@ where
                 .expect("create_element_ns"),
         };
 
-        for attr in &self.attrs {
-            attr.patch(None, &node);
+        for attribute in &self.attributes {
+            attribute.patch(None, &node);
         }
 
         for listener in &mut self.listeners {
@@ -134,23 +134,23 @@ where
             return new_node;
         }
 
-        for attr in &self.attrs {
-            let old_attr = old
-                .attrs
+        for attribute in &self.attributes {
+            let old_attribute = old
+                .attributes
                 .iter()
-                .find(|old_attr| old_attr.name == attr.name)
-                .map(|attr| &attr.value);
-            attr.patch(old_attr, &old_node);
+                .find(|old_attribute| old_attribute.name == attribute.name)
+                .map(|attribute| &attribute.value);
+            attribute.patch(old_attribute, &old_node);
         }
 
-        for old_attr in &old.attrs {
+        for old_attribute in &old.attributes {
             if !self
-                .attrs
+                .attributes
                 .iter()
-                .any(|new_attr| new_attr.name == old_attr.name)
+                .any(|new_attribute| new_attribute.name == old_attribute.name)
             {
                 old_node
-                    .remove_attribute(&old_attr.name)
+                    .remove_attribute(&old_attribute.name)
                     .expect("remove_attribute");
             }
         }
@@ -201,7 +201,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
         let Element {
             name,
             ns,
-            attrs,
+            attributes,
             listeners,
             children,
             node,
@@ -220,7 +220,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
         Element {
             name,
             ns,
-            attrs,
+            attributes,
             listeners,
             children,
             node,
@@ -258,7 +258,7 @@ impl<Message: 'static> KeyedElement<Message> {
         let Element {
             name,
             ns,
-            attrs,
+            attributes,
             listeners,
             children,
             node,
@@ -277,7 +277,7 @@ impl<Message: 'static> KeyedElement<Message> {
         Element {
             name,
             ns,
-            attrs,
+            attributes,
             listeners,
             children,
             node,

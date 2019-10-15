@@ -65,7 +65,7 @@ impl Row {
                         .push(
                             h::span()
                                 .class("glyphicon glyphicon-remove remove")
-                                .attr("aria-hidden", "true"),
+                                .attribute("aria-hidden", "true"),
                         )
                         .push(h::td().class("col-md-6")),
                 ),
@@ -267,7 +267,7 @@ impl draco::App for Jfb {
             .push(
                 h::span()
                     .class("preloadicon glyphicon glyphicon-remove")
-                    .attr("aria-hidden", "true"),
+                    .attribute("aria-hidden", "true"),
             )
             .into()
     }
