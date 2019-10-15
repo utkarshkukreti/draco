@@ -3,7 +3,7 @@ use crate::{
     Element, NonKeyedElement, S,
 };
 
-macro_rules! names {
+macro_rules! elements {
     ($($ident:ident)+) => {
         $(
             pub fn $ident<Message: 'static>() -> NonKeyedElement<Message> {
@@ -21,7 +21,7 @@ macro_rules! names {
     }
 }
 
-names! {
+elements! {
     a abbr address article aside audio b bdi bdo blockquote br button canvas caption cite code col
     colgroup datalist dd del details dfn div dl dt em embed fieldset figcaption figure footer form
     h1 h2 h3 h4 h5 h6 header hr i iframe img input ins kbd label legend li main mark math menu
