@@ -15,13 +15,11 @@ h2 {
 }
 
 .hljs {
-  width: 960px;
-  max-width: 90%;
-  margin: 1rem auto 2rem;
+  max-width: 960px;
+  margin: 0 auto;
   padding: 1rem;
   font-family: Monaco, Consolas, monospace;
   font-size: 15px;
-  white-space: pre-wrap;
   border-radius: 4px;
 }
 
