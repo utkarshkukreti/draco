@@ -5,7 +5,7 @@ use wasm_bindgen::JsCast;
 use web_sys as web;
 
 pub struct Listener<Message> {
-    name: S,
+    pub name: S,
     handler: Option<Box<dyn FnMut(web::Event) -> Message>>,
     closure: Option<Closure<dyn FnMut(web::Event)>>,
 }

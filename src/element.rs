@@ -1,4 +1,4 @@
-use crate::{property, Attribute, Listener, Mailbox, Node, Property, S};
+use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Node, Property, S};
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
@@ -12,9 +12,7 @@ pub type KeyedElement<Message> = Element<Keyed<Message>>;
 pub struct Element<C: Children> {
     name: &'static str,
     ns: Ns,
-    attributes: Vec<Attribute>,
-    properties: Vec<Property>,
-    listeners: Vec<Listener<C::Message>>,
+    aspects: Vec<Aspect<C::Message>>,
     children: C,
     node: Option<web::Element>,
 }
@@ -47,27 +45,31 @@ where
         Element {
             name,
             ns,
-            attributes: Vec::new(),
-            properties: Vec::new(),
-            listeners: Vec::new(),
+            aspects: Vec::new(),
             children: C::new(),
             node: None,
         }
     }
 
     pub fn attribute(mut self, name: impl Into<S>, value: impl Into<S>) -> Self {
-        self.attributes.push(Attribute {
-            name: name.into(),
-            value: value.into(),
-        });
+        self.aspects.push(
+            Attribute {
+                name: name.into(),
+                value: value.into(),
+            }
+            .into(),
+        );
         self
     }
 
     pub fn property(mut self, name: impl Into<S>, value: impl Into<property::Value>) -> Self {
-        self.properties.push(Property {
-            name: name.into(),
-            value: value.into(),
-        });
+        self.aspects.push(
+            Property {
+                name: name.into(),
+                value: value.into(),
+            }
+            .into(),
+        );
         self
     }
 
@@ -76,7 +78,7 @@ where
         name: N,
         handler: impl FnMut(web::Event) -> C::Message + 'static,
     ) -> Self {
-        self.listeners.push(Listener::new(name, handler));
+        self.aspects.push(Listener::new(name, handler).into());
         self
     }
 
@@ -111,85 +113,44 @@ where
     pub fn create(&mut self, mailbox: &Mailbox<C::Message>) -> web::Element {
         let document = web::window().expect("window").document().expect("document");
 
-        let node = match self.ns {
+        let element = match self.ns {
             Ns::Html => document.create_element(&self.name).expect("create_element"),
             Ns::Svg => document
                 .create_element_ns(Some("http://www.w3.org/2000/svg"), &self.name)
                 .expect("create_element_ns"),
         };
 
-        for attribute in &self.attributes {
-            attribute.patch(None, &node);
-        }
+        aspect::patch(&mut self.aspects, &[], &element, mailbox);
 
-        for property in &self.properties {
-            property.patch(None, &node);
-        }
+        self.children
+            .create(element.as_ref() as &web::Node, mailbox);
 
-        for listener in &mut self.listeners {
-            listener.attach(&node, mailbox);
-        }
+        self.node = Some(element.clone());
 
-        self.children.create(node.as_ref() as &web::Node, mailbox);
-
-        self.node = Some(node.clone());
-        node
+        element
     }
 
     pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<C::Message>) -> web::Element {
-        let old_node = old.node.take().expect("old.node");
+        let old_element = old.node.take().expect("old.node");
+
         if self.name != old.name {
             let new_node = self.create(mailbox);
-            (old_node.as_ref() as &web::Node)
+            (old_element.as_ref() as &web::Node)
                 .parent_node()
                 .expect("old_node.parent_node")
-                .replace_child(new_node.as_ref(), old_node.as_ref())
+                .replace_child(new_node.as_ref(), old_element.as_ref())
                 .expect("replace_child");
             return new_node;
         }
 
-        for attribute in &self.attributes {
-            let old_attribute = old
-                .attributes
-                .iter()
-                .find(|old_attribute| old_attribute.name == attribute.name);
-            attribute.patch(old_attribute, &old_node);
-        }
-
-        for old_attribute in &old.attributes {
-            if !self
-                .attributes
-                .iter()
-                .any(|new_attribute| new_attribute.name == old_attribute.name)
-            {
-                old_node
-                    .remove_attribute(&old_attribute.name)
-                    .expect("remove_attribute");
-            }
-        }
-
-        for property in &self.properties {
-            let old_property = old
-                .properties
-                .iter()
-                .find(|old_property| old_property.name == property.name);
-            property.patch(old_property, &old_node);
-        }
-
-        for listener in &old.listeners {
-            listener.detach(&old_node);
-        }
-
-        for listener in &mut self.listeners {
-            listener.attach(&old_node, mailbox);
-        }
+        aspect::patch(&mut self.aspects, &old.aspects, &old_element, mailbox);
 
         self.children
-            .patch(&mut old.children, old_node.as_ref(), mailbox);
+            .patch(&mut old.children, old_element.as_ref(), mailbox);
 
-        self.node = Some(old_node.clone());
+        self.node = Some(old_element.clone());
 
-        old_node
+        old_element
     }
 
     pub fn node(&self) -> Option<web::Element> {
@@ -222,15 +183,13 @@ impl<Message: 'static> NonKeyedElement<Message> {
         let Element {
             name,
             ns,
-            attributes,
-            properties,
-            listeners,
+            aspects,
             children,
             node,
         } = self;
-        let listeners = listeners
+        let aspects = aspects
             .into_iter()
-            .map(|listener| listener.do_map(f.clone()))
+            .map(|aspect| aspect.do_map(f.clone()))
             .collect();
         let children = NonKeyed(
             children
@@ -242,9 +201,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
         Element {
             name,
             ns,
-            attributes,
-            properties,
-            listeners,
+            aspects,
             children,
             node,
         }
@@ -281,15 +238,13 @@ impl<Message: 'static> KeyedElement<Message> {
         let Element {
             name,
             ns,
-            attributes,
-            properties,
-            listeners,
+            aspects,
             children,
             node,
         } = self;
-        let listeners = listeners
+        let aspects = aspects
             .into_iter()
-            .map(|listener| listener.do_map(f.clone()))
+            .map(|aspect| aspect.do_map(f.clone()))
             .collect();
         let children = Keyed(
             children
@@ -301,9 +256,7 @@ impl<Message: 'static> KeyedElement<Message> {
         Element {
             name,
             ns,
-            attributes,
-            properties,
-            listeners,
+            aspects,
             children,
             node,
         }

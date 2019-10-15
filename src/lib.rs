@@ -1,27 +1,29 @@
 #[macro_use]
 pub mod console;
 pub mod app;
+pub mod aspect;
 pub mod attribute;
 pub mod element;
 pub mod html;
 pub mod listener;
 pub mod mailbox;
 pub mod node;
+pub mod property;
 pub mod router;
 pub mod subscription;
 pub mod svg;
 pub mod text;
 pub mod url;
-pub mod property;
 
 pub use self::app::{start, App, Instance};
+pub use self::aspect::Aspect;
 pub use self::attribute::Attribute;
-pub use self::property::Property;
 pub use self::element::{h, s};
 pub use self::element::{Element, KeyedElement, NonKeyedElement};
 pub use self::listener::Listener;
 pub use self::mailbox::Mailbox;
 pub use self::node::Node;
+pub use self::property::Property;
 pub use self::subscription::{Subscription, Unsubscribe};
 pub use self::text::Text;
 use std::borrow::Cow;
