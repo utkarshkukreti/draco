@@ -36,7 +36,7 @@ macro_rules! string_attributes {
     ) => {
         impl<C: Children> Element<C> where C::Message: 'static {
             $(
-                pub fn $ident<Value: Into<S>>(self, value: Value) -> Self {
+                pub fn $ident(self, value: impl Into<S>) -> Self {
                     self.attr($name, value.into())
                 }
             )+
