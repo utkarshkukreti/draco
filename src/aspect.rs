@@ -30,11 +30,11 @@ pub fn patch<Message>(
     mailbox: &Mailbox<Message>,
 ) {
     macro_rules! find {
-        ($aspects:expr, $aspect:expr, $ty:ident) => {
+        ($aspects:expr, $name:expr, $ty:ident) => {
             $aspects
                 .iter()
                 .filter_map(|aspect| match aspect {
-                    Aspect::$ty(aspect) if aspect.name == $aspect.name => Some(aspect),
+                    Aspect::$ty(aspect) if aspect.name == $name => Some(aspect),
                     _ => None,
                 })
                 .next()
@@ -44,10 +44,10 @@ pub fn patch<Message>(
     for new_aspect in new_aspects.iter_mut() {
         match new_aspect {
             Aspect::Attribute(attribute) => {
-                attribute.patch(find!(old_aspects, attribute, Attribute), element)
+                attribute.patch(find!(old_aspects, attribute.name, Attribute), element)
             }
             Aspect::Property(property) => {
-                property.patch(find!(old_aspects, property, Property), element)
+                property.patch(find!(old_aspects, property.name, Property), element)
             }
             Aspect::Listener(listener) => listener.attach(element, mailbox),
         }
@@ -55,14 +55,14 @@ pub fn patch<Message>(
     for old_aspect in old_aspects {
         match old_aspect {
             Aspect::Attribute(attribute) => {
-                if find!(new_aspects, attribute, Attribute).is_none() {
+                if find!(new_aspects, attribute.name, Attribute).is_none() {
                     element
                         .remove_attribute(&attribute.name)
                         .expect("remove_attribute");
                 }
             }
             Aspect::Property(property) => {
-                if find!(new_aspects, property, Property).is_none() {
+                if find!(new_aspects, property.name, Property).is_none() {
                     let _ = js_sys::Reflect::set(
                         element,
                         &JsValue::from_str(&property.name),
