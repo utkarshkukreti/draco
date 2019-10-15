@@ -107,9 +107,9 @@ impl draco::App for Router {
                     .attr(
                         "style",
                         if page == &self.page {
-                            "padding: .25rem .5rem; border: 1px dashed #333"
+                            "padding: .25rem .75rem; background: #fefcbf; border: 1px solid #ecc94b; border-radius: 4px;"
                         } else {
-                            "padding: .25rem .5rem; border: 1px dashed transparent"
+                            "padding: .25rem .75rem;"
                         },
                     )
                     .push(
