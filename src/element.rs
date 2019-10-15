@@ -1,8 +1,7 @@
-use crate::{attr, Attr, Mailbox, Node, S};
+use crate::{attr, Attr, Listener, Mailbox, Node, S};
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
-use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys as web;
 
@@ -23,35 +22,6 @@ pub struct Element<C: Children> {
 pub enum Ns {
     Html,
     Svg,
-}
-
-struct Listener<Message> {
-    name: S,
-    handler: Option<Box<dyn FnMut(web::Event) -> Message>>,
-    closure: Option<Closure<dyn FnMut(web::Event)>>,
-}
-
-impl<Message: 'static> Listener<Message> {
-    fn do_map<NewMessage: 'static>(
-        self,
-        f: Rc<impl Fn(Message) -> NewMessage + 'static>,
-    ) -> Listener<NewMessage> {
-        let Listener {
-            name,
-            mut handler,
-            closure,
-        } = self;
-        let handler = match handler.take() {
-            Some(mut handler) => Some(Box::new(move |event| f(handler(event)))
-                as Box<dyn FnMut(web::Event) -> NewMessage>),
-            None => None,
-        };
-        Listener {
-            name,
-            handler,
-            closure,
-        }
-    }
 }
 
 #[derive(Debug, Default)]
@@ -96,11 +66,7 @@ where
         name: N,
         handler: impl FnMut(web::Event) -> C::Message + 'static,
     ) -> Self {
-        self.listeners.push(Listener {
-            name: name.into(),
-            handler: Some(Box::new(handler)),
-            closure: None,
-        });
+        self.listeners.push(Listener::new(name, handler));
         self
     }
 
@@ -443,35 +409,5 @@ impl<Message: 'static> Children for Keyed<Message> {
         for index in key_to_old_index.values() {
             old[*index - skip].1.remove();
         }
-    }
-}
-
-impl<Message> std::fmt::Debug for Listener<Message> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Listener")
-            .field("name", &self.name)
-            .finish()
-    }
-}
-
-impl<Message: 'static> Listener<Message> {
-    fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
-        let mailbox = mailbox.clone();
-        let mut handler = self.handler.take().unwrap();
-        let closure = Closure::wrap(
-            Box::new(move |event: web::Event| mailbox.send(handler(event)))
-                as Box<dyn FnMut(web::Event) + 'static>,
-        );
-        (element.as_ref() as &web::EventTarget)
-            .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
-            .expect("add_event_listener_with_callback");
-        self.closure = Some(closure);
-    }
-
-    fn detach(&self, element: &web::Element) {
-        let closure = self.closure.as_ref().unwrap();
-        (element.as_ref() as &web::EventTarget)
-            .remove_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
-            .expect("remove_event_listener_with_callback");
     }
 }
