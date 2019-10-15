@@ -6,10 +6,13 @@ extern "C" {
     pub fn log(str: &str);
     #[wasm_bindgen(js_namespace = console)]
     pub fn error(str: &str);
-    #[wasm_bindgen(js_namespace = console)]
-    pub fn time(str: &str);
-    #[wasm_bindgen(js_namespace = console, js_name = "timeEnd")]
-    pub fn time_end(str: &str);
+}
+
+pub fn time<T>(label: &str, f: impl FnOnce() -> T) -> T {
+    web_sys::console::time_with_label(label);
+    let value = f();
+    web_sys::console::time_end_with_label(label);
+    value
 }
 
 #[macro_export]
