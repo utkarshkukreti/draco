@@ -111,7 +111,7 @@ impl draco::App for Form {
             .push(if self.is_submitting {
                 h::button().push("Submitting...").disabled(true)
             } else {
-                h::button().push("Submit")
+                h::button().push("Submit").disabled(!self.accept)
             })
             .into()
     }
