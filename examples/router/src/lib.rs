@@ -103,7 +103,7 @@ impl draco::App for Router {
         h::div()
             .push(h::div().push(format!("Page: {:?}", &self.page)))
             .append(pages.iter().map(|page| {
-                h::h2()
+                h::div()
                     .push(
                         h::span().push(
                             draco::router::link(Hash, page.clone())
@@ -111,13 +111,18 @@ impl draco::App for Router {
                                 .attr("style", "margin-right: .5rem;"),
                         ),
                     )
-                    .push(h::button().push("Push").on("click", {
-                        let page = page.clone();
-                        move |_| {
-                            draco::router::push(Hash, &page);
-                            Message::NoOp
-                        }
-                    }))
+                    .push(
+                        h::button()
+                            .push("Push")
+                            .on("click", {
+                                let page = page.clone();
+                                move |_| {
+                                    draco::router::push(Hash, &page);
+                                    Message::NoOp
+                                }
+                            })
+                            .attr("style", "margin-right: .5rem;"),
+                    )
                     .push(h::button().push("Replace").on("click", {
                         let page = page.clone();
                         move |_| {
