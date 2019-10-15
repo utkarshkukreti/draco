@@ -52,7 +52,7 @@ impl draco::App for Form {
                 event.prevent_default();
                 Message::Submit
             })
-            .push(h::pre().push(format!("{:?}", self)))
+            .push(h::pre().push(format!("{:#?}", self)))
             .push(h::label().for_("username").push("Username: "))
             .push(
                 h::input()
