@@ -1,0 +1,31 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Lucida Grande', Verdana, sans-serif;
+  margin: 1rem;
+  line-height: 1.6;
+}
+
+h1,
+h2 {
+  text-align: center;
+  margin: 0 0 1rem 0;
+}
+
+.hljs {
+  width: 960px;
+  max-width: 90%;
+  margin: 1rem auto 2rem;
+  padding: 1rem;
+  font-family: Monaco, Consolas, monospace;
+  font-size: 15px;
+  white-space: pre-wrap;
+  border-radius: 4px;
+}
+
+footer {
+  margin-top: 1rem;
+  text-align: right;
+}

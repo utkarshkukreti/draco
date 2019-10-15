@@ -1,19 +1,81 @@
+require "cgi"
+require "erb"
+
+def titleize(string)
+  string.split("_").map(&:capitalize).join(" ")
+end
+
+def write(path, template, binding)
+  File.write(path, ERB.new(template).result(binding))
+end
+
+head = <<HTML
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="/index.css">
+HTML
+
+footer = <<HTML
+<footer>
+  <a href="/">Index</a> |
+  Powered by <a href="https://github.com/utkarshkukreti/draco">Draco</a>.
+</footer>
+HTML
+
 task :default do
-  index = File.open("index.html", "wb")
+  names = FileList["*/"].gsub(/\/$/, "")
 
-  FileList["*/"].gsub(/\/$/, "").each do |name|
-    File.write "#{name}/index.html", <<HTML
-<main></main>
-<script type="module">
-  import init from './pkg/#{name}.js';
-  init();
-</script>
-HTML
+  names.each do |name|
+    write "#{name}/index.html", <<ERB, binding
+<!doctype html>
+<html>
+  <head>
+    <title><%= titleize(name) %></title>
+    <%= head %>
+  </head>
+  <body>
+    <h1>#{titleize(name)}</h1>
+    <main></main>
+    <pre><code class="rust"><%= CGI.escape_html(File.read(name + "/src/lib.rs")) %></code></pre>
+    <%= footer %>
+    <script type="module">
+      import init from './pkg/<%= name %>.js';
+      init();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.10/languages/rust.min.js"></script>
+    <script>
+      document.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightBlock(block);
+      });
+    </script>
+  </body>
+</html>
+ERB
+  end
+
+  write "index.html", <<ERB, binding
+<!doctype html>
+<html>
+<head>
+  <title>Draco Examples</title>
+  <%= head %>
+</head>
+<body>
+  <h1>Draco Examples</h1>
+  <ul>
+    <% names.each do |name| %>
+      <li>
+        <a href="<%= name %>/index.html"><%= titleize(name) %></a>
+      </li>
+    <% end %>
+  </ul>
+  <%= footer %>
+</body>
+</html>
+ERB
+
+  names.each do |name|
     sh "cd #{name} && wasm-pack build --target web"
-
-    index << <<HTML
-<h3><a href="./#{name}/index.html">#{name}</a></h3>
-HTML
   end
 
   # sh "wasm-opt -O4 -o jfb/pkg/jfb_bg.wasm jfb/pkg/jfb_bg.wasm"
