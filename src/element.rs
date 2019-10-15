@@ -13,7 +13,6 @@ pub type KeyedElement<Message> = Element<Keyed<Message>>;
 pub struct Element<C: Children> {
     name: &'static str,
     ns: Ns,
-    class: String,
     attrs: Vec<Attr>,
     listeners: Vec<Listener<C::Message>>,
     children: C,
@@ -77,7 +76,6 @@ where
         Element {
             name,
             ns,
-            class: String::new(),
             attrs: Vec::new(),
             listeners: Vec::new(),
             children: C::new(),
@@ -90,14 +88,6 @@ where
             name: name.into(),
             value: value.into(),
         });
-        self
-    }
-
-    pub fn class(mut self, str: &str) -> Self {
-        if !self.class.is_empty() {
-            self.class += " ";
-        }
-        self.class += str;
         self
     }
 
@@ -156,11 +146,6 @@ where
             attr.patch(None, &node);
         }
 
-        if !self.class.is_empty() {
-            node.set_attribute("class", &self.class)
-                .expect("set_attribute");
-        }
-
         for listener in &mut self.listeners {
             listener.attach(&node, mailbox);
         }
@@ -202,12 +187,6 @@ where
                     .remove_attribute(&old_attr.name)
                     .expect("remove_attribute");
             }
-        }
-
-        if self.class != old.class {
-            old_node
-                .set_attribute("class", &self.class)
-                .expect("set_attribute");
         }
 
         for listener in &old.listeners {
@@ -256,7 +235,6 @@ impl<Message: 'static> NonKeyedElement<Message> {
         let Element {
             name,
             ns,
-            class,
             attrs,
             listeners,
             children,
@@ -276,7 +254,6 @@ impl<Message: 'static> NonKeyedElement<Message> {
         Element {
             name,
             ns,
-            class,
             attrs,
             listeners,
             children,
@@ -315,7 +292,6 @@ impl<Message: 'static> KeyedElement<Message> {
         let Element {
             name,
             ns,
-            class,
             attrs,
             listeners,
             children,
@@ -335,7 +311,6 @@ impl<Message: 'static> KeyedElement<Message> {
         Element {
             name,
             ns,
-            class,
             attrs,
             listeners,
             children,

@@ -84,6 +84,7 @@ string_attributes! {
     autocapitalize => "autocapitalize",
     charset => "charset",
     cite => "cite",
+    class => "class",
     color => "color",
     content => "content",
     coords => "coords",
