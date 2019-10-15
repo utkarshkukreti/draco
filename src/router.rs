@@ -3,10 +3,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys as web;
 
-pub use crate::url::{
-    parse::{hash, param, parse, query, Parse},
-    Url,
-};
+use crate::url::Url;
 
 #[derive(Copy, Clone, Debug)]
 pub enum Mode {

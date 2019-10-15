@@ -33,7 +33,7 @@ impl Default for Page {
 
 impl draco::router::Route for Page {
     fn from_url(url: Url) -> Self {
-        use draco::router::*;
+        use draco::url::parse::*;
         parse(&url)
             // /
             .alt((), |()| Page::Index)
