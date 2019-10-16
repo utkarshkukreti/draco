@@ -22,16 +22,6 @@ macro_rules! log {
     }
 }
 
-#[macro_export]
-macro_rules! time {
-    ($name:expr => $value:expr) => {{
-        $crate::console::time($name);
-        let value = $value;
-        $crate::console::time_end($name);
-        value
-    }};
-}
-
 // From https://github.com/rust-lang/rust/blob/36d4506cc64337bf7dfc1e3120156922e97659c7/src/libstd/macros.rs#L336-L358
 #[macro_export]
 macro_rules! dbg {
