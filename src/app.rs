@@ -1,5 +1,5 @@
 use crate::{Mailbox, Node, Text};
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use web_sys as web;
 
@@ -19,12 +19,12 @@ struct Inner<A: App> {
     node: RefCell<web::Node>,
     vnode: RefCell<Node<A::Message>>,
     queue: RefCell<Vec<A::Message>>,
-    is_updating: RefCell<bool>,
+    is_updating: Cell<bool>,
 }
 
 impl<A: App> Instance<A> {
     fn send(&self, message: A::Message) {
-        if *self.inner.is_updating.borrow() {
+        if self.inner.is_updating.get() {
             self.inner.queue.borrow_mut().push(message);
             return;
         }
@@ -80,7 +80,7 @@ pub fn start<A: App>(app: A, node: web::Node) -> Mailbox<A::Message> {
             app: RefCell::new(app),
             node: RefCell::new(new_node),
             vnode: RefCell::new(vnode.into()),
-            is_updating: RefCell::new(false),
+            is_updating: Cell::new(false),
             queue: RefCell::new(Vec::new()),
         }),
     };
