@@ -26,7 +26,7 @@ pub enum Message {
 impl draco::App for Fetch {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Message>) {
         use self::Message::*;
         match message {
             Send => match self.url.parse::<reqwest::Url>() {

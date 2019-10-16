@@ -6,7 +6,7 @@ use web_sys as web;
 pub trait App: Sized + 'static {
     type Message;
 
-    fn update(&mut self, _mailbox: &Mailbox<Self::Message>, _message: Self::Message) {}
+    fn update(&mut self, _message: Self::Message, _mailbox: &Mailbox<Self::Message>) {}
     fn render(&self) -> Node<Self::Message>;
 }
 
@@ -30,10 +30,10 @@ impl<A: App> Instance<A> {
         }
         self.inner.is_updating.replace(true);
         let mailbox = self.mailbox();
-        self.inner.app.borrow_mut().update(&mailbox, message);
+        self.inner.app.borrow_mut().update(message, &mailbox);
         while !self.inner.queue.borrow().is_empty() {
             let message = self.inner.queue.borrow_mut().remove(0);
-            self.inner.app.borrow_mut().update(&mailbox, message);
+            self.inner.app.borrow_mut().update(message, &mailbox);
         }
         self.inner.is_updating.replace(false);
         self.render();

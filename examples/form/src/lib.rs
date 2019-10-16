@@ -19,7 +19,7 @@ pub enum Message {
 impl draco::App for Form {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Message>) {
         use self::Message::*;
         match message {
             UpdateUsername(username) => {

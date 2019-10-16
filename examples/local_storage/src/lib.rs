@@ -33,7 +33,7 @@ pub enum Message {
 impl draco::App for LocalStorage {
     type Message = Message;
 
-    fn update(&mut self, _: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Message>) {
         match message {
             Message::Update(value) => {
                 Self::storage().set_item(KEY, &value).expect("set_item");

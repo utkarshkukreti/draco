@@ -67,7 +67,7 @@ impl draco::router::Route for Page {
 impl draco::App for Router {
     type Message = Message;
 
-    fn update(&mut self, _mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, _mailbox: &draco::Mailbox<Message>) {
         match message {
             Message::Navigate(page) => {
                 self.page = page;

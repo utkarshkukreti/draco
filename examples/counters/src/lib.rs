@@ -54,7 +54,7 @@ pub enum Message {
 impl draco::App for Counters {
     type Message = Message;
 
-    fn update(&mut self, _mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, _mailbox: &draco::Mailbox<Message>) {
         match message {
             Message::Append => self.counters.push(Counter::default()),
             Message::Counter(index, counter::Message::Remove) => {

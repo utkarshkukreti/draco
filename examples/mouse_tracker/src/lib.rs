@@ -17,7 +17,7 @@ enum Message {
 impl draco::App for MouseTracker {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Message>) {
         match message {
             Message::Toggle => {
                 if self.subscription.take().is_none() {

@@ -14,7 +14,7 @@ pub enum Message {
 impl draco::App for Counter {
     type Message = Message;
 
-    fn update(&mut self, _: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Message>) {
         use self::Message::*;
         match message {
             Increment => self.value += 1,

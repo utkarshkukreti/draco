@@ -180,7 +180,7 @@ impl Jfb {
 impl draco::App for Jfb {
     type Message = Message;
 
-    fn update(&mut self, mailbox: &draco::Mailbox<Message>, message: Self::Message) {
+    fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Message>) {
         let Jfb {
             next_id,
             rng,
@@ -191,7 +191,7 @@ impl draco::App for Jfb {
         match message {
             Message::Create(amount) => {
                 rows.clear();
-                self.update(mailbox, Message::Append(amount));
+                self.update(Message::Append(amount), mailbox);
             }
             Message::Append(amount) => {
                 rows.extend((0..amount).map(|index| Row::new(*next_id + index, rng)));
