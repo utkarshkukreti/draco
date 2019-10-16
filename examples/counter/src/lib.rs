@@ -23,7 +23,7 @@ impl draco::App for Counter {
         }
     }
 
-    fn render(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         h::div()
             .push(h::button().push("-").on("click", |_| Message::Decrement))

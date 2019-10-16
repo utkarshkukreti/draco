@@ -7,7 +7,7 @@ pub trait App: Sized + 'static {
     type Message;
 
     fn update(&mut self, _message: Self::Message, _mailbox: &Mailbox<Self::Message>) {}
-    fn render(&self) -> Node<Self::Message>;
+    fn view(&self) -> Node<Self::Message>;
 }
 
 pub struct Instance<A: App> {
@@ -40,7 +40,7 @@ impl<A: App> Instance<A> {
     }
 
     fn render(&self) {
-        let mut new_vnode = self.inner.app.borrow().render();
+        let mut new_vnode = self.inner.app.borrow().view();
         let new_node = new_vnode.patch(&mut self.inner.vnode.borrow_mut(), &self.mailbox());
         self.inner.vnode.replace(new_vnode);
         self.inner.node.replace(new_node);

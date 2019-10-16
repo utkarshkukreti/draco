@@ -5,7 +5,7 @@ struct HelloWorld;
 impl draco::App for HelloWorld {
     type Message = ();
 
-    fn render(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::Node<Self::Message> {
         draco::html::h1().push("Hello, world!").into()
     }
 }

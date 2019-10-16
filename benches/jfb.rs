@@ -23,6 +23,6 @@ fn bench_render_1000(b: &mut test::Bencher) {
     let mailbox = draco::Mailbox::new(|_| {});
     jfb.update(&mailbox, jfb::Message::Create(1000));
     b.iter(|| {
-        jfb.render();
+        jfb.view();
     });
 }

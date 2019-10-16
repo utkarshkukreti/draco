@@ -76,7 +76,7 @@ impl draco::App for Router {
         }
     }
 
-    fn render(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         use draco::router::Mode::Hash;
         let pages = [

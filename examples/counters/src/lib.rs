@@ -24,7 +24,7 @@ pub mod counter {
             }
         }
 
-        pub fn render(&self) -> draco::Node<Message> {
+        pub fn view(&self) -> draco::Node<Message> {
             use draco::html as h;
             h::div()
                 .push(h::button().push("-").on("click", |_| Message::Decrement))
@@ -66,13 +66,13 @@ impl draco::App for Counters {
         }
     }
 
-    fn render(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         h::div()
             .push(h::button().push("Append").on("click", |_| Message::Append))
             .append(self.counters.iter().enumerate().map(|(index, counter)| {
                 counter
-                    .render()
+                    .view()
                     .map(move |message| Message::Counter(index, message))
             }))
             .into()

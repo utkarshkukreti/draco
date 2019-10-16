@@ -44,7 +44,7 @@ impl Row {
         Row { id, label }
     }
 
-    fn render<Message>(&self, selected_id: Option<usize>) -> draco::Node<Message> {
+    fn view<Message>(&self, selected_id: Option<usize>) -> draco::Node<Message> {
         use draco::html as h;
         h::tr()
             .class(if selected_id == Some(self.id) {
@@ -226,7 +226,7 @@ impl draco::App for Jfb {
         }
     }
 
-    fn render(&self) -> draco::Node<Message> {
+    fn view(&self) -> draco::Node<Message> {
         use draco::html as h;
 
         h::div()
@@ -250,13 +250,13 @@ impl draco::App for Jfb {
                                 .append(
                                     self.rows
                                         .iter()
-                                        .map(|row| (row.id as u64, row.render(self.selected_id))),
+                                        .map(|row| (row.id as u64, row.view(self.selected_id))),
                                 )
                                 .into()
                         } else {
                             h::tbody()
                                 .id("tbody")
-                                .append(self.rows.iter().map(|row| row.render(self.selected_id)))
+                                .append(self.rows.iter().map(|row| row.view(self.selected_id)))
                                 .into()
                         };
                         node

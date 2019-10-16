@@ -28,7 +28,7 @@ impl draco::App for Clock {
         }
     }
 
-    fn render(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::Node<Self::Message> {
         use draco::{html as h, svg as s};
         let circle = s::circle()
             .attribute("cx", "100")

@@ -35,7 +35,7 @@ impl draco::App for MouseTracker {
         }
     }
 
-    fn render(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         h::div()
             .push(h::h1().push(if self.subscription.is_some() {
