@@ -180,7 +180,7 @@ impl Jfb {
 impl draco::App for Jfb {
     type Message = Message;
 
-    fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Message>) {
+    fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Self::Message>) {
         let Jfb {
             next_id,
             rng,

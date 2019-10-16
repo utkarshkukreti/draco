@@ -20,7 +20,7 @@ impl Clock {
 impl draco::App for Clock {
     type Message = Message;
 
-    fn update(&mut self, message: Self::Message, _mailbox: &draco::Mailbox<Message>) {
+    fn update(&mut self, message: Self::Message, _mailbox: &draco::Mailbox<Self::Message>) {
         match message {
             Message::Tick => {
                 self.date = js::Date::new_0();
