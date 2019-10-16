@@ -191,7 +191,7 @@ impl draco::App for Jfb {
         match message {
             Message::Create(amount) => {
                 rows.clear();
-                self.update(Message::Append(amount), mailbox);
+                mailbox.send(Message::Append(amount));
             }
             Message::Append(amount) => {
                 rows.extend((0..amount).map(|index| Row::new(*next_id + index, rng)));
