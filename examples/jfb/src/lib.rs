@@ -60,16 +60,14 @@ impl Row {
             )
             .push(
                 h::td().class("col-md-1").push(
-                    h::a()
-                        .class("remove")
-                        .push(
-                            h::span()
-                                .class("glyphicon glyphicon-remove remove")
-                                .attribute("aria-hidden", "true"),
-                        )
-                        .push(h::td().class("col-md-6")),
+                    h::a().class("remove").push(
+                        h::span()
+                            .class("glyphicon glyphicon-remove remove")
+                            .attribute("aria-hidden", "true"),
+                    ),
                 ),
             )
+            .push(h::td().class("col-md-6"))
             .into()
     }
 }
