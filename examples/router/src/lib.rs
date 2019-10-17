@@ -46,7 +46,7 @@ impl draco::router::Route for Page {
             // /posts/123#some-string
             .alt(("posts", param()), |((), id)| Page::PostShow {
                 id,
-                hash: url.hash.clone(),
+                hash: url.hash().clone(),
             })
             .value()
             .unwrap_or(Page::NotFound)

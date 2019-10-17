@@ -4,9 +4,23 @@ pub mod parse;
 
 #[derive(PartialEq, Eq, Clone, Debug, Default)]
 pub struct Url {
-    pub path: Vec<String>,
-    pub query: Vec<(String, String)>,
-    pub hash: Option<String>,
+    path: Vec<String>,
+    query: Vec<(String, String)>,
+    hash: Option<String>,
+}
+
+impl Url {
+    pub fn path(&self) -> &[String] {
+        &self.path
+    }
+
+    pub fn query(&self) -> &[(String, String)] {
+        &self.query
+    }
+
+    pub fn hash(&self) -> &Option<String> {
+        &self.hash
+    }
 }
 
 impl<T: Into<String>> From<T> for Url {
