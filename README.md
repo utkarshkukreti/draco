@@ -3,7 +3,7 @@
 > Draco is a Rust library to build client side web applications with Web
 > Assembly.
 
-> [Live Examples](https://draco-examples.netlify.com/) |
+> [Live Examples with Annotated Source](https://draco-examples.netlify.com/) |
 > [Starter](https://github.com/utkarshkukreti/draco-starter)
 
 ## Overview
