@@ -15,11 +15,10 @@ impl draco::App for Counter {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Self::Message>) {
-        use self::Message::*;
         match message {
-            Increment => self.value += 1,
-            Decrement => self.value -= 1,
-            Reset => self.value = 0,
+            Message::Increment => self.value += 1,
+            Message::Decrement => self.value -= 1,
+            Message::Reset => self.value = 0,
         }
     }
 
