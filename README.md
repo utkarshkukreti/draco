@@ -48,23 +48,24 @@ example, so here it goes:
 ```rust
 use wasm_bindgen::prelude::*;
 
-// This is our state. Just a `value` of type `i32`.
+// This is our state -- just a `value` of type `i32`.
 #[derive(Default)]
 pub struct Counter {
     value: i32,
 }
 
-// Our app's state can be updated for three reasons:
+// Our app's state can be updated in three ways:
 pub enum Message {
-    // Clicking `+`
+    // Clicking `+`; adds 1 to `value`.
     Increment,
-    // Clicking `-`
+    // Clicking `-`; subtracts 1 from `value`.
     Decrement,
-    // Clicking `Reset`
+    // Clicking `Reset`; sets `value` to 0.
     Reset,
 }
 
 impl draco::App for Counter {
+    // This is the type our `view` will emit and `update` will handle.
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Self::Message>) {
@@ -79,12 +80,22 @@ impl draco::App for Counter {
     fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         h::div()
-            // `.on` adds an event listener to the element.
-            // "click" is the event we want to listen
-            // The closure returns the message we want our `update` function to receive.
-            // The closure takes one argument of `web_sys::Event` type. We don't need it here so
-            // we ignore it with `_`.
-            .push(h::button().push("-").on("click", |_| Message::Decrement))
+            .push(
+                h::button()
+                    .push("-")
+                    // `.on` adds an event listener to the element.
+                    .on(
+                        // `click` is the event we want to listen to.
+                        "click",
+                        // The closure takes one argument of `web_sys::Event` type.
+                        // We don't need it here so we ignore it with `_`.
+                        |_| {
+                            // The closure returns the message we want our `update` function to
+                            // receive when the event is triggered.
+                            Message::Decrement
+                        },
+                    ),
+            )
             .push(" ")
             .push(self.value)
             .push(" ")
@@ -95,9 +106,10 @@ impl draco::App for Counter {
     }
 }
 
-// Like in the `HelloWorld` example we start the application on the first `<main>` in the page.
 #[wasm_bindgen(start)]
 pub fn start() {
+    // Like in the `HelloWorld` example we start the application on the first element in the page
+    // matching the selector `main`.
     draco::start(
         Counter::default(),
         draco::select("main").expect("<main>").into(),
