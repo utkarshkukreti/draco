@@ -66,8 +66,9 @@ impl draco::App for MouseTracker {
 
 #[wasm_bindgen(start)]
 pub fn start() {
-    draco::start(
+    let mailbox = draco::start(
         MouseTracker::default(),
         draco::select("main").expect("<main>").into(),
     );
+    mailbox.send(Message::Toggle);
 }
