@@ -20,8 +20,12 @@ impl<Message: 'static> Node<Message> {
 
     pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<Message>) -> web::Node {
         match (self, old) {
-            (Node::Element(ref mut e1), Node::Element(ref mut e2)) => e1.patch(e2, mailbox).into(),
-            (Node::KeyedElement(ref mut e1), Node::KeyedElement(ref mut e2)) => {
+            (Node::Element(ref mut e1), Node::Element(ref mut e2)) if e1.name == e2.name => {
+                e1.patch(e2, mailbox).into()
+            }
+            (Node::KeyedElement(ref mut e1), Node::KeyedElement(ref mut e2))
+                if e1.name == e2.name =>
+            {
                 e1.patch(e2, mailbox).into()
             }
             (Node::Text(ref mut t1), Node::Text(ref mut t2)) => t1.patch(t2).into(),

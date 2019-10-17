@@ -10,7 +10,7 @@ pub type KeyedElement<Message> = Element<Keyed<Message>>;
 
 #[derive(Debug)]
 pub struct Element<C: Children> {
-    name: &'static str,
+    pub(crate) name: &'static str,
     ns: Ns,
     aspects: Vec<Aspect<C::Message>>,
     children: C,
@@ -131,17 +131,8 @@ where
     }
 
     pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<C::Message>) -> web::Element {
+        debug_assert!(self.name == old.name);
         let old_element = old.node.take().expect("old.node");
-
-        if self.name != old.name {
-            let new_node = self.create(mailbox);
-            (old_element.as_ref() as &web::Node)
-                .parent_node()
-                .expect("old_node.parent_node")
-                .replace_child(new_node.as_ref(), old_element.as_ref())
-                .expect("replace_child");
-            return new_node;
-        }
 
         aspect::patch(&mut self.aspects, &old.aspects, &old_element, mailbox);
 
