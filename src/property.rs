@@ -5,8 +5,25 @@ use web_sys as web;
 
 #[derive(Debug)]
 pub struct Property {
-    pub name: S,
-    pub value: Value,
+    name: S,
+    value: Value,
+}
+
+impl Property {
+    pub fn new(name: impl Into<S>, value: impl Into<Value>) -> Self {
+        Self {
+            name: name.into(),
+            value: value.into(),
+        }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
+    }
+
+    pub fn value(&self) -> &Value {
+        &self.value
+    }
 }
 
 #[derive(Debug, PartialEq)]

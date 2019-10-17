@@ -5,7 +5,7 @@ use wasm_bindgen::JsCast;
 use web_sys as web;
 
 pub struct Listener<Message> {
-    pub name: S,
+    name: S,
     handler: Option<Box<dyn FnMut(web::Event) -> Message>>,
     closure: Option<Closure<dyn FnMut(web::Event)>>,
 }
@@ -17,6 +17,10 @@ impl<Message: 'static> Listener<Message> {
             handler: Some(Box::new(handler)),
             closure: None,
         }
+    }
+
+    pub fn name(&self) -> &str {
+        &self.name
     }
 
     pub(crate) fn do_map<NewMessage: 'static>(

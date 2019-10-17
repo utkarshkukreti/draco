@@ -33,7 +33,7 @@ pub fn patch<Message>(
             $aspects
                 .iter()
                 .filter_map(|aspect| match aspect {
-                    Aspect::$ty(aspect) if aspect.name == $name => Some(aspect),
+                    Aspect::$ty(aspect) if aspect.name() == $name => Some(aspect),
                     _ => None,
                 })
                 .next()
@@ -43,10 +43,10 @@ pub fn patch<Message>(
     for new_aspect in new_aspects.iter_mut() {
         match new_aspect {
             Aspect::Attribute(attribute) => {
-                attribute.patch(find!(old_aspects, attribute.name, Attribute), element)
+                attribute.patch(find!(old_aspects, attribute.name(), Attribute), element)
             }
             Aspect::Property(property) => {
-                property.patch(find!(old_aspects, property.name, Property), element)
+                property.patch(find!(old_aspects, property.name(), Property), element)
             }
             Aspect::Listener(listener) => listener.attach(element, mailbox),
         }
@@ -54,12 +54,12 @@ pub fn patch<Message>(
     for old_aspect in old_aspects {
         match old_aspect {
             Aspect::Attribute(attribute) => {
-                if find!(new_aspects, attribute.name, Attribute).is_none() {
+                if find!(new_aspects, attribute.name(), Attribute).is_none() {
                     attribute.remove(element);
                 }
             }
             Aspect::Property(property) => {
-                if find!(new_aspects, property.name, Property).is_none() {
+                if find!(new_aspects, property.name(), Property).is_none() {
                     property.remove(element);
                 }
             }

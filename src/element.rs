@@ -52,24 +52,12 @@ where
     }
 
     pub fn attribute(mut self, name: impl Into<S>, value: impl Into<S>) -> Self {
-        self.aspects.push(
-            Attribute {
-                name: name.into(),
-                value: value.into(),
-            }
-            .into(),
-        );
+        self.aspects.push(Attribute::new(name, value).into());
         self
     }
 
     pub fn property(mut self, name: impl Into<S>, value: impl Into<property::Value>) -> Self {
-        self.aspects.push(
-            Property {
-                name: name.into(),
-                value: value.into(),
-            }
-            .into(),
-        );
+        self.aspects.push(Property::new(name, value).into());
         self
     }
 
