@@ -50,7 +50,6 @@ lto = true
 members = [
   "examples/counter",
   "examples/counters",
-  "examples/fetch",
   "examples/form",
   "examples/github_commits",
   "examples/hello_world",
