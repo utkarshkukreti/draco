@@ -2,6 +2,7 @@ use crate::{Mailbox, S};
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 pub struct Listener<Message> {
@@ -56,21 +57,21 @@ impl<Message> std::fmt::Debug for Listener<Message> {
 impl<Message: 'static> Listener<Message> {
     pub fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
         let mailbox = mailbox.clone();
-        let mut handler = self.handler.take().unwrap();
+        let mut handler = self.handler.take().unwrap_throw();
         let closure = Closure::wrap(
             Box::new(move |event: web::Event| mailbox.send(handler(event)))
                 as Box<dyn FnMut(web::Event) + 'static>,
         );
         (element.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
-            .expect("add_event_listener_with_callback");
+            .unwrap_throw();
         self.closure = Some(closure);
     }
 
     pub fn detach(&self, element: &web::Element) {
-        let closure = self.closure.as_ref().unwrap();
+        let closure = self.closure.as_ref().unwrap_throw();
         (element.as_ref() as &web::EventTarget)
             .remove_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
-            .expect("remove_event_listener_with_callback");
+            .unwrap_throw();
     }
 }

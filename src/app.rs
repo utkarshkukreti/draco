@@ -1,6 +1,7 @@
 use crate::{Mailbox, Node, Text};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 pub trait App: Sized + 'static {
@@ -72,9 +73,9 @@ pub fn start<A: App>(app: A, node: web::Node) -> Mailbox<A::Message> {
     let mut vnode = Text::new("!");
     let new_node = vnode.create().into();
     node.parent_node()
-        .unwrap()
+        .unwrap_throw()
         .replace_child(&new_node, &node)
-        .unwrap();
+        .unwrap_throw();
     let instance = Instance {
         inner: Rc::new(Inner {
             app: RefCell::new(app),

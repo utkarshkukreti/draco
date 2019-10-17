@@ -1,4 +1,5 @@
 use crate::S;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 #[derive(Debug)]
@@ -17,16 +18,16 @@ impl Text {
 
     pub fn create(&mut self) -> web::Text {
         let node = web::window()
-            .expect("window")
+            .unwrap_throw()
             .document()
-            .expect("document")
+            .unwrap_throw()
             .create_text_node(&self.value);
         self.node = Some(node.clone());
         node
     }
 
     pub fn patch(&mut self, old: &mut Text) -> web::Text {
-        let node = old.node.take().expect("old.node");
+        let node = old.node.take().unwrap_throw();
         if self.value != old.value {
             (node.as_ref() as &web::Node).set_text_content(Some(&self.value));
         }

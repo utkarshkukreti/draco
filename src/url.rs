@@ -1,4 +1,5 @@
 use std::fmt;
+use wasm_bindgen::UnwrapThrowExt;
 
 pub mod parse;
 
@@ -45,7 +46,10 @@ impl<T: Into<String>> From<T> for Url {
 
         fn split(haystack: &str, needle: char) -> (&str, &str) {
             let mut splitted = haystack.splitn(2, needle);
-            (splitted.next().unwrap(), splitted.next().unwrap_or(""))
+            (
+                splitted.next().unwrap_throw(),
+                splitted.next().unwrap_or(""),
+            )
         }
     }
 }

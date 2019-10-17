@@ -1,5 +1,6 @@
 use crate::{KeyedElement, Mailbox, NonKeyedElement, Text};
 use std::rc::Rc;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 #[derive(Debug)]
@@ -30,12 +31,10 @@ impl<Message: 'static> Node<Message> {
             }
             (Node::Text(ref mut t1), Node::Text(ref mut t2)) => t1.patch(t2).into(),
             (self_, old) => {
-                let old_node = old.node().expect("old.node");
-                let parent_node = old_node.parent_node().expect("old_node.parent_node");
+                let old_node = old.node().unwrap_throw();
+                let parent_node = old_node.parent_node().unwrap_throw();
                 let node = self_.create(mailbox);
-                parent_node
-                    .replace_child(&node, &old_node)
-                    .expect("replace_child");
+                parent_node.replace_child(&node, &old_node).unwrap_throw();
                 node
             }
         }
@@ -52,7 +51,7 @@ impl<Message: 'static> Node<Message> {
     pub fn remove(&self) {
         if let Some(node) = self.node() {
             if let Some(parent_node) = node.parent_node() {
-                parent_node.remove_child(&node).unwrap();
+                parent_node.remove_child(&node).unwrap_throw();
             }
         }
     }

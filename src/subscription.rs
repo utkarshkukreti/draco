@@ -3,6 +3,7 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 pub type Send<Message> = Rc<dyn Fn(Message)>;
@@ -50,17 +51,17 @@ impl Subscription for OnWindow {
     type Message = web::Event;
 
     fn subscribe(self, send: Send<Self::Message>) -> Unsubscribe {
-        let window = web::window().unwrap();
+        let window = web::window().unwrap_throw();
         let closure = Closure::wrap(Box::new(move |event: web::Event| {
             send(event);
         }) as Box<dyn FnMut(web::Event)>);
         (window.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
-            .unwrap();
+            .unwrap_throw();
         Unsubscribe::new(move || {
             (window.as_ref() as &web::EventTarget)
                 .remove_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
-                .unwrap();
+                .unwrap_throw();
         })
     }
 }
@@ -80,7 +81,7 @@ impl Subscription for Interval {
     type Message = ();
 
     fn subscribe(self, send: Send<Self::Message>) -> Unsubscribe {
-        let window = web::window().unwrap();
+        let window = web::window().unwrap_throw();
         let closure = Closure::wrap(Box::new(move || {
             send(());
         }) as Box<dyn FnMut()>);
@@ -90,7 +91,7 @@ impl Subscription for Interval {
                 self.ms,
                 &js::Array::new(),
             )
-            .unwrap();
+            .unwrap_throw();
         Unsubscribe::new(move || {
             // We need to move `closure` here so that it isn't dropped too early.
             let _ = closure;
@@ -120,11 +121,11 @@ impl Subscription for AnimationFrame {
         *closure2.borrow_mut() = Some(Closure::wrap(Box::new(move || {
             send(());
             if done.get() == false {
-                request_animation_frame(closure.borrow().as_ref().unwrap());
+                request_animation_frame(closure.borrow().as_ref().unwrap_throw());
             }
         }) as Box<dyn FnMut()>));
 
-        request_animation_frame(closure2.borrow().as_ref().unwrap());
+        request_animation_frame(closure2.borrow().as_ref().unwrap_throw());
 
         return Unsubscribe::new(move || {
             done2.set(true);
@@ -132,9 +133,9 @@ impl Subscription for AnimationFrame {
 
         fn request_animation_frame(f: &Closure<dyn FnMut()>) {
             web::window()
-                .unwrap()
+                .unwrap_throw()
                 .request_animation_frame(f.as_ref().unchecked_ref())
-                .unwrap();
+                .unwrap_throw();
         }
     }
 }

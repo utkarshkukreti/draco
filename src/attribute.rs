@@ -1,4 +1,5 @@
 use crate::S;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 #[derive(Debug, PartialEq)]
@@ -27,13 +28,11 @@ impl Attribute {
         if Some(self) != old_attribute {
             element
                 .set_attribute(&self.name, &self.value)
-                .expect("set_attribute")
+                .unwrap_throw()
         }
     }
 
     pub fn remove(&self, element: &web::Element) {
-        element
-            .remove_attribute(&self.name)
-            .expect("remove_attribute");
+        element.remove_attribute(&self.name).unwrap_throw();
     }
 }

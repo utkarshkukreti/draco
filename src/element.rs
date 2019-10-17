@@ -3,6 +3,7 @@ use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Node, Proper
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 pub type NonKeyedElement<Message> = Element<NonKeyed<Message>>;
@@ -99,13 +100,13 @@ where
     }
 
     pub fn create(&mut self, mailbox: &Mailbox<C::Message>) -> web::Element {
-        let document = web::window().expect("window").document().expect("document");
+        let document = web::window().unwrap_throw().document().unwrap_throw();
 
         let element = match self.ns {
-            Ns::Html => document.create_element(&self.name).expect("create_element"),
+            Ns::Html => document.create_element(&self.name).unwrap_throw(),
             Ns::Svg => document
                 .create_element_ns(Some("http://www.w3.org/2000/svg"), &self.name)
-                .expect("create_element_ns"),
+                .unwrap_throw(),
         };
 
         aspect::patch(&mut self.aspects, &[], &element, mailbox);
@@ -120,7 +121,7 @@ where
 
     pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<C::Message>) -> web::Element {
         debug_assert!(self.name == old.name);
-        let old_element = old.node.take().expect("old.node");
+        let old_element = old.node.take().unwrap_throw();
 
         aspect::patch(&mut self.aspects, &old.aspects, &old_element, mailbox);
 
@@ -259,7 +260,7 @@ impl<Message: 'static> Children for NonKeyed<Message> {
     fn create(&mut self, node: &web::Node, mailbox: &Mailbox<Message>) {
         for child in &mut self.0 {
             let child_node = child.create(mailbox);
-            node.append_child(&child_node).expect("append_child");
+            node.append_child(&child_node).unwrap_throw();
         }
     }
 
@@ -269,16 +270,14 @@ impl<Message: 'static> Children for NonKeyed<Message> {
         }
 
         for old in old.0.iter().skip(self.0.len()) {
-            let old_node = old.node().expect("old.node");
-            let parent_node = old_node.parent_node().expect("old.parent_node");
-            parent_node.remove_child(&old_node).expect("remove_child");
+            let old_node = old.node().unwrap_throw();
+            let parent_node = old_node.parent_node().unwrap_throw();
+            parent_node.remove_child(&old_node).unwrap_throw();
         }
 
         for new in self.0.iter_mut().skip(old.0.len()) {
             let new_node = new.create(mailbox);
-            old_node
-                .append_child(&new_node)
-                .expect("old_node.append_child");
+            old_node.append_child(&new_node).unwrap_throw();
         }
     }
 }
@@ -293,7 +292,7 @@ impl<Message: 'static> Children for Keyed<Message> {
     fn create(&mut self, node: &web::Node, mailbox: &Mailbox<Message>) {
         for (_, child) in &mut self.0 {
             let child_node = child.create(mailbox);
-            node.append_child(&child_node).expect("append_child");
+            node.append_child(&child_node).unwrap_throw();
         }
     }
 
@@ -353,12 +352,14 @@ impl<Message: 'static> Children for Keyed<Message> {
             };
             if reordered {
                 if index as u32 > child_nodes_length {
-                    parent_node.append_child(&new_node.node().unwrap()).unwrap();
+                    parent_node
+                        .append_child(&new_node.node().unwrap_throw())
+                        .unwrap_throw();
                 } else {
                     let next_sibling = child_nodes.get(index as u32 + 1);
                     parent_node
-                        .insert_before(&new_node.node().unwrap(), next_sibling.as_ref())
-                        .unwrap();
+                        .insert_before(&new_node.node().unwrap_throw(), next_sibling.as_ref())
+                        .unwrap_throw();
                 }
             }
         }

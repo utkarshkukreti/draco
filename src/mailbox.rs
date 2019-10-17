@@ -5,6 +5,7 @@ use std::future::Future;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 pub struct Mailbox<Message: 'static> {
@@ -37,12 +38,12 @@ impl<Message: 'static> Mailbox<Message> {
             cloned.send(f());
         }) as Box<dyn FnMut()>);
         web::window()
-            .unwrap()
+            .unwrap_throw()
             .set_timeout_with_callback_and_timeout_and_arguments_0(
                 closure.as_ref().unchecked_ref(),
                 timeout,
             )
-            .unwrap();
+            .unwrap_throw();
         // TODO: Drop the closure when it is first called.
         self.stash(closure);
     }
