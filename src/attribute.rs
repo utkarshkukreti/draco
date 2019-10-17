@@ -15,4 +15,10 @@ impl Attribute {
                 .expect("set_attribute")
         }
     }
+
+    pub fn remove(&self, element: &web::Element) {
+        element
+            .remove_attribute(&self.name)
+            .expect("remove_attribute");
+    }
 }

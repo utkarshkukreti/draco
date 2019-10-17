@@ -1,6 +1,5 @@
 use crate::{Attribute, Listener, Mailbox, Property};
 use std::rc::Rc;
-use wasm_bindgen::JsValue;
 use web_sys as web;
 
 #[derive(Debug)]
@@ -56,18 +55,12 @@ pub fn patch<Message>(
         match old_aspect {
             Aspect::Attribute(attribute) => {
                 if find!(new_aspects, attribute.name, Attribute).is_none() {
-                    element
-                        .remove_attribute(&attribute.name)
-                        .expect("remove_attribute");
+                    attribute.remove(element);
                 }
             }
             Aspect::Property(property) => {
                 if find!(new_aspects, property.name, Property).is_none() {
-                    let _ = js_sys::Reflect::set(
-                        element,
-                        &JsValue::from_str(&property.name),
-                        &JsValue::UNDEFINED,
-                    );
+                    property.remove(element);
                 }
             }
             Aspect::Listener(listener) => listener.detach(element),

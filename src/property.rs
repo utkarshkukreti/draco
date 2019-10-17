@@ -52,6 +52,10 @@ impl Property {
             }
         }
     }
+
+    pub fn remove(&self, element: &web::Element) {
+        let _ = js_sys::Reflect::set(element, &JsValue::from_str(&self.name), &JsValue::UNDEFINED);
+    }
 }
 
 impl From<&'static str> for Value {
