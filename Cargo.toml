@@ -52,6 +52,7 @@ members = [
   "examples/counters",
   "examples/fetch",
   "examples/form",
+  "examples/github_commits",
   "examples/hello_world",
   "examples/jfb",
   "examples/local_storage",

@@ -1,0 +1,15 @@
+[package]
+name = "github_commits"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+draco = { path = "../.." }
+wasm-bindgen = "0.2"
+
+reqwest = { version = "0.10.0-alpha.1", features = ["json"] }
+serde = { version = "1.0.101", features = ["derive"] }
+serde_json = "1.0.41"
