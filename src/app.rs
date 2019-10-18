@@ -27,7 +27,6 @@ impl<A: App> Instance<A> {
     fn send(&self, message: A::Message) {
         self.push(message);
         self.update();
-        self.render();
     }
 
     fn push(&self, message: A::Message) {
@@ -51,6 +50,8 @@ impl<A: App> Instance<A> {
         }
 
         self.inner.is_updating.replace(false);
+
+        self.render();
     }
 
     fn render(&self) {
