@@ -156,6 +156,7 @@ string_attributes! {
     type_ => "type",
     usemap => "usemap",
 //    value => "value",
+    width => "width",
     wrap => "wrap",
 }
 
@@ -209,5 +210,4 @@ to_string_attributes! {
     start: i32 => "start",
     step: f64 => "step",
     tabindex: i32 => "tabindex",
-    width: i32 => "width",
 }
