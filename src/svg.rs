@@ -1,4 +1,7 @@
-use crate::{element::Ns, Element, NonKeyedElement};
+use crate::{
+    element::{Children, Ns},
+    Element, NonKeyedElement, S,
+};
 
 macro_rules! elements {
     ($($ident:ident => $name:expr,)+) => {
@@ -12,6 +15,34 @@ macro_rules! elements {
             $(
                 pub fn $ident<Message: 'static>() -> KeyedElement<Message> {
                     Element::new(Ns::Svg, $name)
+                }
+            )+
+        }
+    }
+}
+
+macro_rules! string_attributes {
+    (
+        $($ident:ident => $name:expr,)+
+    ) => {
+        impl<C: Children> Element<C> where C::Message: 'static {
+            $(
+                pub fn $ident(self, value: impl Into<S>) -> Self {
+                    self.attribute($name, value.into())
+                }
+            )+
+        }
+    }
+}
+
+macro_rules! to_string_attributes {
+    (
+        $($ident:ident: $ty:ty => $name:expr,)+
+    ) => {
+        impl<C: Children> Element<C> where C::Message: 'static {
+            $(
+                pub fn $ident(self, value: $ty) -> Self {
+                    self.attribute($name, value.to_string())
                 }
             )+
         }
@@ -106,4 +137,180 @@ elements! {
     use_ => "use",
     view => "view",
     vkern => "vkern",
+}
+
+string_attributes! {
+    accumulate => "accumulate",
+    additive => "additive",
+    alignment_baseline => "alignment-baseline",
+    attribute_name => "attributeName",
+    attribute_type => "attributeType",
+    base_frequency => "baseFrequency",
+    base_profile => "baseProfile",
+    baseline_shift => "baseline-shift",
+    begin => "begin",
+    calc_mode => "calcMode",
+    clip_path => "clip-path",
+    clip_rule => "clip-rule",
+    clip_path_units => "clipPathUnits",
+    // color => "color",
+    color_interpolation => "color-interpolation",
+    color_interpolation_filters => "color-interpolation-filters",
+    color_profile => "color-profile",
+    color_rendering => "color-rendering",
+    content_script_type => "contentScriptType",
+    content_style_type => "contentStyleType",
+    cursor => "cursor",
+    cx => "cx",
+    cy => "cy",
+    d => "d",
+    direction => "direction",
+    display => "display",
+    dominant_baseline => "dominant-baseline",
+    dur => "dur",
+    dx => "dx",
+    dy => "dy",
+    edge_mode => "edgeMode",
+    end => "end",
+    fill => "fill",
+    fill_opacity => "fill-opacity",
+    fill_rule => "fill-rule",
+    filter => "filter",
+    filter_units => "filterUnits",
+    flood_color => "flood-color",
+    flood_opacity => "flood-opacity",
+    font_family => "font-family",
+    font_size => "font-size",
+    font_size_adjust => "font-size-adjust",
+    font_stretch => "font-stretch",
+    font_style => "font-style",
+    font_variant => "font-variant",
+    font_weight => "font-weight",
+    from => "from",
+    fx => "fx",
+    fy => "fy",
+    gradient_transform => "gradientTransform",
+    gradient_units => "gradientUnits",
+    // height => "height",
+    // href => "href",
+    image_rendering => "image-rendering",
+    in_ => "in",
+    in2 => "in2",
+    kernel_matrix => "kernelMatrix",
+    kernel_unit_length => "kernelUnitLength",
+    kerning => "kerning",
+    key_splines => "keySplines",
+    key_times => "keyTimes",
+    length_adjust => "lengthAdjust",
+    letter_spacing => "letter-spacing",
+    lighting_color => "lighting-color",
+    local => "local",
+    marker_end => "marker-end",
+    marker_mid => "marker-mid",
+    marker_start => "marker-start",
+    marker_height => "markerHeight",
+    marker_units => "markerUnits",
+    marker_width => "markerWidth",
+    mask => "mask",
+    mask_content_units => "maskContentUnits",
+    mask_units => "maskUnits",
+    // max => "max",
+    // min => "min",
+    mode => "mode",
+    opacity => "opacity",
+    operator => "operator",
+    order => "order",
+    overflow => "overflow",
+    paint_order => "paint-order",
+    pattern_content_units => "patternContentUnits",
+    pattern_transform => "patternTransform",
+    pattern_units => "patternUnits",
+    pointer_events => "pointer-events",
+    points => "points",
+    preserve_aspect_ratio => "preserveAspectRatio",
+    primitive_units => "primitiveUnits",
+    r => "r",
+    radius => "radius",
+    repeat_count => "repeatCount",
+    repeat_dur => "repeatDur",
+    required_features => "requiredFeatures",
+    restart => "restart",
+    result => "result",
+    rx => "rx",
+    ry => "ry",
+    shape_rendering => "shape-rendering",
+    std_deviation => "stdDeviation",
+    stitch_tiles => "stitchTiles",
+    stop_color => "stop-color",
+    stop_opacity => "stop-opacity",
+    stroke => "stroke",
+    stroke_dasharray => "stroke-dasharray",
+    stroke_dashoffset => "stroke-dashoffset",
+    stroke_linecap => "stroke-linecap",
+    stroke_linejoin => "stroke-linejoin",
+    stroke_opacity => "stroke-opacity",
+    stroke_width => "stroke-width",
+    text_anchor => "text-anchor",
+    text_decoration => "text-decoration",
+    text_rendering => "text-rendering",
+    text_length => "textLength",
+    to => "to",
+    transform => "transform",
+    // type_ => "type",
+    values => "values",
+    vector_effect => "vector-effect",
+    view_box => "viewBox",
+    visibility => "visibility",
+    // width => "width",
+    word_spacing => "word-spacing",
+    writing_mode => "writing-mode",
+    x => "x",
+    x1 => "x1",
+    x2 => "x2",
+    x_channel_selector => "xChannelSelector",
+    y => "y",
+    y1 => "y1",
+    y2 => "y2",
+    y_channel_selector => "yChannelSelector",
+}
+
+to_string_attributes! {
+    accent_height: f64 => "accent-height",
+    ascent: f64 => "ascent",
+    azimuth: f64 => "azimuth",
+    bias: f64 => "bias",
+    diffuse_constant: f64 => "diffuseConstant",
+    divisor: f64 => "divisor",
+    elevation: f64 => "elevation",
+    external_resources_required: bool => "externalResourcesRequired",
+    fr: f64 => "fr",
+    k1: f64 => "k1",
+    k2: f64 => "k2",
+    k3: f64 => "k3",
+    k4: f64 => "k4",
+    limiting_cone_angle: f64 => "limitingConeAngle",
+    num_octaves: i32 => "numOctaves",
+    overline_position: f64 => "overline-position",
+    overline_thickness: f64 => "overline-thickness",
+    path_length: f64 => "pathLength",
+    points_at_x: f64 => "pointsAtX",
+    points_at_y: f64 => "pointsAtY",
+    points_at_z: f64 => "pointsAtZ",
+    preserve_alpha: bool => "preserveAlpha",
+    ref_x: f64 => "refX",
+    ref_y: f64 => "refY",
+    scale: f64 => "scale",
+    seed: f64 => "seed",
+    specular_constant: f64 => "specularConstant",
+    specular_exponent: f64 => "specularExponent",
+    strikethrough_position: f64 => "strikethrough-position",
+    strikethrough_thickness: f64 => "strikethrough-thickness",
+    stroke_miterlimit: f64 => "stroke-miterlimit",
+    surface_scale: f64 => "surfaceScale",
+    // tabindex: i32 => "tabindex",
+    target_x: f64 => "targetX",
+    target_y: f64 => "targetY",
+    underline_position: f64 => "underline-position",
+    underline_thickness: f64 => "underline-thickness",
+    version: f64 => "version",
 }
