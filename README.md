@@ -30,44 +30,7 @@ pub fn start() {
 }
 ```
 
-Here's the same, with comments explaining everything:
-
-```rust
-use wasm_bindgen::prelude::*;
-
-// A Draco application is a struct (or enum) which stores its state.
-// We declare a unit struct here because we don't have any state to store.
-struct HelloWorld;
-
-// A Draco application must implement the `draco::App` trait.
-impl draco::App for HelloWorld {
-    // `Message` is the type of value our HTML will emit.
-    // Here we aren't emitting anything so we use the unit type.
-    // You can put any type here and this example will still compile.
-    type Message = ();
-
-    // The `view` function returns what we want to display on the page.
-    fn view(&self) -> draco::Node<Self::Message> {
-        // `draco::html::h1()` creates an `<h1>` element.
-        draco::html::h1()
-            // `.push()` adds a child to the element. Here we add a Text Node by pushing a string.
-            .push("Hello, world!")
-            // We use `.into()` to convert an `Element` struct to a `Node` struct which this
-            // function must return.
-            .into()
-    }
-}
-
-#[wasm_bindgen(start)]
-pub fn start() {
-    // We select the first element on the page matching the CSS selector `main` and start the
-    // application on it.
-    draco::start(HelloWorld, draco::select("main").expect("<main>").into());
-}
-```
-
-The introduction of any frontend framework is incomplete without the "Counter"
-example, so here it goes:
+and the popular "Counter" application:
 
 ```rust
 use wasm_bindgen::prelude::*;
@@ -117,9 +80,47 @@ pub fn start() {
 }
 ```
 
-Here's the same, with comments explaining everything:
+## Explanation
+
+Here are the two same examples above, with comments explaining everything.
 
 ```rust
+// examples/hello_world/src/lib.rs
+use wasm_bindgen::prelude::*;
+
+// A Draco application is a struct (or enum) which stores its state.
+// We declare a unit struct here because we don't have any state to store.
+struct HelloWorld;
+
+// A Draco application must implement the `draco::App` trait.
+impl draco::App for HelloWorld {
+    // `Message` is the type of value our HTML will emit.
+    // Here we aren't emitting anything so we use the unit type.
+    // You can put any type here and this example will still compile.
+    type Message = ();
+
+    // The `view` function returns what we want to display on the page.
+    fn view(&self) -> draco::Node<Self::Message> {
+        // `draco::html::h1()` creates an `<h1>` element.
+        draco::html::h1()
+            // `.push()` adds a child to the element. Here we add a Text Node by pushing a string.
+            .push("Hello, world!")
+            // We use `.into()` to convert an `Element` struct to a `Node` struct which this
+            // function must return.
+            .into()
+    }
+}
+
+#[wasm_bindgen(start)]
+pub fn start() {
+    // We select the first element on the page matching the CSS selector `main` and start the
+    // application on it.
+    draco::start(HelloWorld, draco::select("main").expect("<main>").into());
+}
+```
+
+```rust
+// examples/counter/src/lib.rs
 use wasm_bindgen::prelude::*;
 
 // This is our state -- just a `value` of type `i32`.

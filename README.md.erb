@@ -24,21 +24,22 @@ The "Hello, World!" of Draco looks like this:
 <%= without_comments(File.read("examples/hello_world/src/lib.rs").strip) %>
 ```
 
-Here's the same, with comments explaining everything:
-
-```rust
-<%= File.read("examples/hello_world/src/lib.rs").strip %>
-```
-
-The introduction of any frontend framework is incomplete without the "Counter"
-example, so here it goes:
+and the popular "Counter" application:
 
 ```rust
 <%= without_comments(File.read("examples/counter/src/lib.rs").strip) %>
 ```
 
-Here's the same, with comments explaining everything:
+## Explanation
+
+Here are the two same examples above, with comments explaining everything.
 
 ```rust
+// examples/hello_world/src/lib.rs
+<%= File.read("examples/hello_world/src/lib.rs").strip %>
+```
+
+```rust
+// examples/counter/src/lib.rs
 <%= File.read("examples/counter/src/lib.rs").strip %>
 ```
