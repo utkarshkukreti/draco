@@ -110,7 +110,7 @@ impl AnimationFrame {
 }
 
 impl Subscription for AnimationFrame {
-    type Message = ();
+    type Message = f64;
 
     fn subscribe(self, send: Send<Self::Message>) -> Unsubscribe {
         let closure = Rc::new(RefCell::new(None));
@@ -118,12 +118,12 @@ impl Subscription for AnimationFrame {
         let done = Rc::new(Cell::new(false));
         let done2 = done.clone();
 
-        *closure2.borrow_mut() = Some(Closure::wrap(Box::new(move || {
-            send(());
+        *closure2.borrow_mut() = Some(Closure::wrap(Box::new(move |f64| {
+            send(f64);
             if done.get() == false {
                 request_animation_frame(closure.borrow().as_ref().unwrap_throw());
             }
-        }) as Box<dyn FnMut()>));
+        }) as Box<dyn FnMut(f64)>));
 
         request_animation_frame(closure2.borrow().as_ref().unwrap_throw());
 
@@ -131,7 +131,7 @@ impl Subscription for AnimationFrame {
             done2.set(true);
         });
 
-        fn request_animation_frame(f: &Closure<dyn FnMut()>) {
+        fn request_animation_frame(f: &Closure<dyn FnMut(f64)>) {
             web::window()
                 .unwrap_throw()
                 .request_animation_frame(f.as_ref().unchecked_ref())

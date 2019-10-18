@@ -85,7 +85,7 @@ impl draco::App for Clock {
 pub fn start() {
     let mailbox = draco::start(Clock::new(), draco::select("main").expect("<main>").into());
     mailbox.stash(
-        mailbox.subscribe(draco::subscription::AnimationFrame::new(), |()| {
+        mailbox.subscribe(draco::subscription::AnimationFrame::new(), |_| {
             Message::Tick
         }),
     );
