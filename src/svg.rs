@@ -1,6 +1,6 @@
 use crate::{element::Ns, Element, NonKeyedElement};
 
-macro_rules! names {
+macro_rules! elements {
     ($($ident:ident)+) => {
         $(
             pub fn $ident<Message: 'static>() -> NonKeyedElement<Message> {
@@ -18,6 +18,6 @@ macro_rules! names {
     }
 }
 
-names! {
+elements! {
     svg circle ellipse image line path polygon polyline rect title
 }
