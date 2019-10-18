@@ -31,25 +31,25 @@ impl draco::App for Clock {
     fn view(&self) -> draco::Node<Self::Message> {
         use draco::{html as h, svg as s};
         let circle = s::circle()
-            .attribute("cx", "100")
-            .attribute("cy", "100")
-            .attribute("r", "98")
-            .attribute("fill", "none")
-            .attribute("stroke", "#1a202c");
+            .cx("100")
+            .cy("100")
+            .r("98")
+            .fill("none")
+            .stroke("#1a202c");
 
         let line = |rotate: f64, stroke, stroke_width: u32, height: u32| {
             s::line()
-                .attribute("x1", "100")
-                .attribute("y1", "100")
-                .attribute("x2", (100 - height).to_string())
-                .attribute("y2", "100")
-                .attribute("stroke", stroke)
-                .attribute("stroke-width", stroke_width.to_string())
-                .attribute("stroke-linecap", "round")
-                .attribute(
-                    "transform",
-                    format!("rotate({} 100 100)", (rotate * 10.0).round() / 10.0),
-                )
+                .x1("100")
+                .y1("100")
+                .x2((100 - height).to_string())
+                .y2("100")
+                .stroke(stroke)
+                .stroke_width(stroke_width.to_string())
+                .stroke_linecap("round")
+                .transform(format!(
+                    "rotate({} 100 100)",
+                    (rotate * 10.0).round() / 10.0
+                ))
         };
 
         let d = &self.date;
@@ -68,9 +68,9 @@ impl draco::App for Clock {
             )
             .push(
                 s::svg()
-                    .attribute("width", "400")
-                    .attribute("height", "400")
-                    .attribute("viewBox", "0 0 200 200")
+                    .width("400")
+                    .height("400")
+                    .view_box("0 0 200 200")
                     .push(circle)
                     .push(line(subsecond_rotate, "#e2e8f0", 10, 90))
                     .push(line(hour_rotate, "#2d3748", 4, 50))
