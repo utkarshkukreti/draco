@@ -13,7 +13,7 @@ fn bench_create_1000(b: &mut test::Bencher) {
     b.iter(|| {
         let mut jfb = jfb::Jfb::new(true);
         let mailbox = draco::Mailbox::new(|_| {});
-        jfb.update(&mailbox, jfb::Message::Create(1000));
+        jfb.update(jfb::Message::Append(1000), &mailbox);
     });
 }
 
@@ -21,7 +21,7 @@ fn bench_create_1000(b: &mut test::Bencher) {
 fn bench_render_1000(b: &mut test::Bencher) {
     let mut jfb = jfb::Jfb::new(true);
     let mailbox = draco::Mailbox::new(|_| {});
-    jfb.update(&mailbox, jfb::Message::Create(1000));
+    jfb.update(jfb::Message::Append(1000), &mailbox);
     b.iter(|| {
         jfb.view();
     });
