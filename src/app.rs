@@ -11,7 +11,7 @@ pub trait App: Sized + 'static {
     fn view(&self) -> Node<Self::Message>;
 }
 
-pub struct Instance<A: App> {
+struct Instance<A: App> {
     inner: Rc<Inner<A>>,
 }
 
