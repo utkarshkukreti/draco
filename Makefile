@@ -1,13 +1,8 @@
-default: README.md examples
-
-README.md: README.md.erb examples
-	erb $< > $@
-
-examples:
+default:
+	erb README.md.erb > README.md
 	cd examples && rake
 
-deploy:
-	make examples
+deploy: default
 	cd examples && netlifyctl deploy -P .
 
-.PHONY: default examples deploy
+.PHONY: default deploy
