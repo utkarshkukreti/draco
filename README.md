@@ -1,3 +1,4 @@
+
 # Draco
 
 > Draco is a Rust library to build client side web applications with Web
@@ -9,6 +10,29 @@
 ## Overview
 
 The "Hello, World!" of Draco looks like this:
+
+```rust
+use wasm_bindgen::prelude::*;
+
+struct HelloWorld;
+
+impl draco::App for HelloWorld {
+    type Message = ();
+
+    fn view(&self) -> draco::Node<Self::Message> {
+        draco::html::h1()
+            .push("Hello, world!")
+            .into()
+    }
+}
+
+#[wasm_bindgen(start)]
+pub fn start() {
+    draco::start(HelloWorld, draco::select("main").expect("<main>").into());
+}
+```
+
+Here's the same, with comments explaining everything:
 
 ```rust
 use wasm_bindgen::prelude::*;
@@ -46,6 +70,65 @@ pub fn start() {
 
 The introduction of any frontend framework is incomplete without the "Counter"
 example, so here it goes:
+
+```rust
+use wasm_bindgen::prelude::*;
+
+#[derive(Default)]
+pub struct Counter {
+    value: i32,
+}
+
+pub enum Message {
+    Increment,
+    Decrement,
+    Reset,
+}
+
+impl draco::App for Counter {
+    type Message = Message;
+
+    fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Self::Message>) {
+        match message {
+            Message::Increment => self.value += 1,
+            Message::Decrement => self.value -= 1,
+            Message::Reset => self.value = 0,
+        }
+    }
+
+    fn view(&self) -> draco::Node<Self::Message> {
+        use draco::html as h;
+        h::div()
+            .push(
+                h::button()
+                    .push("-")
+                    .on(
+                        "click",
+                        |_| {
+                            Message::Decrement
+                        },
+                    ),
+            )
+            .push(" ")
+            .push(self.value)
+            .push(" ")
+            .push(h::button().push("+").on("click", |_| Message::Increment))
+            .push(" ")
+            .push(h::button().push("Reset").on("click", |_| Message::Reset))
+            .into()
+    }
+}
+
+#[wasm_bindgen(start)]
+pub fn start() {
+    draco::start(
+        Counter::default(),
+        draco::select("main").expect("<main>").into(),
+    );
+}
+```
+
+Here's the same, with comments explaining everything:
 
 ```rust
 use wasm_bindgen::prelude::*;
