@@ -1,6 +1,11 @@
 <%
   def without_comments(string)
-    string.lines.reject { |line| line =~ /\s*\/\// }.join
+    stripped = string.lines.reject { |line| line =~ /\s*\/\// }.join
+    IO.popen("rustfmt", "w+") do |pipe|
+      pipe.puts stripped
+      pipe.close_write
+      pipe.read.strip
+    end
   end
 %>
 # Draco
