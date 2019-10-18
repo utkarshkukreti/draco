@@ -18,7 +18,7 @@ fn bench_create_1000(b: &mut test::Bencher) {
 }
 
 #[bench]
-fn bench_render_1000(b: &mut test::Bencher) {
+fn bench_view_1000(b: &mut test::Bencher) {
     let mut jfb = jfb::Jfb::new(true);
     let mailbox = draco::Mailbox::new(|_| {});
     jfb.update(jfb::Message::Append(1000), &mailbox);
