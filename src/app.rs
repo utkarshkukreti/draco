@@ -25,19 +25,32 @@ struct Inner<A: App> {
 
 impl<A: App> Instance<A> {
     fn send(&self, message: A::Message) {
+        self.push(message);
+        self.update();
+        self.render();
+    }
+
+    fn push(&self, message: A::Message) {
+        self.inner.queue.borrow_mut().push(message);
+    }
+
+    fn update(&self) {
+        // If we were called from inside the `while` loop below, bail out; the message will be
+        // processed by the loop later.
         if self.inner.is_updating.get() {
-            self.inner.queue.borrow_mut().push(message);
             return;
         }
+
         self.inner.is_updating.replace(true);
+
         let mailbox = self.mailbox();
-        self.inner.app.borrow_mut().update(message, &mailbox);
+
         while !self.inner.queue.borrow().is_empty() {
             let message = self.inner.queue.borrow_mut().remove(0);
             self.inner.app.borrow_mut().update(message, &mailbox);
         }
+
         self.inner.is_updating.replace(false);
-        self.render();
     }
 
     fn render(&self) {
