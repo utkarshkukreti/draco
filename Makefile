@@ -1,4 +1,5 @@
 default:
+	cargo fmt -- --check
 	erb README.md.erb > README.md
 	cd examples && rake
 
