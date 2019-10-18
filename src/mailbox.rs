@@ -57,6 +57,16 @@ impl<Message: 'static> Mailbox<Message> {
         subscription.subscribe(Rc::new(move |message| cloned.send(f(message))))
     }
 
+    pub fn subscribe_forever<S: Subscription + 'static>(
+        &self,
+        subscription: S,
+        f: impl Fn(S::Message) -> Message + 'static,
+    ) {
+        let cloned = self.clone();
+        let unsubscribe = subscription.subscribe(Rc::new(move |message| cloned.send(f(message))));
+        self.stash(unsubscribe);
+    }
+
     pub fn map<NewMessage: 'static>(
         self,
         f: impl Fn(NewMessage) -> Message + 'static,
@@ -79,7 +89,7 @@ impl<Message: 'static> Mailbox<Message> {
         });
     }
 
-    pub fn stash(&self, t: impl Any) {
+    fn stash(&self, t: impl Any) {
         self.inner.stash.borrow_mut().push(Box::new(t));
     }
 }

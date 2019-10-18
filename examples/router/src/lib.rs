@@ -150,8 +150,8 @@ pub fn start() {
         draco::select("main").expect("<main>").into(),
     );
 
-    mailbox.stash(mailbox.subscribe(
+    mailbox.subscribe_forever(
         draco::router::Router::new(draco::router::Mode::Hash),
         Message::Navigate,
-    ));
+    );
 }

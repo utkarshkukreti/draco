@@ -84,9 +84,7 @@ impl draco::App for Clock {
 #[wasm_bindgen(start)]
 pub fn start() {
     let mailbox = draco::start(Clock::new(), draco::select("main").expect("<main>").into());
-    mailbox.stash(
-        mailbox.subscribe(draco::subscription::AnimationFrame::new(), |_| {
-            Message::Tick
-        }),
-    );
+    mailbox.subscribe_forever(draco::subscription::AnimationFrame::new(), |_| {
+        Message::Tick
+    });
 }
