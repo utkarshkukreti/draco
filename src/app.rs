@@ -17,7 +17,7 @@ struct Instance<A: App> {
 
 struct Inner<A: App> {
     app: RefCell<A>,
-    node: RefCell<web::Node>,
+    node: Cell<web::Node>,
     vnode: RefCell<Node<A::Message>>,
     queue: RefCell<Vec<A::Message>>,
     is_updating: Cell<bool>,
@@ -93,7 +93,7 @@ pub fn start<A: App>(app: A, node: web::Node) -> Mailbox<A::Message> {
     let instance = Instance {
         inner: Rc::new(Inner {
             app: RefCell::new(app),
-            node: RefCell::new(new_node),
+            node: Cell::new(new_node),
             vnode: RefCell::new(vnode.into()),
             is_updating: Cell::new(false),
             queue: RefCell::new(Vec::new()),
