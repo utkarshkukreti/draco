@@ -16,7 +16,7 @@ use wasm_bindgen::prelude::*;
 
 struct HelloWorld;
 
-impl draco::App for HelloWorld {
+impl draco::Application for HelloWorld {
     type Message = ();
 
     fn view(&self) -> draco::Node<Self::Message> {
@@ -46,7 +46,7 @@ pub enum Message {
     Reset,
 }
 
-impl draco::App for Counter {
+impl draco::Application for Counter {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Self::Message>) {
@@ -92,8 +92,8 @@ use wasm_bindgen::prelude::*;
 // We declare a unit struct here because we don't have any state to store.
 struct HelloWorld;
 
-// A Draco application must implement the `draco::App` trait.
-impl draco::App for HelloWorld {
+// A Draco application must implement the `draco::Application` trait.
+impl draco::Application for HelloWorld {
     // `Message` is the type of value our HTML will emit.
     // Here we aren't emitting anything so we use the unit type.
     // You can put any type here and this example will still compile.
@@ -139,7 +139,7 @@ pub enum Message {
     Reset,
 }
 
-impl draco::App for Counter {
+impl draco::Application for Counter {
     // This is the type our `view` will emit and `update` will handle.
     type Message = Message;
 

@@ -16,7 +16,7 @@ pub enum Message {
     Reset,
 }
 
-impl draco::App for Counter {
+impl draco::Application for Counter {
     // This is the type our `view` will emit and `update` will handle.
     type Message = Message;
 

@@ -6,7 +6,7 @@ extern crate test;
 #[allow(dead_code)]
 mod jfb;
 
-use draco::App;
+use draco::Application;
 
 #[bench]
 fn bench_create_1000(b: &mut test::Bencher) {

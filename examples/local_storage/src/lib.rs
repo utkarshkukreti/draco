@@ -30,7 +30,7 @@ pub enum Message {
     Update(String),
 }
 
-impl draco::App for LocalStorage {
+impl draco::Application for LocalStorage {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, _: &draco::Mailbox<Self::Message>) {

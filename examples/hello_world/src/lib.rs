@@ -4,8 +4,8 @@ use wasm_bindgen::prelude::*;
 // We declare a unit struct here because we don't have any state to store.
 struct HelloWorld;
 
-// A Draco application must implement the `draco::App` trait.
-impl draco::App for HelloWorld {
+// A Draco application must implement the `draco::Application` trait.
+impl draco::Application for HelloWorld {
     // `Message` is the type of value our HTML will emit.
     // Here we aren't emitting anything so we use the unit type.
     // You can put any type here and this example will still compile.

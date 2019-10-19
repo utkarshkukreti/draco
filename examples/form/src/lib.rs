@@ -16,7 +16,7 @@ pub enum Message {
     Notify,
 }
 
-impl draco::App for Form {
+impl draco::Application for Form {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Self::Message>) {

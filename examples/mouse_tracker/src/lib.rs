@@ -14,7 +14,7 @@ enum Message {
     Move(web::MouseEvent),
 }
 
-impl draco::App for MouseTracker {
+impl draco::Application for MouseTracker {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Self::Message>) {

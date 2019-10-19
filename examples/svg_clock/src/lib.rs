@@ -17,7 +17,7 @@ impl Clock {
     }
 }
 
-impl draco::App for Clock {
+impl draco::Application for Clock {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, _mailbox: &draco::Mailbox<Self::Message>) {

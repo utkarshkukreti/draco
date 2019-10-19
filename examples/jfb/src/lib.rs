@@ -177,7 +177,7 @@ impl Jfb {
     }
 }
 
-impl draco::App for Jfb {
+impl draco::Application for Jfb {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Self::Message>) {

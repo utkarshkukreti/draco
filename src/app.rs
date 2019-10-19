@@ -4,18 +4,18 @@ use std::rc::Rc;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
-pub trait App: Sized + 'static {
+pub trait Application: Sized + 'static {
     type Message;
 
     fn update(&mut self, _message: Self::Message, _mailbox: &Mailbox<Self::Message>) {}
     fn view(&self) -> Node<Self::Message>;
 }
 
-struct Instance<A: App> {
+struct Instance<A: Application> {
     inner: Rc<Inner<A>>,
 }
 
-struct Inner<A: App> {
+struct Inner<A: Application> {
     app: RefCell<A>,
     node: Cell<web::Node>,
     vnode: RefCell<Node<A::Message>>,
@@ -23,7 +23,7 @@ struct Inner<A: App> {
     is_updating: Cell<bool>,
 }
 
-impl<A: App> Instance<A> {
+impl<A: Application> Instance<A> {
     fn send(&self, message: A::Message) {
         self.push(message);
         self.update();
@@ -69,7 +69,7 @@ impl<A: App> Instance<A> {
     }
 }
 
-impl<A: App> std::clone::Clone for Instance<A> {
+impl<A: Application> std::clone::Clone for Instance<A> {
     fn clone(&self) -> Self {
         Instance {
             inner: Rc::clone(&self.inner),
@@ -77,13 +77,13 @@ impl<A: App> std::clone::Clone for Instance<A> {
     }
 }
 
-impl<A: App> std::fmt::Debug for Instance<A> {
+impl<A: Application> std::fmt::Debug for Instance<A> {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         f.debug_struct("Instance").finish()
     }
 }
 
-pub fn start<A: App>(app: A, node: web::Node) -> Mailbox<A::Message> {
+pub fn start<A: Application>(app: A, node: web::Node) -> Mailbox<A::Message> {
     let mut vnode = Text::new("!");
     let new_node = vnode.create().into();
     node.parent_node()

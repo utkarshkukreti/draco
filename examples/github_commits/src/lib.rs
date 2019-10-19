@@ -41,7 +41,7 @@ enum Message {
     UpdateResponse(Response),
 }
 
-impl draco::App for GitHubCommits {
+impl draco::Application for GitHubCommits {
     type Message = Message;
 
     fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Self::Message>) {

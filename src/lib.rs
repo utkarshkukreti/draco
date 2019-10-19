@@ -15,7 +15,7 @@ pub mod svg;
 pub mod text;
 pub mod url;
 
-pub use self::app::{start, App};
+pub use self::app::{start, Application};
 pub use self::aspect::Aspect;
 pub use self::attribute::Attribute;
 pub use self::element::{h, s};
