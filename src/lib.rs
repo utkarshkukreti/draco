@@ -1,6 +1,6 @@
 #[macro_use]
 pub mod console;
-pub mod app;
+pub mod application;
 pub mod aspect;
 pub mod attribute;
 pub mod element;
@@ -15,7 +15,7 @@ pub mod svg;
 pub mod text;
 pub mod url;
 
-pub use self::app::{start, Application};
+pub use self::application::{start, Application};
 pub use self::aspect::Aspect;
 pub use self::attribute::Attribute;
 pub use self::element::{h, s};
