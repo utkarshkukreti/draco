@@ -27,8 +27,8 @@ impl Url {
 impl<T: Into<String>> From<T> for Url {
     fn from(t: T) -> Self {
         let string = t.into();
-        let (path_and_query, hash) = split(&string, '#');
-        let (path, query) = split(path_and_query, '?');
+        let (path_and_query, hash) = split2(&string, '#');
+        let (path, query) = split2(path_and_query, '?');
         let path = path
             .split('/')
             .filter(|str| *str != "")
@@ -36,7 +36,7 @@ impl<T: Into<String>> From<T> for Url {
             .collect();
         let query = query
             .split('&')
-            .map(|part| split(part, '='))
+            .map(|part| split2(part, '='))
             .filter(|(k, v)| !k.is_empty() || !v.is_empty())
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
@@ -44,7 +44,7 @@ impl<T: Into<String>> From<T> for Url {
 
         return Url { path, query, hash };
 
-        fn split(haystack: &str, needle: char) -> (&str, &str) {
+        fn split2(haystack: &str, needle: char) -> (&str, &str) {
             let mut splitted = haystack.splitn(2, needle);
             (
                 splitted.next().unwrap_throw(),
