@@ -1,17 +1,31 @@
 use wasm_bindgen::prelude::*;
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Form {
     username: String,
     password: String,
     accept: bool,
+    plan: String,
     is_submitting: bool,
+}
+
+impl Default for Form {
+    fn default() -> Self {
+        Form {
+            username: "".into(),
+            password: "".into(),
+            accept: false,
+            plan: "C3".into(),
+            is_submitting: false,
+        }
+    }
 }
 
 pub enum Message {
     UpdateUsername(String),
     UpdatePassword(String),
     UpdateAccept(bool),
+    UpdatePlan(String),
     Submit,
     Notify,
 }
@@ -31,6 +45,9 @@ impl draco::Application for Form {
             UpdateAccept(accept) => {
                 self.accept = accept;
             }
+            UpdatePlan(plan) => {
+                self.plan = plan;
+            }
             Submit => {
                 self.is_submitting = true;
                 mailbox.send_after(1000, || Notify);
@@ -47,6 +64,7 @@ impl draco::Application for Form {
 
     fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
+        let plans = ["A1", "B2", "C3", "D4", "E5"];
         h::form()
             .on("submit", |event| {
                 event.prevent_default();
@@ -84,6 +102,16 @@ impl draco::Application for Form {
                     .on("click", |_| Message::UpdatePassword("".into())),
             )
             .push(h::br())
+            .push(
+                h::div().push(h::label().for_("plan").push("Plan")).push(
+                    h::select()
+                        .value(self.plan.clone())
+                        .on_input(Message::UpdatePlan)
+                        .append(plans.iter().map(|plan| {
+                            h::option().value(plan.to_string()).push(plan.to_string())
+                        })),
+                ),
+            )
             .push(h::label().for_("accept").push("Accept "))
             .push(
                 h::input()
