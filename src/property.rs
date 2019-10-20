@@ -1,6 +1,6 @@
 use crate::S;
 use std::borrow::Cow;
-use wasm_bindgen::JsValue;
+use wasm_bindgen::{JsValue, UnwrapThrowExt};
 use web_sys as web;
 
 #[derive(Debug)]
@@ -44,14 +44,14 @@ impl Property {
             ("checked", Value::Bool(new_checked)) => {
                 if let Some(old_checked) = get_bool("checked") {
                     if old_checked != *new_checked {
-                        let _ = set_bool("checked", *new_checked);
+                        set_bool("checked", *new_checked).unwrap_throw();
                     }
                 }
             }
             ("value", Value::String(new_string)) => {
                 if let Some(old_string) = get_string("value") {
                     if &old_string != new_string {
-                        let _ = set_str("value", new_string);
+                        set_str("value", new_string).unwrap_throw();
                     }
                 }
             }
@@ -59,10 +59,10 @@ impl Property {
                 if Some(&self.value) != old_property.map(|p| &p.value) {
                     match value {
                         Value::Bool(bool) => {
-                            let _ = set_bool(name, *bool);
+                            set_bool(name, *bool).unwrap_throw();
                         }
                         Value::String(string) => {
-                            let _ = set_str(name, string);
+                            set_str(name, string).unwrap_throw();
                         }
                     }
                 }
@@ -71,7 +71,8 @@ impl Property {
     }
 
     pub fn remove(&self, element: &web::Element) {
-        let _ = js_sys::Reflect::set(element, &JsValue::from_str(&self.name), &JsValue::UNDEFINED);
+        js_sys::Reflect::set(element, &JsValue::from_str(&self.name), &JsValue::UNDEFINED)
+            .unwrap_throw();
     }
 }
 
