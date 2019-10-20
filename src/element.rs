@@ -109,10 +109,10 @@ where
                 .unwrap_throw(),
         };
 
-        aspect::patch(&mut self.aspects, &[], &element, mailbox);
-
         self.children
             .create(element.as_ref() as &web::Node, mailbox);
+
+        aspect::patch(&mut self.aspects, &[], &element, mailbox);
 
         self.node = Some(element.clone());
 
@@ -123,10 +123,10 @@ where
         debug_assert!(self.name == old.name);
         let old_element = old.node.take().unwrap_throw();
 
-        aspect::patch(&mut self.aspects, &old.aspects, &old_element, mailbox);
-
         self.children
             .patch(&mut old.children, old_element.as_ref(), mailbox);
+
+        aspect::patch(&mut self.aspects, &old.aspects, &old_element, mailbox);
 
         self.node = Some(old_element.clone());
 
