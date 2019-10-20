@@ -77,14 +77,14 @@ where
                 if let Some(input) = target.dyn_ref::<web::HtmlInputElement>() {
                     return handler(input.value());
                 }
-                if let Some(input) = target.dyn_ref::<web::HtmlTextAreaElement>() {
-                    return handler(input.value());
+                if let Some(textarea) = target.dyn_ref::<web::HtmlTextAreaElement>() {
+                    return handler(textarea.value());
                 }
-                if let Some(input) = target.dyn_ref::<web::HtmlSelectElement>() {
-                    return handler(input.value());
+                if let Some(select) = target.dyn_ref::<web::HtmlSelectElement>() {
+                    return handler(select.value());
                 }
             }
-            return handler("".into());
+            handler("".into())
         })
     }
 
@@ -95,7 +95,7 @@ where
                     return handler(input.checked());
                 }
             }
-            return handler(false);
+            handler(false)
         })
     }
 
