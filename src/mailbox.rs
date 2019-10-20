@@ -62,9 +62,7 @@ impl<Message: 'static> Mailbox<Message> {
         subscription: S,
         f: impl Fn(S::Message) -> Message + 'static,
     ) {
-        let cloned = self.clone();
-        let unsubscribe = subscription.subscribe(Rc::new(move |message| cloned.send(f(message))));
-        self.stash(unsubscribe);
+        self.stash(self.subscribe(subscription, f));
     }
 
     pub fn map<NewMessage: 'static>(
