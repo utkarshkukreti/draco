@@ -31,19 +31,19 @@ impl<R: Route + 'static> Subscription for Router<R> {
     type Message = R;
 
     fn subscribe(self, send: subscription::Send<Self::Message>) -> Unsubscribe {
-        let window = web::window().unwrap_throw();
+        let window: web::EventTarget = web::window().unwrap_throw().into();
         let closure = Closure::wrap(Box::new(move || {
             send(R::from_url(current_url(self.mode)));
         }) as Box<dyn FnMut()>);
-        (window.as_ref() as &web::EventTarget)
+        window
             .add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
             .unwrap_throw();
-        (window.as_ref() as &web::EventTarget)
+        window
             .dispatch_event(&web::Event::new("popstate").unwrap_throw())
             .unwrap_throw();
 
         Unsubscribe::new(move || {
-            (window.as_ref() as &web::EventTarget)
+            window
                 .remove_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
                 .unwrap_throw();
         })
