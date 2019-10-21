@@ -72,6 +72,15 @@ where
         self
     }
 
+    pub fn on_<N: Into<S>>(
+        mut self,
+        name: N,
+        handler: impl FnMut(web::Event) -> Option<C::Message> + 'static,
+    ) -> Self {
+        self.aspects.push(Listener::new(name, handler).into());
+        self
+    }
+
     pub fn on_input(self, mut handler: impl FnMut(String) -> C::Message + 'static) -> Self {
         self.on("input", move |event| {
             if let Some(target) = event.target() {
