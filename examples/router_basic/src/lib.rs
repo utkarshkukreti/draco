@@ -1,3 +1,4 @@
+use draco::router::Mode::Hash;
 use draco::url::Url;
 use wasm_bindgen::prelude::*;
 
@@ -8,7 +9,7 @@ struct Router {
 impl Router {
     fn new() -> Self {
         Router {
-            url: draco::router::current_url(draco::router::Mode::Hash),
+            url: draco::router::current_url(Hash),
         }
     }
 }
@@ -38,7 +39,6 @@ impl draco::Application for Router {
 
     fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
-        use draco::router::Mode::Hash;
         let urls = [
             "/",
             "/foo",
@@ -75,8 +75,5 @@ impl draco::Application for Router {
 pub fn start() {
     let mailbox = draco::start(Router::new(), draco::select("main").expect("<main>").into());
 
-    mailbox.subscribe_forever(
-        draco::router::Router::new(draco::router::Mode::Hash),
-        Message::Navigate,
-    );
+    mailbox.subscribe_forever(draco::router::Router::new(Hash), Message::Navigate);
 }
