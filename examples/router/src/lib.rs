@@ -42,7 +42,7 @@ impl draco::router::Route for Page {
                 id,
                 hash: url.hash().clone(),
             })
-            .value()
+            .finish()
             .unwrap_or(Page::NotFound)
     }
 

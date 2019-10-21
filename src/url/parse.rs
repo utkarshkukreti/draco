@@ -179,7 +179,7 @@ impl<'a, T> Parser<'a, T> {
         self
     }
 
-    pub fn value(self) -> Option<T> {
+    pub fn finish(self) -> Option<T> {
         self.value
     }
 }
