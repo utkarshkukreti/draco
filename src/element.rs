@@ -113,9 +113,14 @@ where
         let document = web::window().unwrap_throw().document().unwrap_throw();
 
         let element = match self.ns {
-            Ns::Html => document.create_element(&self.name).unwrap_throw(),
+            Ns::Html => document
+                .create_element(wasm_bindgen::intern(&self.name))
+                .unwrap_throw(),
             Ns::Svg => document
-                .create_element_ns(Some("http://www.w3.org/2000/svg"), &self.name)
+                .create_element_ns(
+                    Some("http://www.w3.org/2000/svg"),
+                    wasm_bindgen::intern(&self.name),
+                )
                 .unwrap_throw(),
         };
 

@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 draco = { path = "../.." }
-wasm-bindgen = "0.2"
+wasm-bindgen = { version = "0.2", features = ["enable-interning"] }
 
 rand = "0.5"
 web-sys = { version = "0.3", features = ["Window"] }

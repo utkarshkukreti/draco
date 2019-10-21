@@ -27,7 +27,10 @@ impl Attribute {
     pub fn patch(&self, old_attribute: Option<&Attribute>, element: &web::Element) {
         if Some(self) != old_attribute {
             element
-                .set_attribute(&self.name, &self.value)
+                .set_attribute(
+                    wasm_bindgen::intern(&self.name),
+                    wasm_bindgen::intern(&self.value),
+                )
                 .unwrap_throw()
         }
     }
