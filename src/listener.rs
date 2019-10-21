@@ -7,12 +7,15 @@ use web_sys as web;
 
 pub struct Listener<Message> {
     name: S,
-    handler: Option<Box<dyn FnMut(web::Event) -> Message>>,
+    handler: Option<Box<dyn FnMut(web::Event) -> Option<Message>>>,
     closure: Option<Closure<dyn FnMut(web::Event)>>,
 }
 
 impl<Message: 'static> Listener<Message> {
-    pub fn new(name: impl Into<S>, handler: impl FnMut(web::Event) -> Message + 'static) -> Self {
+    pub fn new(
+        name: impl Into<S>,
+        handler: impl FnMut(web::Event) -> Option<Message> + 'static,
+    ) -> Self {
         Listener {
             name: name.into(),
             handler: Some(Box::new(handler)),
@@ -34,8 +37,12 @@ impl<Message: 'static> Listener<Message> {
             closure,
         } = self;
         let handler = match handler.take() {
-            Some(mut handler) => Some(Box::new(move |event| f(handler(event)))
-                as Box<dyn FnMut(web::Event) -> NewMessage>),
+            Some(mut handler) => {
+                Some(
+                    Box::new(move |event| handler(event).map(|message| f(message)))
+                        as Box<dyn FnMut(web::Event) -> Option<NewMessage>>,
+                )
+            }
             None => None,
         };
         Listener {
@@ -58,10 +65,10 @@ impl<Message: 'static> Listener<Message> {
     pub fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
         let mailbox = mailbox.clone();
         let mut handler = self.handler.take().unwrap_throw();
-        let closure = Closure::wrap(
-            Box::new(move |event: web::Event| mailbox.send(handler(event)))
-                as Box<dyn FnMut(web::Event) + 'static>,
-        );
+        let closure = Closure::wrap(Box::new(move |event: web::Event| match handler(event) {
+            Some(message) => mailbox.send(message),
+            None => {}
+        }) as Box<dyn FnMut(web::Event) + 'static>);
         (element.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .unwrap_throw();

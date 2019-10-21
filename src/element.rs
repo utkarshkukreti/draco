@@ -65,9 +65,10 @@ where
     pub fn on<N: Into<S>>(
         mut self,
         name: N,
-        handler: impl FnMut(web::Event) -> C::Message + 'static,
+        mut handler: impl FnMut(web::Event) -> C::Message + 'static,
     ) -> Self {
-        self.aspects.push(Listener::new(name, handler).into());
+        self.aspects
+            .push(Listener::new(name, move |event| Some(handler(event))).into());
         self
     }
 
