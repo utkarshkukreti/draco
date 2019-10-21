@@ -2,21 +2,14 @@ use crate::url::Url;
 use std::marker::PhantomData;
 use std::str::FromStr;
 
-#[derive(Clone, Debug)]
-pub struct State<'a> {
-    url: &'a Url,
-    index: usize,
-}
-
 pub trait Parse {
     type Output;
 
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output>;
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)>;
 
     fn parse(&self, url: &Url) -> Option<Self::Output> {
-        let mut state = State { url, index: 0 };
-        let route = self.parse_state(&mut state)?;
-        if state.index == state.url.path.len() {
+        let (route, index) = self.parse_state(url, 0)?;
+        if index == url.path.len() {
             Some(route)
         } else {
             None
@@ -34,25 +27,20 @@ pub trait Parse {
 impl Parse for str {
     type Output = ();
 
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
-        if state
-            .url
-            .path
-            .get(state.index)
-            .map_or(false, |string| string == self)
-        {
-            state.index += 1;
-            return Some(());
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        if url.path.get(index).map_or(false, |string| string == self) {
+            Some(((), index + 1))
+        } else {
+            None
         }
-        None
     }
 }
 
 impl Parse for &'static str {
     type Output = ();
 
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
-        (*self).parse_state(state)
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        (*self).parse_state(url, index)
     }
 }
 
@@ -66,11 +54,10 @@ pub fn param<T: FromStr>() -> Param<T> {
 impl<T: FromStr> Parse for Param<T> {
     type Output = T;
 
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
-        if let Some(param) = state.url.path.get(state.index) {
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        if let Some(param) = url.path.get(index) {
             if let Ok(ok) = param.parse() {
-                state.index += 1;
-                return Some(ok);
+                return Some((ok, index + 1));
             }
         }
         None
@@ -87,16 +74,10 @@ pub fn query<T: FromStr>(name: &str) -> Query<T> {
 impl<'a, T: FromStr> Parse for Query<'a, T> {
     type Output = T;
 
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
-        if let Some(value) = state
-            .url
-            .query
-            .iter()
-            .find(|(k, _)| k == self.0)
-            .map(|(_, v)| v)
-        {
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        if let Some(value) = url.query.iter().find(|(k, _)| k == self.0).map(|(_, v)| v) {
             if let Ok(ok) = value.parse() {
-                return Some(ok);
+                return Some((ok, index));
             }
         }
         None
@@ -113,10 +94,10 @@ pub fn hash<T: FromStr>() -> Hash<T> {
 impl<T: FromStr> Parse for Hash<T> {
     type Output = T;
 
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
-        if let Some(ref hash) = state.url.hash {
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        if let Some(ref hash) = url.hash {
             if let Ok(ok) = hash.parse() {
-                return Some(ok);
+                return Some((ok, index));
             }
         }
         None
@@ -126,8 +107,8 @@ impl<T: FromStr> Parse for Hash<T> {
 impl Parse for () {
     type Output = ();
 
-    fn parse_state(&self, _state: &mut State) -> Option<Self::Output> {
-        Some(())
+    fn parse_state(&self, _url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        Some(((), index))
     }
 }
 
@@ -136,14 +117,15 @@ macro_rules! go {
         $(
             impl<$($ident: Parse,)+> Parse for ($($ident,)+) {
                 type Output = ($($ident::Output,)+);
-                fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
+                fn parse_state(&self, url: &Url, mut index: usize) -> Option<(Self::Output, usize)> {
                     #[allow(non_snake_case)]
                     let ($($ident,)+) = self;
                     $(
                         #[allow(non_snake_case)]
-                        let $ident = $ident.parse_state(state)?;
+                        let ($ident, new_index) = $ident.parse_state(url, index)?;
+                        index = new_index;
                     )*
-                    Some(($($ident,)+))
+                    Some((($($ident,)+), index))
                 }
             }
         )+
@@ -168,13 +150,11 @@ pub struct Optional<T: Parse>(T);
 
 impl<T: Parse> Parse for Optional<T> {
     type Output = Option<T::Output>;
-    fn parse_state(&self, state: &mut State) -> Option<Self::Output> {
-        let cloned = state.clone();
-        if let Some(t) = self.0.parse_state(state) {
-            Some(Some(t))
+    fn parse_state(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        if let Some((t, index)) = self.0.parse_state(url, index) {
+            Some((Some(t), index))
         } else {
-            *state = cloned;
-            Some(None)
+            Some((None, index))
         }
     }
 }
