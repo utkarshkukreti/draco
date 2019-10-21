@@ -69,11 +69,7 @@ pub fn link<Message: 'static, R: Route + 'static>(mode: Mode, r: R) -> NonKeyedE
     crate::html::a()
         .href(href(mode, &r.to_url().to_string()))
         .on_("click", move |event| {
-            let mouse_event = event
-                .target()
-                .unwrap_throw()
-                .dyn_into::<web::MouseEvent>()
-                .unwrap_throw();
+            let mouse_event = event.dyn_into::<web::MouseEvent>().unwrap_throw();
             if mouse_event.alt_key()
                 || mouse_event.ctrl_key()
                 || mouse_event.meta_key()
