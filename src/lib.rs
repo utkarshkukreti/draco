@@ -48,3 +48,8 @@ pub fn set_panic_hook() {
         }));
     });
 }
+
+// TODO: Move this into some module.
+pub trait NoOp {
+    fn noop() -> Self;
+}
