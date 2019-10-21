@@ -55,6 +55,16 @@ pub trait Route {
     fn to_url(&self) -> Url;
 }
 
+impl Route for Url {
+    fn from_url(url: Url) -> Self {
+        url
+    }
+
+    fn to_url(&self) -> Url {
+        self.clone()
+    }
+}
+
 pub fn link<Message: Default + 'static, R: Route + 'static>(
     mode: Mode,
     r: R,
