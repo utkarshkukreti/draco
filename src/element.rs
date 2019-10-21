@@ -82,30 +82,30 @@ where
     }
 
     pub fn on_input(self, mut handler: impl FnMut(String) -> C::Message + 'static) -> Self {
-        self.on("input", move |event| {
+        self.on_("input", move |event| {
             if let Some(target) = event.target() {
                 if let Some(input) = target.dyn_ref::<web::HtmlInputElement>() {
-                    return handler(input.value());
+                    return Some(handler(input.value()));
                 }
                 if let Some(textarea) = target.dyn_ref::<web::HtmlTextAreaElement>() {
-                    return handler(textarea.value());
+                    return Some(handler(textarea.value()));
                 }
                 if let Some(select) = target.dyn_ref::<web::HtmlSelectElement>() {
-                    return handler(select.value());
+                    return Some(handler(select.value()));
                 }
             }
-            handler("".into())
+            None
         })
     }
 
     pub fn on_checked(self, mut handler: impl FnMut(bool) -> C::Message + 'static) -> Self {
-        self.on("input", move |event| {
+        self.on_("input", move |event| {
             if let Some(target) = event.target() {
                 if let Some(input) = target.dyn_ref::<web::HtmlInputElement>() {
-                    return handler(input.checked());
+                    return Some(handler(input.checked()));
                 }
             }
-            handler(false)
+            None
         })
     }
 
