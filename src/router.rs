@@ -65,7 +65,7 @@ impl Route for Url {
     }
 }
 
-pub fn link<Message: Default + 'static, R: Route + 'static>(
+pub fn link<Message: crate::NoOp + 'static, R: Route + 'static>(
     mode: Mode,
     r: R,
 ) -> NonKeyedElement<Message> {
@@ -74,7 +74,7 @@ pub fn link<Message: Default + 'static, R: Route + 'static>(
         .on("click", move |event| {
             event.prevent_default();
             push(mode, &r);
-            Message::default()
+            Message::noop()
         })
 }
 

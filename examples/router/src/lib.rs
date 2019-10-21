@@ -11,8 +11,8 @@ enum Message {
     NoOp,
 }
 
-impl Default for Message {
-    fn default() -> Self {
+impl draco::NoOp for Message {
+    fn noop() -> Self {
         Message::NoOp
     }
 }
