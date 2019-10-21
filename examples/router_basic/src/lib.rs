@@ -39,7 +39,13 @@ impl draco::Application for Router {
     fn view(&self) -> draco::Node<Self::Message> {
         use draco::html as h;
         use draco::router::Mode::Hash;
-        let urls = ["/foo", "/foo/bar", "/foo/bar?baz=quux", "/foo/bar?baz#quux"];
+        let urls = [
+            "/",
+            "/foo",
+            "/foo/bar",
+            "/foo/bar?baz=quux",
+            "/foo/bar?baz#quux",
+        ];
 
         h::div()
             .push(h::h3().push(format!("Current Url: {:?}", &self.url)))
@@ -47,7 +53,7 @@ impl draco::Application for Router {
                 h::div()
                     .attribute(
                         "style",
-                        if url == &self.url.to_string() {
+                        if Url::from(*url) == self.url {
                             "padding: .25rem .75rem; background: #fefcbf; border: 1px solid #ecc94b; border-radius: 4px;"
                         } else {
                             "padding: .25rem .75rem;"
