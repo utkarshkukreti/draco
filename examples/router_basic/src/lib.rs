@@ -16,13 +16,6 @@ impl Router {
 
 enum Message {
     Navigate(Url),
-    NoOp,
-}
-
-impl draco::NoOp for Message {
-    fn noop() -> Self {
-        Message::NoOp
-    }
 }
 
 impl draco::Application for Router {
@@ -33,7 +26,6 @@ impl draco::Application for Router {
             Message::Navigate(url) => {
                 self.url = url;
             }
-            Message::NoOp => {}
         }
     }
 

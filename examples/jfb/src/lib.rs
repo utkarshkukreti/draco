@@ -81,7 +81,6 @@ pub enum Message {
     Swap,
     Remove(usize),
     Select(usize),
-    NoOp,
 }
 
 impl Jfb {
@@ -95,7 +94,7 @@ impl Jfb {
         }
     }
 
-    fn on_click(event: web::Event) -> Message {
+    fn on_click(event: web::Event) -> Option<Message> {
         use wasm_bindgen::JsCast;
         let target = event.target().unwrap();
         let target: web_sys::Element = target.dyn_into().unwrap();
@@ -110,12 +109,12 @@ impl Jfb {
                 .into();
             let id = td.text_content().unwrap().parse().unwrap();
             if target.matches(".remove").unwrap() {
-                Message::Remove(id)
+                Some(Message::Remove(id))
             } else {
-                Message::Select(id)
+                Some(Message::Select(id))
             }
         } else {
-            Message::NoOp
+            None
         }
     }
 
@@ -222,7 +221,6 @@ impl draco::Application for Jfb {
                     *selected_id = Some(id);
                 }
             }
-            Message::NoOp => {}
         }
     }
 
@@ -241,7 +239,7 @@ impl draco::Application for Jfb {
             )
             .push(
                 h::table()
-                    .on("click", Self::on_click)
+                    .on_("click", Self::on_click)
                     .class("table table-hover table-striped test-data")
                     .push({
                         let node: draco::Node<Message> = if self.keyed {

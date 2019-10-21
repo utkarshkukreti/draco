@@ -9,13 +9,6 @@ struct Router {
 
 enum Message {
     Navigate(Page),
-    NoOp,
-}
-
-impl draco::NoOp for Message {
-    fn noop() -> Self {
-        Message::NoOp
-    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -73,7 +66,6 @@ impl draco::Application for Router {
             Message::Navigate(page) => {
                 self.page = page;
             }
-            Message::NoOp => {}
         }
     }
 
@@ -122,20 +114,20 @@ impl draco::Application for Router {
                     .push(
                         h::button()
                             .push("Push")
-                            .on("click", {
+                            .on_("click", {
                                 let page = page.clone();
                                 move |_| {
                                     draco::router::push(Hash, &page);
-                                    Message::NoOp
+                                    None
                                 }
                             })
                             .attribute("style", "margin-right: .5rem;"),
                     )
-                    .push(h::button().push("Replace").on("click", {
+                    .push(h::button().push("Replace").on_("click", {
                         let page = page.clone();
                         move |_| {
                             draco::router::replace(Hash, &page);
-                            Message::NoOp
+                            None
                         }
                     }))
             }))

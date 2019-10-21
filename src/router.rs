@@ -65,13 +65,10 @@ impl Route for Url {
     }
 }
 
-pub fn link<Message: crate::NoOp + 'static, R: Route + 'static>(
-    mode: Mode,
-    r: R,
-) -> NonKeyedElement<Message> {
+pub fn link<Message: 'static, R: Route + 'static>(mode: Mode, r: R) -> NonKeyedElement<Message> {
     crate::html::a()
         .href(href(mode, &r.to_url().to_string()))
-        .on("click", move |event| {
+        .on_("click", move |event| {
             let mouse_event = event
                 .target()
                 .unwrap_throw()
@@ -87,7 +84,7 @@ pub fn link<Message: crate::NoOp + 'static, R: Route + 'static>(
                 mouse_event.stop_propagation();
                 push(mode, &r);
             }
-            Message::noop()
+            None
         })
 }
 
