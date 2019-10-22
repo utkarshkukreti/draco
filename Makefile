@@ -6,4 +6,7 @@ default:
 deploy: default
 	cd examples && netlifyctl deploy -P .
 
+test:
+	cd tests && yarn test
+
 .PHONY: default deploy
