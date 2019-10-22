@@ -51,17 +51,7 @@ impl<Message: 'static> Listener<Message> {
             closure,
         }
     }
-}
 
-impl<Message> std::fmt::Debug for Listener<Message> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Listener")
-            .field("name", &self.name)
-            .finish()
-    }
-}
-
-impl<Message: 'static> Listener<Message> {
     pub fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
         let mailbox = mailbox.clone();
         let mut handler = self.handler.take().unwrap_throw();
@@ -80,5 +70,13 @@ impl<Message: 'static> Listener<Message> {
         (element.as_ref() as &web::EventTarget)
             .remove_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .unwrap_throw();
+    }
+}
+
+impl<Message> std::fmt::Debug for Listener<Message> {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        f.debug_struct("Listener")
+            .field("name", &self.name)
+            .finish()
     }
 }
