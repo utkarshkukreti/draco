@@ -70,11 +70,11 @@ pub fn link<Message: 'static, R: Route + 'static>(mode: Mode, r: R) -> NonKeyedE
         .href(href(mode, &r.to_url().to_string()))
         .on_("click", move |event| {
             let mouse_event = event.dyn_into::<web::MouseEvent>().unwrap_throw();
-            if mouse_event.alt_key()
-                || mouse_event.ctrl_key()
-                || mouse_event.meta_key()
-                || mouse_event.shift_key()
-                || mouse_event.button() != 0
+            if !mouse_event.alt_key()
+                && !mouse_event.ctrl_key()
+                && !mouse_event.meta_key()
+                && !mouse_event.shift_key()
+                && mouse_event.button() == 0
             {
                 mouse_event.prevent_default();
                 mouse_event.stop_propagation();
