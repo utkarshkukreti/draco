@@ -2,7 +2,7 @@ use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Node, Proper
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
-use wasm_bindgen::JsCast;
+use wasm_bindgen::JsValue;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
@@ -83,29 +83,21 @@ where
 
     pub fn on_input(self, mut handler: impl FnMut(String) -> C::Message + 'static) -> Self {
         self.on_("input", move |event| {
-            if let Some(target) = event.target() {
-                if let Some(input) = target.dyn_ref::<web::HtmlInputElement>() {
-                    return Some(handler(input.value()));
-                }
-                if let Some(textarea) = target.dyn_ref::<web::HtmlTextAreaElement>() {
-                    return Some(handler(textarea.value()));
-                }
-                if let Some(select) = target.dyn_ref::<web::HtmlSelectElement>() {
-                    return Some(handler(select.value()));
-                }
-            }
-            None
+            Some(handler(
+                js_sys::Reflect::get(&&event.target()?, &JsValue::from_str("value"))
+                    .ok()?
+                    .as_string()?,
+            ))
         })
     }
 
     pub fn on_checked(self, mut handler: impl FnMut(bool) -> C::Message + 'static) -> Self {
         self.on_("input", move |event| {
-            if let Some(target) = event.target() {
-                if let Some(input) = target.dyn_ref::<web::HtmlInputElement>() {
-                    return Some(handler(input.checked()));
-                }
-            }
-            None
+            Some(handler(
+                js_sys::Reflect::get(&&event.target()?, &JsValue::from_str("checked"))
+                    .ok()?
+                    .as_bool()?,
+            ))
         })
     }
 
