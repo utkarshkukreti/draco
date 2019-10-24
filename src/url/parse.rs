@@ -7,15 +7,6 @@ pub trait Parse {
 
     fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)>;
 
-    fn parse(&self, url: &Url) -> Option<Self::Output> {
-        let (route, index) = self.do_parse(url, 0)?;
-        if index == url.path.len() {
-            Some(route)
-        } else {
-            None
-        }
-    }
-
     fn optional(self) -> Optional<Self>
     where
         Self: Sized,
@@ -172,8 +163,11 @@ impl<'a, T> Parser<'a, T> {
 
     pub fn alt<P: Parse>(mut self, p: P, f: impl Fn(P::Output) -> T) -> Self {
         if self.value.is_none() {
-            if let Some(t) = p.parse(self.url) {
-                self.value = Some(f(t));
+            if let Some((route, index)) = p.do_parse(self.url, 0) {
+                if index == self.url.path.len() {
+                    self.value = Some(f(route));
+                    return self;
+                }
             }
         }
         self
