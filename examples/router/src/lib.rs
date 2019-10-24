@@ -30,15 +30,15 @@ impl draco::router::Route for Page {
         use draco::url::parse::*;
         parse(&url)
             // /
-            .alt((), |()| Page::Index)
+            .when((), |()| Page::Index)
             // /posts
             // /posts?sort=some-string
-            .alt(("posts", query("sort").optional()), |((), sort)| {
+            .when(("posts", query("sort").optional()), |((), sort)| {
                 Page::PostIndex { sort }
             })
             // /posts/123
             // /posts/123#some-string
-            .alt(("posts", param()), |((), id)| Page::PostShow {
+            .when(("posts", param()), |((), id)| Page::PostShow {
                 id,
                 hash: url.hash().clone(),
             })

@@ -150,7 +150,7 @@ impl<'a, T> Parser<'a, T> {
         Parser { url, value: None }
     }
 
-    pub fn alt<P: Parse>(mut self, p: P, f: impl Fn(P::Output) -> T) -> Self {
+    pub fn when<P: Parse>(mut self, p: P, f: impl Fn(P::Output) -> T) -> Self {
         if self.value.is_none() {
             if let Some((route, index)) = p.parse(self.url, 0) {
                 if index == self.url.path.len() {
