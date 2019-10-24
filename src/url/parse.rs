@@ -5,7 +5,7 @@ use std::str::FromStr;
 pub trait Parse {
     type Output;
 
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)>;
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)>;
 
     fn optional(self) -> Optional<Self>
     where
@@ -18,7 +18,7 @@ pub trait Parse {
 impl Parse for str {
     type Output = ();
 
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
         if url.path.get(index).map_or(false, |string| string == self) {
             Some(((), index + 1))
         } else {
@@ -30,8 +30,8 @@ impl Parse for str {
 impl Parse for &'static str {
     type Output = ();
 
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
-        (*self).do_parse(url, index)
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        Parse::parse(*self, url, index)
     }
 }
 
@@ -45,7 +45,7 @@ pub fn param<T: FromStr>() -> Param<T> {
 impl<T: FromStr> Parse for Param<T> {
     type Output = T;
 
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
         if let Some(param) = url.path.get(index) {
             if let Ok(ok) = param.parse() {
                 return Some((ok, index + 1));
@@ -65,7 +65,7 @@ pub fn query<T: FromStr>(name: &str) -> Query<T> {
 impl<'a, T: FromStr> Parse for Query<'a, T> {
     type Output = T;
 
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
         if let Some(value) = url.query.iter().find(|(k, _)| k == self.0).map(|(_, v)| v) {
             if let Ok(ok) = value.parse() {
                 return Some((ok, index));
@@ -85,7 +85,7 @@ pub fn hash<T: FromStr>() -> Hash<T> {
 impl<T: FromStr> Parse for Hash<T> {
     type Output = T;
 
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
         if let Some(ref hash) = url.hash {
             if let Ok(ok) = hash.parse() {
                 return Some((ok, index));
@@ -98,7 +98,7 @@ impl<T: FromStr> Parse for Hash<T> {
 impl Parse for () {
     type Output = ();
 
-    fn do_parse(&self, _url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+    fn parse(&self, _url: &Url, index: usize) -> Option<(Self::Output, usize)> {
         Some(((), index))
     }
 }
@@ -108,12 +108,12 @@ macro_rules! go {
         $(
             impl<$($ident: Parse,)+> Parse for ($($ident,)+) {
                 type Output = ($($ident::Output,)+);
-                fn do_parse(&self, url: &Url, mut index: usize) -> Option<(Self::Output, usize)> {
+                fn parse(&self, url: &Url, mut index: usize) -> Option<(Self::Output, usize)> {
                     #[allow(non_snake_case)]
                     let ($($ident,)+) = self;
                     $(
                         #[allow(non_snake_case)]
-                        let ($ident, new_index) = $ident.do_parse(url, index)?;
+                        let ($ident, new_index) = $ident.parse(url, index)?;
                         index = new_index;
                     )*
                     Some((($($ident,)+), index))
@@ -141,8 +141,8 @@ pub struct Optional<T: Parse>(T);
 
 impl<T: Parse> Parse for Optional<T> {
     type Output = Option<T::Output>;
-    fn do_parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
-        if let Some((t, index)) = self.0.do_parse(url, index) {
+    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
+        if let Some((t, index)) = self.0.parse(url, index) {
             Some((Some(t), index))
         } else {
             Some((None, index))
@@ -163,7 +163,7 @@ impl<'a, T> Parser<'a, T> {
 
     pub fn alt<P: Parse>(mut self, p: P, f: impl Fn(P::Output) -> T) -> Self {
         if self.value.is_none() {
-            if let Some((route, index)) = p.do_parse(self.url, 0) {
+            if let Some((route, index)) = p.parse(self.url, 0) {
                 if index == self.url.path.len() {
                     self.value = Some(f(route));
                     return self;
