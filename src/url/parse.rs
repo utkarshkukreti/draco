@@ -2,20 +2,17 @@ use crate::url::Url;
 use std::marker::PhantomData;
 use std::str::FromStr;
 
-pub trait Parse {
+pub trait Parse: Sized {
     type Output;
 
     fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)>;
 
-    fn optional(self) -> Optional<Self>
-    where
-        Self: Sized,
-    {
+    fn optional(self) -> Optional<Self> {
         Optional(self)
     }
 }
 
-impl Parse for str {
+impl<'a> Parse for &'a str {
     type Output = ();
 
     fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
@@ -24,14 +21,6 @@ impl Parse for str {
         } else {
             None
         }
-    }
-}
-
-impl Parse for &'static str {
-    type Output = ();
-
-    fn parse(&self, url: &Url, index: usize) -> Option<(Self::Output, usize)> {
-        Parse::parse(*self, url, index)
     }
 }
 
