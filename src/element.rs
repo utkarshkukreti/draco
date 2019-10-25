@@ -13,6 +13,7 @@ pub type KeyedElement<Message> = Element<Keyed<Message>>;
 pub struct Element<C: Children> {
     pub(crate) name: &'static str,
     ns: Ns,
+    class: S,
     aspects: Vec<Aspect<C::Message>>,
     children: C,
     node: Option<web::Element>,
@@ -47,9 +48,15 @@ where
             name,
             ns,
             aspects: Vec::new(),
+            class: "".into(),
             children: C::new(),
             node: None,
         }
+    }
+
+    pub fn class(mut self, value: impl Into<S>) -> Self {
+        self.class = value.into();
+        self
     }
 
     pub fn attribute(mut self, name: impl Into<S>, value: impl Into<S>) -> Self {
@@ -121,6 +128,8 @@ where
 
         aspect::patch(&mut self.aspects, &[], &element, mailbox);
 
+        element.set_class_name(&self.class);
+
         self.node = Some(element.clone());
 
         element
@@ -134,6 +143,10 @@ where
             .patch(&mut old.children, old_element.as_ref(), mailbox);
 
         aspect::patch(&mut self.aspects, &old.aspects, &old_element, mailbox);
+
+        if self.class != old.class {
+            old_element.set_class_name(&self.class);
+        }
 
         self.node = Some(old_element.clone());
 
@@ -170,6 +183,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
         let Element {
             name,
             ns,
+            class,
             aspects,
             children,
             node,
@@ -188,6 +202,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
         Element {
             name,
             ns,
+            class,
             aspects,
             children,
             node,
@@ -225,6 +240,7 @@ impl<Message: 'static> KeyedElement<Message> {
         let Element {
             name,
             ns,
+            class,
             aspects,
             children,
             node,
@@ -243,6 +259,7 @@ impl<Message: 'static> KeyedElement<Message> {
         Element {
             name,
             ns,
+            class,
             aspects,
             children,
             node,
