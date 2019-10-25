@@ -28,9 +28,32 @@ The "Hello, World!" of Draco ([with comments here](examples/hello_world/src/lib.
 <%= without_comments(File.read("examples/hello_world/src/lib.rs").strip) %>
 ```
 
+Draco is modeled after The Elm Architecture and Redux. A Draco application
+implements the `draco::Application` trait, which includes one type and two
+functions.
+
+```rust
+pub trait Application {
+    type Message;
+
+    fn update(&mut self, message: Self::Message, mailbox: &Mailbox<Self::Message>) {}
+    fn view(&self) -> Node<Self::Message>;
+}
+```
+
+The `view` function maps `&self` to an HTML/SVG Node. The Node can emit
+`Message`s on certain events.
+
+The `update` function takes `&mut self`, a `Message` and a `draco::Mailbox`.
+This function may update its fields based on the value of the Message. This
+function may also send more messages to itself or spawn a Future which will send
+a message when it resolves, through the `Mailbox`.
+
 ### Counter
 
-A Counter in Draco ([with comments here](examples/counter/src/lib.rs)):
+This Counter example ([with comments here](examples/counter/src/lib.rs))
+demonstrates an application which updates an integer value based on 3 types of
+messages emitted from the view.
 
 ```rust
 <%= without_comments(File.read("examples/counter/src/lib.rs").strip) %>
