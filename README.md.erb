@@ -22,28 +22,16 @@
 
 ## Overview
 
-The "Hello, World!" of Draco looks like this:
+The "Hello, World!" of Draco ([with comments here](examples/hello_world/src/lib.rs)):
 
 ```rust
 <%= without_comments(File.read("examples/hello_world/src/lib.rs").strip) %>
 ```
 
-and the popular "Counter" application:
+### Counter
+
+A Counter in Draco ([with comments here](examples/counter/src/lib.rs)):
 
 ```rust
 <%= without_comments(File.read("examples/counter/src/lib.rs").strip) %>
-```
-
-## Explanation
-
-Here are the two same examples above, with comments explaining everything.
-
-```rust
-// examples/hello_world/src/lib.rs
-<%= File.read("examples/hello_world/src/lib.rs").strip %>
-```
-
-```rust
-// examples/counter/src/lib.rs
-<%= File.read("examples/counter/src/lib.rs").strip %>
 ```
