@@ -1,4 +1,4 @@
-use crate::{KeyedElement, Mailbox, NonKeyedElement, Text};
+use crate::{KeyedElement, Lazy, Mailbox, NonKeyedElement, Text};
 use std::rc::Rc;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
@@ -8,6 +8,7 @@ pub enum Node<Message: 'static> {
     Element(NonKeyedElement<Message>),
     KeyedElement(KeyedElement<Message>),
     Text(Text),
+    Lazy(Lazy<Message>),
 }
 
 impl<Message: 'static> Node<Message> {
@@ -16,6 +17,7 @@ impl<Message: 'static> Node<Message> {
             Node::Element(element) => element.create(mailbox).into(),
             Node::KeyedElement(keyed_element) => keyed_element.create(mailbox).into(),
             Node::Text(text) => text.create().into(),
+            Node::Lazy(lazy) => lazy.create(mailbox),
         }
     }
 
@@ -30,6 +32,7 @@ impl<Message: 'static> Node<Message> {
                 e1.patch(e2, mailbox).into()
             }
             (Node::Text(ref mut t1), Node::Text(ref mut t2)) => t1.patch(t2).into(),
+            (Node::Lazy(ref mut l1), Node::Lazy(ref mut l2)) => l1.patch(l2, mailbox),
             (self_, old) => {
                 let old_node = old.node().unwrap_throw();
                 let parent_node = old_node.parent_node().unwrap_throw();
@@ -45,6 +48,7 @@ impl<Message: 'static> Node<Message> {
             Node::Element(element) => element.node().map(Into::into),
             Node::KeyedElement(keyed_element) => keyed_element.node().map(Into::into),
             Node::Text(text) => text.node().map(Into::into),
+            Node::Lazy(lazy) => lazy.node(),
         }
     }
 
@@ -71,6 +75,7 @@ impl<Message: 'static> Node<Message> {
             Node::Element(element) => Node::Element(element.do_map(f)),
             Node::KeyedElement(keyed_element) => Node::KeyedElement(keyed_element.do_map(f)),
             Node::Text(text) => Node::Text(text),
+            Node::Lazy(lazy) => Node::Lazy(lazy.do_map(f)),
         }
     }
 }
@@ -90,6 +95,12 @@ impl<Message: 'static> From<NonKeyedElement<Message>> for Node<Message> {
 impl<Message: 'static> From<KeyedElement<Message>> for Node<Message> {
     fn from(keyed_element: KeyedElement<Message>) -> Self {
         Node::KeyedElement(keyed_element)
+    }
+}
+
+impl<Message: 'static> From<Lazy<Message>> for Node<Message> {
+    fn from(lazy: Lazy<Message>) -> Self {
+        Node::Lazy(lazy)
     }
 }
 
