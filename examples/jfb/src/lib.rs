@@ -22,6 +22,7 @@ pub fn start() {
 pub struct Jfb {
     rows: Vec<Row>,
     next_id: usize,
+    selected_id: Option<usize>,
     rng: XorShiftRng,
     keyed: bool,
 }
@@ -29,7 +30,6 @@ pub struct Jfb {
 struct Row {
     id: usize,
     label: String,
-    selected: bool,
 }
 
 impl Row {
@@ -41,17 +41,17 @@ impl Row {
             rng.choose(NOUNS).unwrap()
         );
 
-        Row {
-            id,
-            label,
-            selected: false,
-        }
+        Row { id, label }
     }
 
-    fn view<Message>(&self) -> draco::Node<Message> {
+    fn view<Message>(&self, selected_id: Option<usize>) -> draco::Node<Message> {
         use draco::html as h;
         h::tr()
-            .class(if self.selected { "danger" } else { "" })
+            .class(if selected_id == Some(self.id) {
+                "danger"
+            } else {
+                ""
+            })
             .push(h::td().class("col-md-1").push(self.id))
             .push(
                 h::td()
@@ -88,6 +88,7 @@ impl Jfb {
         Jfb {
             rows: Vec::new(),
             next_id: 1,
+            selected_id: None,
             rng: XorShiftRng::from_seed([0; 16]),
             keyed,
         }
@@ -180,7 +181,11 @@ impl draco::Application for Jfb {
 
     fn update(&mut self, message: Self::Message, mailbox: &draco::Mailbox<Self::Message>) {
         let Jfb {
-            next_id, rng, rows, ..
+            next_id,
+            rng,
+            rows,
+            selected_id,
+            ..
         } = self;
         match message {
             Message::Create(amount) => {
@@ -210,12 +215,10 @@ impl draco::Application for Jfb {
                 }
             }
             Message::Select(id) => {
-                for row in &mut self.rows {
-                    if row.id == id {
-                        row.selected = true
-                    } else if row.selected {
-                        row.selected = false
-                    }
+                if *selected_id == Some(id) {
+                    *selected_id = None;
+                } else {
+                    *selected_id = Some(id);
                 }
             }
         }
@@ -242,12 +245,16 @@ impl draco::Application for Jfb {
                         let node: draco::Node<Message> = if self.keyed {
                             draco::html::keyed::tbody()
                                 .id("tbody")
-                                .append(self.rows.iter().map(|row| (row.id as u64, row.view())))
+                                .append(
+                                    self.rows
+                                        .iter()
+                                        .map(|row| (row.id as u64, row.view(self.selected_id))),
+                                )
                                 .into()
                         } else {
                             h::tbody()
                                 .id("tbody")
-                                .append(self.rows.iter().map(|row| row.view()))
+                                .append(self.rows.iter().map(|row| row.view(self.selected_id)))
                                 .into()
                         };
                         node
