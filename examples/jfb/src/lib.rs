@@ -27,6 +27,7 @@ pub struct Jfb {
     keyed: bool,
 }
 
+#[derive(Clone, Hash)]
 struct Row {
     id: usize,
     label: String,
@@ -44,31 +45,30 @@ impl Row {
         Row { id, label }
     }
 
-    fn view<Message>(&self, selected_id: Option<usize>) -> draco::Node<Message> {
+    fn view(&self, is_selected: bool) -> draco::Node<Message> {
         use draco::html as h;
-        h::tr()
-            .class(if selected_id == Some(self.id) {
-                "danger"
-            } else {
-                ""
-            })
-            .push(h::td().class("col-md-1").push(self.id))
-            .push(
-                h::td()
-                    .class("col-md-4")
-                    .push(h::a().class("lbl").push(self.label.clone())),
-            )
-            .push(
-                h::td().class("col-md-1").push(
-                    h::a().class("remove").push(
-                        h::span()
-                            .class("glyphicon glyphicon-remove remove")
-                            .attribute("aria-hidden", "true"),
+        draco::Lazy::new((self.clone(), is_selected), |(row, is_selected)| {
+            h::tr()
+                .class(if *is_selected { "danger" } else { "" })
+                .push(h::td().class("col-md-1").push(row.id))
+                .push(
+                    h::td()
+                        .class("col-md-4")
+                        .push(h::a().class("lbl").push(row.label.clone())),
+                )
+                .push(
+                    h::td().class("col-md-1").push(
+                        h::a().class("remove").push(
+                            h::span()
+                                .class("glyphicon glyphicon-remove remove")
+                                .attribute("aria-hidden", "true"),
+                        ),
                     ),
-                ),
-            )
-            .push(h::td().class("col-md-6"))
-            .into()
+                )
+                .push(h::td().class("col-md-6"))
+                .into()
+        })
+        .into()
     }
 }
 
@@ -245,16 +245,18 @@ impl draco::Application for Jfb {
                         let node: draco::Node<Message> = if self.keyed {
                             draco::html::keyed::tbody()
                                 .id("tbody")
-                                .append(
-                                    self.rows
-                                        .iter()
-                                        .map(|row| (row.id as u64, row.view(self.selected_id))),
-                                )
+                                .append(self.rows.iter().map(|row| {
+                                    (row.id as u64, row.view(self.selected_id == Some(row.id)))
+                                }))
                                 .into()
                         } else {
                             h::tbody()
                                 .id("tbody")
-                                .append(self.rows.iter().map(|row| row.view(self.selected_id)))
+                                .append(
+                                    self.rows
+                                        .iter()
+                                        .map(|row| row.view(self.selected_id == Some(row.id))),
+                                )
                                 .into()
                         };
                         node
