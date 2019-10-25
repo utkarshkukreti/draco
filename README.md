@@ -7,6 +7,10 @@
 > [Live Examples with Annotated Source](https://draco-examples.netlify.com/) |
 > [Starter](https://github.com/utkarshkukreti/draco-starter)
 
+> Note: This is the README for upcoming Draco 0.2.
+> The README for the latest released version is
+> [here](https://github.com/utkarshkukreti/draco/tree/0.1.2).
+
 ## Overview
 
 The "Hello, World!" of Draco looks like this:
