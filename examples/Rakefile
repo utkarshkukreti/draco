@@ -52,6 +52,16 @@ task :default do
   </body>
 </html>
 ERB
+
+    write "#{name}/Makefile", <<ERB, binding
+default:
+\twasm-pack build --target web
+
+dev:
+\twasm-pack build --target web --dev
+
+.PHONY: default dev
+ERB
   end
 
   write "index.html", <<ERB, binding
