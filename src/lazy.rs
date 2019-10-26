@@ -20,14 +20,31 @@ impl<Message: 'static + std::fmt::Debug> std::fmt::Debug for Lazy<Message> {
 }
 
 impl<Message: 'static> Lazy<Message> {
-    pub fn new<T: Hash + 'static>(t: T, view: impl Fn(&T) -> Node<Message> + 'static) -> Self {
+    pub fn new<T: Hash + 'static>(t: T, view: fn(&T) -> Node<Message>) -> Self {
         let mut hasher = fxhash::FxHasher::default();
         t.hash(&mut hasher);
+        (view as usize).hash(&mut hasher);
         let hash = hasher.finish();
         Lazy {
             hash,
             node: None,
             view: Box::new(move || view(&t)),
+        }
+    }
+
+    pub fn new_with<T: Hash + 'static, Arg: 'static>(
+        t: T,
+        arg: Arg,
+        view: fn(&T, &Arg) -> Node<Message>,
+    ) -> Self {
+        let mut hasher = fxhash::FxHasher::default();
+        t.hash(&mut hasher);
+        (view as usize).hash(&mut hasher);
+        let hash = hasher.finish();
+        Lazy {
+            hash,
+            node: None,
+            view: Box::new(move || view(&t, &arg)),
         }
     }
 
@@ -55,7 +72,9 @@ impl<Message: 'static> Lazy<Message> {
         self,
         f: Rc<impl Fn(Message) -> NewMessage + 'static>,
     ) -> Lazy<NewMessage> {
-        Lazy::new(self.hash, move |_| (self.view)().do_map(f.clone()))
+        Lazy::new_with(self.hash, (self.view, f), move |_, (view, f)| {
+            view().do_map(f.clone())
+        })
     }
 
     pub fn node(&self) -> Option<web::Node> {
