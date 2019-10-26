@@ -27,7 +27,7 @@ impl VText {
     }
 
     pub fn patch(&mut self, old: &mut VText) -> web::Text {
-        let node = old.node.take().unwrap_throw();
+        let node = old.node.clone().unwrap_throw();
         if self.value != old.value {
             node.set_data(&self.value);
         }

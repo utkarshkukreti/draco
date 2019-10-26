@@ -143,7 +143,7 @@ where
 
     pub fn patch(&mut self, old: &mut Self, mailbox: &Mailbox<C::Message>) -> web::Element {
         debug_assert!(self.name == old.name);
-        let old_element = old.node.take().unwrap_throw();
+        let old_element = old.node.clone().unwrap_throw();
 
         self.children
             .patch(&mut old.children, old_element.as_ref(), mailbox);
@@ -373,7 +373,6 @@ impl<Message: 'static> Children for Keyed<Message> {
             key_to_old_index.insert(key.clone(), index);
         }
 
-        let child_nodes = parent_node.child_nodes();
         for (index, (key, new_vnode)) in
             (start_index..).zip(new[start_index..end_index_new].iter_mut())
         {
@@ -386,7 +385,7 @@ impl<Message: 'static> Children for Keyed<Message> {
                 true
             };
             if reordered {
-                let next_sibling = child_nodes.get(index as u32 + 1);
+                let next_sibling = old.get(index + 1).and_then(|vnode| vnode.1.node());
                 parent_node
                     .insert_before(&new_vnode.node().unwrap_throw(), next_sibling.as_ref())
                     .unwrap_throw();

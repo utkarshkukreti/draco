@@ -10,6 +10,7 @@ use web_sys as web;
 pub struct Lazy<Message: 'static> {
     hash: u64,
     vnode: Option<Box<VNode<Message>>>,
+    node: Option<web::Node>,
     #[derivative(Debug = "ignore")]
     view: Box<dyn Fn() -> VNode<Message>>,
 }
@@ -23,6 +24,7 @@ impl<Message: 'static> Lazy<Message> {
         Lazy {
             hash,
             vnode: None,
+            node: None,
             view: Box::new(move || view(&t)),
         }
     }
@@ -39,6 +41,7 @@ impl<Message: 'static> Lazy<Message> {
         Lazy {
             hash,
             vnode: None,
+            node: None,
             view: Box::new(move || view(&t, &arg)),
         }
     }
@@ -46,6 +49,7 @@ impl<Message: 'static> Lazy<Message> {
     pub fn create(&mut self, mailbox: &Mailbox<Message>) -> web::Node {
         let mut vnode = (self.view)();
         let node = vnode.create(mailbox);
+        self.node = Some(node.clone());
         self.vnode = Some(Box::new(vnode));
         node
     }
@@ -55,10 +59,12 @@ impl<Message: 'static> Lazy<Message> {
         let old_node = old_vnode.node().unwrap_throw();
         if self.hash == old.hash {
             self.vnode = Some(Box::new(old_vnode));
+            self.node = Some(old_node.clone());
             return old_node;
         }
         let mut vnode = (self.view)();
         let node = vnode.patch(&mut old_vnode, mailbox);
+        self.node = Some(node.clone());
         self.vnode = Some(Box::new(vnode));
         node
     }
@@ -73,6 +79,6 @@ impl<Message: 'static> Lazy<Message> {
     }
 
     pub fn node(&self) -> Option<web::Node> {
-        self.vnode.as_ref().and_then(|node| node.node())
+        self.node.clone()
     }
 }
