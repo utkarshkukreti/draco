@@ -1,19 +1,19 @@
 #[macro_use]
 pub mod console;
-pub mod application;
-pub mod aspect;
-pub mod attribute;
-pub mod element;
+mod application;
+mod aspect;
+mod attribute;
+mod element;
 pub mod html;
-pub mod lazy;
-pub mod listener;
-pub mod mailbox;
-pub mod node;
-pub mod property;
+mod lazy;
+mod listener;
+mod mailbox;
+mod node;
+mod property;
 pub mod router;
 pub mod subscription;
 pub mod svg;
-pub mod text;
+mod text;
 pub mod url;
 
 pub use self::application::{start, Application};
