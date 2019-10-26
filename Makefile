@@ -10,4 +10,4 @@ test:
 	wasm-pack test --firefox --headless
 	cd tests && yarn test
 
-.PHONY: default deploy
+.PHONY: default deploy test
