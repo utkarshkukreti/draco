@@ -17,6 +17,7 @@ fxhash = "0.2.1"
 version = "0.3"
 features = [
     "console",
+    "CharacterData",
     "Document",
     "Element",
     "Event",

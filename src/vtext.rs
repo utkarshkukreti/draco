@@ -29,7 +29,7 @@ impl VText {
     pub fn patch(&mut self, old: &mut VText) -> web::Text {
         let node = old.node.take().unwrap_throw();
         if self.value != old.value {
-            (node.as_ref() as &web::Node).set_text_content(Some(&self.value));
+            node.set_data(&self.value);
         }
         self.node = Some(node.clone());
         node
