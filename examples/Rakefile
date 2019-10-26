@@ -86,7 +86,7 @@ ERB
 ERB
 
   names.each do |name|
-    sh "cd #{name} && wasm-pack build --target web"
+    sh "cd #{name} && make"
   end
 
   # sh "wasm-opt -O4 -o jfb/pkg/jfb_bg.wasm jfb/pkg/jfb_bg.wasm"
