@@ -327,28 +327,31 @@ impl<Message: 'static> Children for Keyed<Message> {
     }
 
     fn patch(&mut self, old: &mut Self, parent_node: &web::Node, mailbox: &Mailbox<Message>) {
-        if self.0.is_empty() {
+        let new = &mut self.0;
+        let old = &mut old.0;
+
+        if new.is_empty() {
             parent_node.set_text_content(Some(""));
             return;
         }
 
-        let mut skip: usize = 0;
+        let mut start_index: usize = 0;
         for ((new_key, new_vnode), (old_key, ref mut old_vnode)) in
-            self.0.iter_mut().zip(&mut old.0)
+            new.iter_mut().zip(old.iter_mut())
         {
             if new_key == old_key {
                 new_vnode.patch(old_vnode, mailbox);
-                skip += 1;
+                start_index += 1;
             } else {
                 break;
             }
         }
-        let new = &mut self.0[skip..];
-        let old = &mut old.0[skip..];
 
         let mut skip_end = 0;
-        for ((new_key, new_vnode), (old_key, ref mut old_vnode)) in
-            new.iter_mut().rev().zip(old.iter_mut().rev())
+        for ((new_key, new_vnode), (old_key, ref mut old_vnode)) in new[start_index..]
+            .iter_mut()
+            .rev()
+            .zip(old[start_index..].iter_mut().rev())
         {
             if new_key == old_key {
                 new_vnode.patch(old_vnode, mailbox);
@@ -357,23 +360,25 @@ impl<Message: 'static> Children for Keyed<Message> {
                 break;
             }
         }
-        let new_len = new.len();
-        let old_len = old.len();
-        let new = &mut new[..new_len - skip_end];
-        let old = &mut old[..old_len - skip_end];
 
-        if new.is_empty() && old.is_empty() {
+        let end_index_new = new.len() - skip_end;
+        let end_index_old = old.len() - skip_end;
+
+        if start_index == end_index_new && start_index == end_index_old {
             return;
         }
+
         let mut key_to_old_index = HashMap::default();
-        for (index, (key, _)) in (skip..).zip(old.iter_mut()) {
+        for (index, (key, _)) in (start_index..).zip(old[start_index..end_index_old].iter_mut()) {
             key_to_old_index.insert(key.clone(), index);
         }
 
         let child_nodes = parent_node.child_nodes();
-        for (index, (key, new_vnode)) in (skip..).zip(new.iter_mut()) {
+        for (index, (key, new_vnode)) in
+            (start_index..).zip(new[start_index..end_index_new].iter_mut())
+        {
             let reordered = if let Some(old_index) = key_to_old_index.remove(key) {
-                let (_, ref mut old_vnode) = old[old_index - skip];
+                let (_, ref mut old_vnode) = old[old_index];
                 new_vnode.patch(old_vnode, mailbox);
                 old_index != index
             } else {
@@ -389,7 +394,7 @@ impl<Message: 'static> Children for Keyed<Message> {
         }
 
         for index in key_to_old_index.values() {
-            old[*index - skip].1.remove();
+            old[*index].1.remove();
         }
     }
 }
