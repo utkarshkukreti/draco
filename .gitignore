@@ -1,6 +1,6 @@
+**/*.rs.bk
 /examples/*/Makefile
 /examples/*/index.html
 /examples/index.html
 /target
-**/*.rs.bk
 Cargo.lock
