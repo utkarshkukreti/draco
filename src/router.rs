@@ -1,4 +1,4 @@
-use crate::{subscription, NonKeyedElement, Subscription, Unsubscribe};
+use crate::{subscription, Subscription, Unsubscribe, VNonKeyedElement};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::UnwrapThrowExt;
@@ -65,7 +65,7 @@ impl Route for Url {
     }
 }
 
-pub fn link<Message: 'static, R: Route + 'static>(mode: Mode, r: R) -> NonKeyedElement<Message> {
+pub fn link<Message: 'static, R: Route + 'static>(mode: Mode, r: R) -> VNonKeyedElement<Message> {
     crate::html::a()
         .href(href(mode, &r.to_url().to_string()))
         .on_("click", move |event| {

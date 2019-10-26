@@ -1,4 +1,4 @@
-use crate::{Mailbox, Node, Text};
+use crate::{Mailbox, VNode, VText};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use wasm_bindgen::UnwrapThrowExt;
@@ -8,7 +8,7 @@ pub trait Application: Sized + 'static {
     type Message;
 
     fn update(&mut self, _message: Self::Message, _mailbox: &Mailbox<Self::Message>) {}
-    fn view(&self) -> Node<Self::Message>;
+    fn view(&self) -> VNode<Self::Message>;
 }
 
 struct Instance<A: Application> {
@@ -18,7 +18,7 @@ struct Instance<A: Application> {
 struct Inner<A: Application> {
     app: RefCell<A>,
     node: Cell<web::Node>,
-    vnode: RefCell<Node<A::Message>>,
+    vnode: RefCell<VNode<A::Message>>,
     queue: RefCell<Vec<A::Message>>,
     is_updating: Cell<bool>,
 }
@@ -84,7 +84,7 @@ impl<A: Application> std::fmt::Debug for Instance<A> {
 }
 
 pub fn start<A: Application>(app: A, node: web::Node) -> Mailbox<A::Message> {
-    let mut vnode = Text::new("!");
+    let mut vnode = VText::new("!");
     let new_node = vnode.create().into();
     node.parent_node()
         .unwrap_throw()

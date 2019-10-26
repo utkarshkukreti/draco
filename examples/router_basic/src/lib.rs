@@ -29,7 +29,7 @@ impl draco::Application for Router {
         }
     }
 
-    fn view(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         let urls = [
             "/",

@@ -12,7 +12,7 @@ impl draco::Application for HelloWorld {
     type Message = ();
 
     // The `view` function returns what we want to display on the page.
-    fn view(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::VNode<Self::Message> {
         // `draco::html::h1()` creates an `<h1>` element.
         draco::html::h1()
             // `.push()` adds a child to the element. Here we add a Text Node by pushing a string.

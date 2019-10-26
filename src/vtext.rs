@@ -3,14 +3,14 @@ use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
 #[derive(Debug)]
-pub struct Text {
+pub struct VText {
     value: S,
     node: Option<web::Text>,
 }
 
-impl Text {
+impl VText {
     pub fn new<V: Into<S>>(value: V) -> Self {
-        Text {
+        VText {
             value: value.into(),
             node: None,
         }
@@ -26,7 +26,7 @@ impl Text {
         node
     }
 
-    pub fn patch(&mut self, old: &mut Text) -> web::Text {
+    pub fn patch(&mut self, old: &mut VText) -> web::Text {
         let node = old.node.take().unwrap_throw();
         if self.value != old.value {
             (node.as_ref() as &web::Node).set_text_content(Some(&self.value));

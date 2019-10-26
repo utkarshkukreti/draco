@@ -45,7 +45,7 @@ impl Row {
         Row { id, label }
     }
 
-    fn view(&self, is_selected: bool) -> draco::Node<Message> {
+    fn view(&self, is_selected: bool) -> draco::VNode<Message> {
         use draco::html as h;
         draco::Lazy::new((self.clone(), is_selected), |(row, is_selected)| {
             h::tr()
@@ -118,7 +118,7 @@ impl Jfb {
         }
     }
 
-    fn buttons() -> impl Iterator<Item = draco::Node<Message>> {
+    fn buttons() -> impl Iterator<Item = draco::VNode<Message>> {
         use draco::html as h;
 
         struct Button {
@@ -224,7 +224,7 @@ impl draco::Application for Jfb {
         }
     }
 
-    fn view(&self) -> draco::Node<Message> {
+    fn view(&self) -> draco::VNode<Message> {
         use draco::html as h;
 
         h::div()
@@ -242,7 +242,7 @@ impl draco::Application for Jfb {
                     .on_("click", Self::on_click)
                     .class("table table-hover table-striped test-data")
                     .push({
-                        let node: draco::Node<Message> = if self.keyed {
+                        let vnode: draco::VNode<Message> = if self.keyed {
                             draco::html::keyed::tbody()
                                 .id("tbody")
                                 .append(self.rows.iter().map(|row| {
@@ -259,7 +259,7 @@ impl draco::Application for Jfb {
                                 )
                                 .into()
                         };
-                        node
+                        vnode
                     }),
             )
             .push(

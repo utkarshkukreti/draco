@@ -1,20 +1,20 @@
 use crate::{
-    element::{Children, Ns},
-    Element, NonKeyedElement, S,
+    velement::{Children, Ns},
+    VElement, VNonKeyedElement, S,
 };
 
 macro_rules! elements {
     ($($ident:ident)+) => {
         $(
-            pub fn $ident<Message: 'static>() -> NonKeyedElement<Message> {
-                Element::new(Ns::Html, stringify!($ident))
+            pub fn $ident<Message: 'static>() -> VNonKeyedElement<Message> {
+                VElement::new(Ns::Html, stringify!($ident))
             }
         )+
         pub mod keyed {
-            use crate::{Element, element::Ns, KeyedElement};
+            use crate::{VElement, velement::Ns, VKeyedElement};
             $(
-                pub fn $ident<Message: 'static>() -> KeyedElement<Message> {
-                    Element::new(Ns::Html, stringify!($ident))
+                pub fn $ident<Message: 'static>() -> VKeyedElement<Message> {
+                    VElement::new(Ns::Html, stringify!($ident))
                 }
             )+
         }
@@ -30,7 +30,7 @@ elements! {
     time tr track u ul var video wbr
 }
 
-impl<C: Children> Element<C>
+impl<C: Children> VElement<C>
 where
     C::Message: 'static,
 {
@@ -43,7 +43,7 @@ macro_rules! string_attributes {
     (
         $($ident:ident => $name:expr,)+
     ) => {
-        impl<C: Children> Element<C> where C::Message: 'static {
+        impl<C: Children> VElement<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: impl Into<S>) -> Self {
                     self.attribute($name, value.into())
@@ -57,7 +57,7 @@ macro_rules! bool_properties {
     (
         $($ident:ident => $name:expr,)+
     ) => {
-        impl<C: Children> Element<C> where C::Message: 'static {
+        impl<C: Children> VElement<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: bool) -> Self {
                     self.property($name, value)
@@ -71,7 +71,7 @@ macro_rules! to_string_attributes {
     (
         $($ident:ident: $ty:ty => $name:expr,)+
     ) => {
-        impl<C: Children> Element<C> where C::Message: 'static {
+        impl<C: Children> VElement<C> where C::Message: 'static {
             $(
                 pub fn $ident(self, value: $ty) -> Self {
                     self.attribute($name, value.to_string())

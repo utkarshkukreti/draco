@@ -23,7 +23,7 @@ struct HelloWorld;
 impl draco::Application for HelloWorld {
     type Message = ();
 
-    fn view(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::VNode<Self::Message> {
         draco::html::h1().push("Hello, world!").into()
     }
 }
@@ -86,7 +86,7 @@ impl draco::Application for Counter {
         }
     }
 
-    fn view(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
             .push(h::button().push("-").on("click", |_| Message::Decrement))

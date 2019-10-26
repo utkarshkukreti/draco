@@ -1,4 +1,4 @@
-use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Node, Property, S};
+use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Property, VNode, S};
 // use std::collections::HashMap;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
@@ -6,11 +6,11 @@ use wasm_bindgen::JsValue;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
-pub type NonKeyedElement<Message> = Element<NonKeyed<Message>>;
-pub type KeyedElement<Message> = Element<Keyed<Message>>;
+pub type VNonKeyedElement<Message> = VElement<NonKeyed<Message>>;
+pub type VKeyedElement<Message> = VElement<Keyed<Message>>;
 
 #[derive(Debug)]
-pub struct Element<C: Children> {
+pub struct VElement<C: Children> {
     pub(crate) name: &'static str,
     ns: Ns,
     class: S,
@@ -26,25 +26,25 @@ pub enum Ns {
 }
 
 #[derive(Debug, Default)]
-pub struct Keyed<Message: 'static>(Vec<(u64, Node<Message>)>);
+pub struct Keyed<Message: 'static>(Vec<(u64, VNode<Message>)>);
 
 #[derive(Debug, Default)]
-pub struct NonKeyed<Message: 'static>(Vec<Node<Message>>);
+pub struct NonKeyed<Message: 'static>(Vec<VNode<Message>>);
 
-pub fn h<Message: 'static>(name: &'static str) -> NonKeyedElement<Message> {
-    Element::new(Ns::Html, name)
+pub fn h<Message: 'static>(name: &'static str) -> VNonKeyedElement<Message> {
+    VElement::new(Ns::Html, name)
 }
 
-pub fn s<Message: 'static>(name: &'static str) -> NonKeyedElement<Message> {
-    Element::new(Ns::Svg, name)
+pub fn s<Message: 'static>(name: &'static str) -> VNonKeyedElement<Message> {
+    VElement::new(Ns::Svg, name)
 }
 
-impl<C: Children> Element<C>
+impl<C: Children> VElement<C>
 where
     C::Message: 'static,
 {
     pub fn new(ns: Ns, name: &'static str) -> Self {
-        Element {
+        VElement {
             name,
             ns,
             aspects: Vec::new(),
@@ -160,13 +160,13 @@ where
     }
 }
 
-impl<Message: 'static> NonKeyedElement<Message> {
-    pub fn push<N: Into<Node<Message>>>(mut self, node: N) -> Self {
-        self.children.0.push(node.into());
+impl<Message: 'static> VNonKeyedElement<Message> {
+    pub fn push<N: Into<VNode<Message>>>(mut self, vnode: N) -> Self {
+        self.children.0.push(vnode.into());
         self
     }
 
-    pub fn append<N: Into<Node<Message>>, I: IntoIterator<Item = N>>(mut self, i: I) -> Self {
+    pub fn append<N: Into<VNode<Message>>, I: IntoIterator<Item = N>>(mut self, i: I) -> Self {
         self.children.0.extend(i.into_iter().map(Into::into));
         self
     }
@@ -174,15 +174,15 @@ impl<Message: 'static> NonKeyedElement<Message> {
     pub fn map<NewMessage: 'static>(
         self,
         f: impl Fn(Message) -> NewMessage + 'static,
-    ) -> NonKeyedElement<NewMessage> {
+    ) -> VNonKeyedElement<NewMessage> {
         self.do_map(Rc::new(f))
     }
 
     pub(crate) fn do_map<NewMessage: 'static>(
         self,
         f: Rc<impl Fn(Message) -> NewMessage + 'static>,
-    ) -> NonKeyedElement<NewMessage> {
-        let Element {
+    ) -> VNonKeyedElement<NewMessage> {
+        let VElement {
             name,
             ns,
             class,
@@ -201,7 +201,7 @@ impl<Message: 'static> NonKeyedElement<Message> {
                 .map(|n| n.do_map(f.clone()))
                 .collect(),
         );
-        Element {
+        VElement {
             name,
             ns,
             class,
@@ -212,13 +212,13 @@ impl<Message: 'static> NonKeyedElement<Message> {
     }
 }
 
-impl<Message: 'static> KeyedElement<Message> {
-    pub fn push<N: Into<Node<Message>>>(mut self, key: u64, node: N) -> Self {
-        self.children.0.push((key, node.into()));
+impl<Message: 'static> VKeyedElement<Message> {
+    pub fn push<N: Into<VNode<Message>>>(mut self, key: u64, vnode: N) -> Self {
+        self.children.0.push((key, vnode.into()));
         self
     }
 
-    pub fn append<N: Into<Node<Message>>, I: IntoIterator<Item = (u64, N)>>(
+    pub fn append<N: Into<VNode<Message>>, I: IntoIterator<Item = (u64, N)>>(
         mut self,
         i: I,
     ) -> Self {
@@ -231,15 +231,15 @@ impl<Message: 'static> KeyedElement<Message> {
     pub fn map<NewMessage: 'static>(
         self,
         f: impl Fn(Message) -> NewMessage + 'static,
-    ) -> KeyedElement<NewMessage> {
+    ) -> VKeyedElement<NewMessage> {
         self.do_map(Rc::new(f))
     }
 
     pub(crate) fn do_map<NewMessage: 'static>(
         self,
         f: Rc<impl Fn(Message) -> NewMessage + 'static>,
-    ) -> KeyedElement<NewMessage> {
-        let Element {
+    ) -> VKeyedElement<NewMessage> {
+        let VElement {
             name,
             ns,
             class,
@@ -258,7 +258,7 @@ impl<Message: 'static> KeyedElement<Message> {
                 .map(|(k, v)| (k, v.do_map(f.clone())))
                 .collect(),
         );
-        Element {
+        VElement {
             name,
             ns,
             class,
@@ -329,10 +329,11 @@ impl<Message: 'static> Children for Keyed<Message> {
         }
 
         let mut skip: usize = 0;
-        for ((new_key, new_node), (old_key, ref mut old_node)) in self.0.iter_mut().zip(&mut old.0)
+        for ((new_key, new_vnode), (old_key, ref mut old_vnode)) in
+            self.0.iter_mut().zip(&mut old.0)
         {
             if new_key == old_key {
-                new_node.patch(old_node, mailbox);
+                new_vnode.patch(old_vnode, mailbox);
                 skip += 1;
             } else {
                 break;
@@ -342,11 +343,11 @@ impl<Message: 'static> Children for Keyed<Message> {
         let old = &mut old.0[skip..];
 
         let mut skip_end = 0;
-        for ((new_key, new_node), (old_key, ref mut old_node)) in
+        for ((new_key, new_vnode), (old_key, ref mut old_vnode)) in
             new.iter_mut().rev().zip(old.iter_mut().rev())
         {
             if new_key == old_key {
-                new_node.patch(old_node, mailbox);
+                new_vnode.patch(old_vnode, mailbox);
                 skip_end += 1;
             } else {
                 break;
@@ -367,24 +368,24 @@ impl<Message: 'static> Children for Keyed<Message> {
 
         let child_nodes = parent_node.child_nodes();
         let child_nodes_length = child_nodes.length();
-        for (index, (key, new_node)) in (skip..).zip(new.iter_mut()) {
+        for (index, (key, new_vnode)) in (skip..).zip(new.iter_mut()) {
             let reordered = if let Some(old_index) = key_to_old_index.remove(key) {
-                let (_, ref mut old_node) = old[old_index - skip];
-                new_node.patch(old_node, mailbox);
+                let (_, ref mut old_vnode) = old[old_index - skip];
+                new_vnode.patch(old_vnode, mailbox);
                 old_index != index
             } else {
-                new_node.create(mailbox);
+                new_vnode.create(mailbox);
                 true
             };
             if reordered {
                 if index as u32 > child_nodes_length {
                     parent_node
-                        .append_child(&new_node.node().unwrap_throw())
+                        .append_child(&new_vnode.node().unwrap_throw())
                         .unwrap_throw();
                 } else {
                     let next_sibling = child_nodes.get(index as u32 + 1);
                     parent_node
-                        .insert_before(&new_node.node().unwrap_throw(), next_sibling.as_ref())
+                        .insert_before(&new_vnode.node().unwrap_throw(), next_sibling.as_ref())
                         .unwrap_throw();
                 }
             }

@@ -62,7 +62,7 @@ impl draco::Application for Form {
         }
     }
 
-    fn view(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         let plans = ["A1", "B2", "C3", "D4", "E5"];
         h::form()

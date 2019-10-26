@@ -42,7 +42,7 @@ impl draco::Application for LocalStorage {
         }
     }
 
-    fn view(&self) -> draco::Node<Self::Message> {
+    fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
             .push(h::p().push("Type anything below."))
