@@ -367,7 +367,6 @@ impl<Message: 'static> Children for Keyed<Message> {
         }
 
         let child_nodes = parent_node.child_nodes();
-        let child_nodes_length = child_nodes.length();
         for (index, (key, new_vnode)) in (skip..).zip(new.iter_mut()) {
             let reordered = if let Some(old_index) = key_to_old_index.remove(key) {
                 let (_, ref mut old_vnode) = old[old_index - skip];
@@ -378,16 +377,10 @@ impl<Message: 'static> Children for Keyed<Message> {
                 true
             };
             if reordered {
-                if index as u32 > child_nodes_length {
-                    parent_node
-                        .append_child(&new_vnode.node().unwrap_throw())
-                        .unwrap_throw();
-                } else {
-                    let next_sibling = child_nodes.get(index as u32 + 1);
-                    parent_node
-                        .insert_before(&new_vnode.node().unwrap_throw(), next_sibling.as_ref())
-                        .unwrap_throw();
-                }
+                let next_sibling = child_nodes.get(index as u32 + 1);
+                parent_node
+                    .insert_before(&new_vnode.node().unwrap_throw(), next_sibling.as_ref())
+                    .unwrap_throw();
             }
         }
 
