@@ -1,9 +1,11 @@
 use crate::{Lazy, Mailbox, VKeyedElement, VNonKeyedElement, VText};
+use derivative::Derivative;
 use std::rc::Rc;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
-#[derive(Debug)]
+#[derive(Derivative)]
+#[derivative(Debug(bound = ""))]
 pub enum VNode<Message: 'static> {
     Element(VNonKeyedElement<Message>),
     KeyedElement(VKeyedElement<Message>),

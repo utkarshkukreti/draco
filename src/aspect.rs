@@ -1,8 +1,10 @@
 use crate::{Attribute, Listener, Mailbox, Property};
+use derivative::Derivative;
 use std::rc::Rc;
 use web_sys as web;
 
-#[derive(Debug)]
+#[derive(Derivative)]
+#[derivative(Debug(bound = ""))]
 pub enum Aspect<Message> {
     Attribute(Attribute),
     Property(Property),

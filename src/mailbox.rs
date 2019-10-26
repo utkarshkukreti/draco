@@ -1,4 +1,5 @@
 use crate::{Subscription, Unsubscribe};
+use derivative::Derivative;
 use std::any::Any;
 use std::cell::RefCell;
 use std::future::Future;
@@ -8,7 +9,10 @@ use wasm_bindgen::JsCast;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
+#[derive(Derivative)]
+#[derivative(Debug(bound = ""))]
 pub struct Mailbox<Message: 'static> {
+    #[derivative(Debug = "ignore")]
     inner: Rc<Inner<Message>>,
 }
 
@@ -97,11 +101,5 @@ impl<Message> Clone for Mailbox<Message> {
         Mailbox {
             inner: Rc::clone(&self.inner),
         }
-    }
-}
-
-impl<Message> std::fmt::Debug for Mailbox<Message> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Mailbox").finish()
     }
 }

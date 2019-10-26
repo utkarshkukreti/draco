@@ -1,3 +1,4 @@
+use derivative::Derivative;
 use js_sys as js;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
@@ -14,17 +15,13 @@ pub trait Subscription {
     fn subscribe(self, send: Send<Self::Message>) -> Unsubscribe;
 }
 
-pub struct Unsubscribe(Option<Box<dyn FnMut()>>);
+#[derive(Derivative)]
+#[derivative(Debug)]
+pub struct Unsubscribe(#[derivative(Debug = "ignore")] Option<Box<dyn FnMut()>>);
 
 impl Unsubscribe {
     pub fn new(f: impl FnMut() + 'static) -> Self {
         Unsubscribe(Some(Box::new(f)))
-    }
-}
-
-impl std::fmt::Debug for Unsubscribe {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Unsubscribe").finish()
     }
 }
 

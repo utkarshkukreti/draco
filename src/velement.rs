@@ -1,5 +1,6 @@
 use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Property, VNode, S};
 // use std::collections::HashMap;
+use derivative::Derivative;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
 use wasm_bindgen::JsValue;
@@ -9,7 +10,8 @@ use web_sys as web;
 pub type VNonKeyedElement<Message> = VElement<NonKeyed<Message>>;
 pub type VKeyedElement<Message> = VElement<Keyed<Message>>;
 
-#[derive(Debug)]
+#[derive(Derivative)]
+#[derivative(Debug(bound = "C: std::fmt::Debug"))]
 pub struct VElement<C: Children> {
     pub(crate) name: &'static str,
     ns: Ns,
@@ -25,10 +27,12 @@ pub enum Ns {
     Svg,
 }
 
-#[derive(Debug, Default)]
+#[derive(Default, Derivative)]
+#[derivative(Debug(bound = ""))]
 pub struct Keyed<Message: 'static>(Vec<(u64, VNode<Message>)>);
 
-#[derive(Debug, Default)]
+#[derive(Default, Derivative)]
+#[derivative(Debug(bound = ""))]
 pub struct NonKeyed<Message: 'static>(Vec<VNode<Message>>);
 
 pub fn h<Message: 'static>(name: &'static str) -> VNonKeyedElement<Message> {

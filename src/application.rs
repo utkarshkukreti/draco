@@ -1,4 +1,5 @@
 use crate::{Mailbox, VNode, VText};
+use derivative::Derivative;
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 use wasm_bindgen::UnwrapThrowExt;
@@ -11,7 +12,10 @@ pub trait Application: Sized + 'static {
     fn view(&self) -> VNode<Self::Message>;
 }
 
+#[derive(Derivative)]
+#[derivative(Debug)]
 struct Instance<A: Application> {
+    #[derivative(Debug = "ignore")]
     inner: Rc<Inner<A>>,
 }
 
@@ -74,12 +78,6 @@ impl<A: Application> std::clone::Clone for Instance<A> {
         Instance {
             inner: Rc::clone(&self.inner),
         }
-    }
-}
-
-impl<A: Application> std::fmt::Debug for Instance<A> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Instance").finish()
     }
 }
 

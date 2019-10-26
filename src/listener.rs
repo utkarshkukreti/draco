@@ -1,13 +1,18 @@
 use crate::{Mailbox, S};
+use derivative::Derivative;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
+#[derive(Derivative)]
+#[derivative(Debug(bound = ""))]
 pub struct Listener<Message> {
     name: S,
+    #[derivative(Debug = "ignore")]
     handler: Option<Box<dyn FnMut(web::Event) -> Option<Message>>>,
+    #[derivative(Debug = "ignore")]
     closure: Option<Closure<dyn FnMut(web::Event)>>,
 }
 
@@ -70,13 +75,5 @@ impl<Message: 'static> Listener<Message> {
         (element.as_ref() as &web::EventTarget)
             .remove_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .unwrap_throw();
-    }
-}
-
-impl<Message> std::fmt::Debug for Listener<Message> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Listener")
-            .field("name", &self.name)
-            .finish()
     }
 }

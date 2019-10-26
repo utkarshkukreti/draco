@@ -1,22 +1,17 @@
 use crate::{Mailbox, VNode};
+use derivative::Derivative;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys as web;
 
+#[derive(Derivative)]
+#[derivative(Debug(bound = ""))]
 pub struct Lazy<Message: 'static> {
     hash: u64,
     vnode: Option<Box<VNode<Message>>>,
+    #[derivative(Debug = "ignore")]
     view: Box<dyn Fn() -> VNode<Message>>,
-}
-
-impl<Message: 'static + std::fmt::Debug> std::fmt::Debug for Lazy<Message> {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        f.debug_struct("Lazy")
-            .field("hash", &self.hash)
-            .field("vnode", &self.vnode)
-            .finish()
-    }
 }
 
 impl<Message: 'static> Lazy<Message> {
