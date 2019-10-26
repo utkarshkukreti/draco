@@ -128,7 +128,9 @@ where
 
         aspect::patch(&mut self.aspects, &[], &element, mailbox);
 
-        element.set_class_name(wasm_bindgen::intern(&self.class));
+        if !self.class.is_empty() {
+            element.set_class_name(wasm_bindgen::intern(&self.class));
+        }
 
         self.node = Some(element.clone());
 
