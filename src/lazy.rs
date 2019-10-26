@@ -72,7 +72,7 @@ impl<Message: 'static> Lazy<Message> {
         self,
         f: Rc<impl Fn(Message) -> NewMessage + 'static>,
     ) -> Lazy<NewMessage> {
-        Lazy::new_with(self.hash, (self.view, f), move |_, (view, f)| {
+        Lazy::new_with(self.hash, (self.view, f), |_, (view, f)| {
             view().do_map(f.clone())
         })
     }
