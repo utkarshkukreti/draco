@@ -21,20 +21,20 @@ pub fn start() {
 
 pub struct Jfb {
     rows: Vec<Row>,
-    next_id: usize,
-    selected_id: Option<usize>,
+    next_id: u32,
+    selected_id: Option<u32>,
     rng: XorShiftRng,
     keyed: bool,
 }
 
 #[derive(Clone, Hash)]
 struct Row {
-    id: usize,
+    id: u32,
     label: String,
 }
 
 impl Row {
-    fn new<R: Rng>(id: usize, rng: &mut R) -> Row {
+    fn new<R: Rng>(id: u32, rng: &mut R) -> Row {
         let label = format!(
             "{} {} {}",
             rng.choose(ADJECTIVES).unwrap(),
@@ -74,13 +74,13 @@ impl Row {
 
 #[derive(Clone)]
 pub enum Message {
-    Create(usize),
-    Append(usize),
-    UpdateEvery(usize),
+    Create(u32),
+    Append(u32),
+    UpdateEvery(u32),
     Clear,
     Swap,
-    Remove(usize),
-    Select(usize),
+    Remove(u32),
+    Select(u32),
 }
 
 impl Jfb {
@@ -197,7 +197,7 @@ impl draco::Application for Jfb {
                 *next_id += amount;
             }
             Message::UpdateEvery(step) => {
-                for index in (0..rows.len()).step_by(step) {
+                for index in (0..rows.len()).step_by(step as usize) {
                     rows[index].label += " !!!";
                 }
             }
