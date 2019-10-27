@@ -210,9 +210,7 @@ impl draco::Application for Jfb {
                 }
             }
             Message::Remove(id) => {
-                if let Some((index, _)) = rows.iter().enumerate().find(|(_, row)| row.id == id) {
-                    rows.remove(index);
-                }
+                rows.retain(|row| row.id != id);
             }
             Message::Select(id) => {
                 if *selected_id == Some(id) {
