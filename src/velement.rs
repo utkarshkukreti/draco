@@ -76,7 +76,7 @@ where
     pub fn on<N: Into<S>>(
         mut self,
         name: N,
-        mut handler: impl FnMut(web::Event) -> C::Message + 'static,
+        handler: impl Fn(web::Event) -> C::Message + 'static,
     ) -> Self {
         self.aspects
             .push(Listener::new(name, move |event| Some(handler(event))).into());
@@ -86,13 +86,13 @@ where
     pub fn on_<N: Into<S>>(
         mut self,
         name: N,
-        handler: impl FnMut(web::Event) -> Option<C::Message> + 'static,
+        handler: impl Fn(web::Event) -> Option<C::Message> + 'static,
     ) -> Self {
         self.aspects.push(Listener::new(name, handler).into());
         self
     }
 
-    pub fn on_input(self, mut handler: impl FnMut(String) -> C::Message + 'static) -> Self {
+    pub fn on_input(self, handler: impl Fn(String) -> C::Message + 'static) -> Self {
         self.on_("input", move |event| {
             Some(handler(
                 js_sys::Reflect::get(&&event.target()?, &JsValue::from_str("value"))
@@ -102,7 +102,7 @@ where
         })
     }
 
-    pub fn on_checked(self, mut handler: impl FnMut(bool) -> C::Message + 'static) -> Self {
+    pub fn on_checked(self, handler: impl Fn(bool) -> C::Message + 'static) -> Self {
         self.on_("input", move |event| {
             Some(handler(
                 js_sys::Reflect::get(&&event.target()?, &JsValue::from_str("checked"))

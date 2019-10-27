@@ -11,19 +11,19 @@ use web_sys as web;
 pub struct Listener<Message> {
     name: S,
     #[derivative(Debug = "ignore")]
-    handler: Option<Box<dyn FnMut(web::Event) -> Option<Message>>>,
+    handler: Rc<dyn Fn(web::Event) -> Option<Message>>,
     #[derivative(Debug = "ignore")]
-    closure: Option<Closure<dyn FnMut(web::Event)>>,
+    closure: Option<Closure<dyn Fn(web::Event)>>,
 }
 
 impl<Message: 'static> Listener<Message> {
     pub fn new(
         name: impl Into<S>,
-        handler: impl FnMut(web::Event) -> Option<Message> + 'static,
+        handler: impl Fn(web::Event) -> Option<Message> + 'static,
     ) -> Self {
         Listener {
             name: name.into(),
-            handler: Some(Box::new(handler)),
+            handler: Rc::new(handler),
             closure: None,
         }
     }
@@ -38,18 +38,11 @@ impl<Message: 'static> Listener<Message> {
     ) -> Listener<NewMessage> {
         let Listener {
             name,
-            mut handler,
+            handler,
             closure,
         } = self;
-        let handler = match handler.take() {
-            Some(mut handler) => {
-                Some(
-                    Box::new(move |event| handler(event).map(|message| f(message)))
-                        as Box<dyn FnMut(web::Event) -> Option<NewMessage>>,
-                )
-            }
-            None => None,
-        };
+        let handler = Rc::clone(&handler);
+        let handler = Rc::new(move |event| handler(event).map(|message| f(message)));
         Listener {
             name,
             handler,
@@ -59,12 +52,12 @@ impl<Message: 'static> Listener<Message> {
 
     pub fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
         let mailbox = mailbox.clone();
-        let mut handler = self.handler.take().unwrap_throw();
+        let handler = Rc::clone(&self.handler);
         let closure = Closure::wrap(Box::new(move |event: web::Event| {
             if let Some(message) = handler(event) {
                 mailbox.send(message)
             }
-        }) as Box<dyn FnMut(web::Event) + 'static>);
+        }) as Box<dyn Fn(web::Event) + 'static>);
         (element.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
             .unwrap_throw();
