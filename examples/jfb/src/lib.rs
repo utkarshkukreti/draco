@@ -48,21 +48,26 @@ impl Row {
     fn view(&self, is_selected: bool) -> draco::VNode<Message> {
         use draco::html as h;
         draco::Lazy::new((self.clone(), is_selected), |(row, is_selected)| {
+            let id = row.id;
             h::tr()
                 .class(if *is_selected { "danger" } else { "" })
                 .push(h::td().class("col-md-1").push(row.id))
                 .push(
                     h::td()
                         .class("col-md-4")
-                        .push(h::a().class("lbl").push(row.label.clone())),
+                        .on("click", move |_| Message::Select(id))
+                        .push(h::a().push(row.label.clone())),
                 )
                 .push(
                     h::td().class("col-md-1").push(
-                        h::a().class("remove").push(
-                            h::span()
-                                .class("glyphicon glyphicon-remove remove")
-                                .attribute("aria-hidden", "true"),
-                        ),
+                        h::a()
+                            .class("remove")
+                            .on("click", move |_| Message::Remove(id))
+                            .push(
+                                h::span()
+                                    .class("glyphicon glyphicon-remove")
+                                    .attribute("aria-hidden", "true"),
+                            ),
                     ),
                 )
                 .push(h::td().class("col-md-6"))
@@ -91,30 +96,6 @@ impl Jfb {
             selected_id: None,
             rng: XorShiftRng::from_seed([0; 16]),
             keyed,
-        }
-    }
-
-    fn on_click(event: web::Event) -> Option<Message> {
-        use wasm_bindgen::JsCast;
-        let target = event.target().unwrap();
-        let target: web_sys::Element = target.dyn_into().unwrap();
-        if target.matches(".remove").unwrap() || target.matches(".lbl").unwrap() {
-            let td: web_sys::Node = target
-                .closest("tr")
-                .unwrap()
-                .unwrap()
-                .query_selector("td")
-                .unwrap()
-                .unwrap()
-                .into();
-            let id = td.text_content().unwrap().parse().unwrap();
-            if target.matches(".remove").unwrap() {
-                Some(Message::Remove(id))
-            } else {
-                Some(Message::Select(id))
-            }
-        } else {
-            None
         }
     }
 
@@ -237,7 +218,6 @@ impl draco::Application for Jfb {
             )
             .push(
                 h::table()
-                    .on_("click", Self::on_click)
                     .class("table table-hover table-striped test-data")
                     .push({
                         let vnode: draco::VNode<Message> = if self.keyed {
