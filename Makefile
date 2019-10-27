@@ -6,7 +6,7 @@ default:
 deploy: default
 	cd examples && netlifyctl deploy -P .
 
-test:
+test: default
 	cargo test
 	wasm-pack test --firefox --headless
 	cd tests && yarn test
