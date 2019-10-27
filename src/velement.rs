@@ -385,7 +385,7 @@ impl<Message: 'static> Children for Keyed<Message> {
                 true
             };
             if reordered {
-                let next_sibling = old.get(index + 1).and_then(|vnode| vnode.1.node());
+                let next_sibling = old.get(index + 1).and_then(|(_, vnode)| vnode.node());
                 parent_node
                     .insert_before(&new_vnode.node().unwrap_throw(), next_sibling.as_ref())
                     .unwrap_throw();
