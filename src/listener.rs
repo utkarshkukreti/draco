@@ -60,9 +60,10 @@ impl<Message: 'static> Listener<Message> {
     pub fn attach(&mut self, element: &web::Element, mailbox: &Mailbox<Message>) {
         let mailbox = mailbox.clone();
         let mut handler = self.handler.take().unwrap_throw();
-        let closure = Closure::wrap(Box::new(move |event: web::Event| match handler(event) {
-            Some(message) => mailbox.send(message),
-            None => {}
+        let closure = Closure::wrap(Box::new(move |event: web::Event| {
+            if let Some(message) = handler(event) {
+                mailbox.send(message)
+            }
         }) as Box<dyn FnMut(web::Event) + 'static>);
         (element.as_ref() as &web::EventTarget)
             .add_event_listener_with_callback(&self.name, closure.as_ref().unchecked_ref())
