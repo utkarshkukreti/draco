@@ -162,6 +162,11 @@ where
     pub fn node(&self) -> Option<web::Element> {
         self.node.clone()
     }
+
+    pub fn with<W: With<C>>(mut self, with: W) -> Self {
+        with.with(&mut self.children);
+        self
+    }
 }
 
 impl<Message: 'static> VNonKeyedElement<Message> {
@@ -395,5 +400,56 @@ impl<Message: 'static> Children for Keyed<Message> {
         for index in key_to_old_index.values() {
             old[*index].1.remove();
         }
+    }
+}
+
+pub trait With<C: Children> {
+    fn with(self, element: &mut C);
+}
+
+macro_rules! go {
+    ($($($ident:ident)+,)+) => {
+        $(
+            impl<Message: 'static, $($ident: Into<VNode<Message>>,)+> With<NonKeyed<Message>> for ($($ident,)+) {
+                fn with(self, children: &mut NonKeyed<Message>) {
+                    #[allow(non_snake_case)]
+                    let ($($ident,)+) = self;
+                    let mut reserve = 0;
+                    $({ #[allow(non_snake_case, unused)] let $ident: (); reserve += 1; })+
+                    children.0.reserve(reserve);
+                    $(
+                        children.0.push($ident.into());
+                    )*
+                }
+            }
+        )+
+    }
+}
+
+go! {
+    A,
+    A B,
+    A B C,
+    A B C D,
+    A B C D E,
+    A B C D E F,
+    A B C D E F G,
+    A B C D E F G H,
+    A B C D E F G H I,
+    A B C D E F G H I J,
+    A B C D E F G H I J K,
+    A B C D E F G H I J K L,
+    A B C D E F G H I J K L M,
+}
+
+impl<Message: 'static, T: Into<VNode<Message>>> With<NonKeyed<Message>> for T {
+    fn with(self, children: &mut NonKeyed<Message>) {
+        children.0.push(self.into());
+    }
+}
+
+impl<Message: 'static, T: Into<VNode<Message>>> With<Keyed<Message>> for (u64, T) {
+    fn with(self, children: &mut Keyed<Message>) {
+        children.0.push((self.0, self.1.into()));
     }
 }
