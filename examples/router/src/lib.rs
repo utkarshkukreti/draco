@@ -104,14 +104,12 @@ impl draco::Application for Router {
                             "padding: .25rem .75rem;"
                         },
                     )
-                    .with(
+                    .with((
                         h::span().with(
                             draco::router::link(Hash, page.clone())
                                 .with(format!("{:?}", page))
                                 .attribute("style", "margin-right: .5rem;"),
                         ),
-                    )
-                    .with(
                         h::button()
                             .with("Push")
                             .on_("click", {
@@ -122,14 +120,14 @@ impl draco::Application for Router {
                                 }
                             })
                             .attribute("style", "margin-right: .5rem;"),
-                    )
-                    .with(h::button().with("Replace").on_("click", {
-                        let page = page.clone();
-                        move |_| {
-                            draco::router::replace(Hash, &page);
-                            None
-                        }
-                    }))
+                        h::button().with("Replace").on_("click", {
+                            let page = page.clone();
+                            move |_| {
+                                draco::router::replace(Hash, &page);
+                                None
+                            }
+                        }),
+                    ))
             }))
             .into()
     }
