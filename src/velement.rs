@@ -410,18 +410,12 @@ pub trait With<C: Children> {
 macro_rules! go {
     () => {};
     ($first:ident $($rest:ident)*) => {
-        impl<Message: 'static, $first: Into<VNode<Message>> $(,$rest: Into<VNode<Message>>)*> With<NonKeyed<Message>> for ($first, $($rest,)*) {
-            fn with(self, children: &mut NonKeyed<Message>) {
+        impl<C: Children, $first: With<C> $(,$rest: With<C>)*> With<C> for ($first, $($rest,)*) {
+            fn with(self, children: &mut C) {
                 #[allow(non_snake_case)]
                 let ($first, $($rest,)*) = self;
-                #[allow(unused_mut)]
-                let mut reserve = 1;
-                $({ #[allow(non_snake_case, unused)] let $rest: (); reserve += 1; })*
-                children.0.reserve(reserve);
-                children.0.push($first.into());
-                $(
-                    children.0.push($rest.into());
-                )*
+                $first.with(children);
+                $({ $rest.with(children); })*
             }
         }
 
