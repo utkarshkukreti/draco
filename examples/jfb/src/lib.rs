@@ -51,14 +51,12 @@ impl Row {
             let id = row.id;
             h::tr()
                 .class(if *is_selected { "danger" } else { "" })
-                .with(h::td().class("col-md-1").with(row.id))
-                .with(
+                .with((
+                    h::td().class("col-md-1").with(row.id),
                     h::td()
                         .class("col-md-4")
                         .on("click", move |_| Message::Select(id))
                         .with(h::a().with(row.label.clone())),
-                )
-                .with(
                     h::td().class("col-md-1").with(
                         h::a()
                             .class("remove")
@@ -69,8 +67,8 @@ impl Row {
                                     .attribute("aria-hidden", "true"),
                             ),
                     ),
-                )
-                .with(h::td().class("col-md-6"))
+                    h::td().class("col-md-6"),
+                ))
                 .into()
         })
         .into()
@@ -208,15 +206,13 @@ impl draco::Application for Jfb {
 
         h::div()
             .class("container")
-            .with(
-                h::div().class("jumbotron").with(
-                    h::div()
-                        .class("row")
-                        .with(h::div().class("col-md-6").with(h::h1().with("Draco")))
-                        .with(h::div().class("col-md-6").append(Self::buttons())),
-                ),
-            )
-            .with(
+            .with((
+                h::div()
+                    .class("jumbotron")
+                    .with(h::div().class("row").with((
+                        h::div().class("col-md-6").with(h::h1().with("Draco")),
+                        h::div().class("col-md-6").append(Self::buttons()),
+                    ))),
                 h::table()
                     .class("table table-hover table-striped test-data")
                     .with({
@@ -239,12 +235,10 @@ impl draco::Application for Jfb {
                         };
                         vnode
                     }),
-            )
-            .with(
                 h::span()
                     .class("preloadicon glyphicon glyphicon-remove")
                     .attribute("aria-hidden", "true"),
-            )
+            ))
             .into()
     }
 }
