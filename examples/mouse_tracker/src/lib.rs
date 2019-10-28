@@ -38,12 +38,12 @@ impl draco::Application for MouseTracker {
     fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
-            .with(h::h1().with(if self.subscription.is_some() {
-                "Tracking"
-            } else {
-                "Not Tracking"
-            }))
-            .with(
+            .with((
+                h::h1().with(if self.subscription.is_some() {
+                    "Tracking"
+                } else {
+                    "Not Tracking"
+                }),
                 h::button()
                     .with(if self.subscription.is_some() {
                         "Stop"
@@ -51,15 +51,8 @@ impl draco::Application for MouseTracker {
                         "Start"
                     })
                     .on("click", |_| Message::Toggle),
-            )
-            .with(
-                h::div()
-                    .with("x = ")
-                    .with(self.x)
-                    .with("; ")
-                    .with("y = ")
-                    .with(self.y),
-            )
+                h::div().with(("x = ", self.x, "; ", "y = ", self.y)),
+            ))
             .into()
     }
 }
