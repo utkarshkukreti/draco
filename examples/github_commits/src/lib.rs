@@ -77,23 +77,23 @@ impl draco::Application for GitHubCommits {
                 event.prevent_default();
                 Message::Fetch
             })
-            .push(
+            .with(
                 h::input()
                     .value(self.repo.clone())
                     .on_input(Message::UpdateRepo),
             )
-            .push(h::button().push("Fetch").on("click", |_| Message::Fetch))
-            .push(match &self.response {
+            .with(h::button().with("Fetch").on("click", |_| Message::Fetch))
+            .with(match &self.response {
                 Some(Ok(records)) => h::ul().append(records.iter().map(|record| {
-                    h::li().push(
+                    h::li().with(
                         h::p()
-                            .push(
+                            .with(
                                 h::a()
                                     .href(record.html_url.clone())
-                                    .push(record.sha[0..8].to_string()),
+                                    .with(record.sha[0..8].to_string()),
                             )
-                            .push(" ")
-                            .push(
+                            .with(" ")
+                            .with(
                                 record
                                     .commit
                                     .message
@@ -102,14 +102,14 @@ impl draco::Application for GitHubCommits {
                                     .unwrap_or("")
                                     .to_string(),
                             )
-                            .push(h::br())
-                            .push("By ")
-                            .push(h::strong().push(record.commit.author.name.clone()))
-                            .push(" at ")
-                            .push(record.commit.author.date.clone()),
+                            .with(h::br())
+                            .with("By ")
+                            .with(h::strong().with(record.commit.author.name.clone()))
+                            .with(" at ")
+                            .with(record.commit.author.date.clone()),
                     )
                 })),
-                Some(Err(err)) => h::pre().push(format!("{:#?}", err)),
+                Some(Err(err)) => h::pre().with(format!("{:#?}", err)),
                 None => h::div(),
             })
             .into()

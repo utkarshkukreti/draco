@@ -40,7 +40,7 @@ impl draco::Application for Router {
         ];
 
         h::div()
-            .push(h::h3().push(format!("Current Url: {:?}", &self.url)))
+            .with(h::h3().with(format!("Current Url: {:?}", &self.url)))
             .append(urls.iter().map(|url| {
                 h::div()
                     .attribute(
@@ -51,10 +51,10 @@ impl draco::Application for Router {
                             "padding: .25rem .75rem;"
                         },
                     )
-                    .push(
-                        h::span().push(
+                    .with(
+                        h::span().with(
                             draco::router::link(Hash, Url::from(*url))
-                                .push(url.to_string())
+                                .with(url.to_string())
                                 .attribute("style", "margin-right: .5rem;"),
                         ),
                     )

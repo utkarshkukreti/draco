@@ -45,21 +45,21 @@ impl draco::Application for LocalStorage {
     fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
-            .push(h::p().push("Type anything below."))
-            .push(h::p().push(
+            .with(h::p().with("Type anything below."))
+            .with(h::p().with(
                 "The value is automatically stored in LocalStorage and restored on page load.",
             ))
-            .push(
+            .with(
                 h::textarea()
                     .value(self.value.clone())
                     .on_input(Message::Update),
             )
-            .push(
+            .with(
                 h::button()
-                    .push("Clear")
+                    .with("Clear")
                     .on("click", |_| Message::Update("".into())),
             )
-            .push(h::pre().push(format!("{:?}", self)))
+            .with(h::pre().with(format!("{:?}", self)))
             .into()
     }
 }

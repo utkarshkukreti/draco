@@ -24,7 +24,7 @@ impl draco::Application for HelloWorld {
     type Message = ();
 
     fn view(&self) -> draco::VNode<Self::Message> {
-        draco::html::h1().push("Hello, world!").into()
+        draco::html::h1().with("Hello, world!").into()
     }
 }
 
@@ -89,13 +89,13 @@ impl draco::Application for Counter {
     fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
-            .push(h::button().push("-").on("click", |_| Message::Decrement))
-            .push(" ")
-            .push(self.value)
-            .push(" ")
-            .push(h::button().push("+").on("click", |_| Message::Increment))
-            .push(" ")
-            .push(h::button().push("Reset").on("click", |_| Message::Reset))
+            .with(h::button().with("-").on("click", |_| Message::Decrement))
+            .with(" ")
+            .with(self.value)
+            .with(" ")
+            .with(h::button().with("+").on("click", |_| Message::Increment))
+            .with(" ")
+            .with(h::button().with("Reset").on("click", |_| Message::Reset))
             .into()
     }
 }

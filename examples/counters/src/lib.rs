@@ -27,15 +27,15 @@ pub mod counter {
         pub fn view(&self) -> draco::VNode<Message> {
             use draco::html as h;
             h::div()
-                .push(h::button().push("-").on("click", |_| Message::Decrement))
-                .push(" ")
-                .push(self.value)
-                .push(" ")
-                .push(h::button().push("+").on("click", |_| Message::Increment))
-                .push(" ")
-                .push(h::button().push("Reset").on("click", |_| Message::Reset))
-                .push(" ")
-                .push(h::button().push("Remove").on("click", |_| Message::Remove))
+                .with(h::button().with("-").on("click", |_| Message::Decrement))
+                .with(" ")
+                .with(self.value)
+                .with(" ")
+                .with(h::button().with("+").on("click", |_| Message::Increment))
+                .with(" ")
+                .with(h::button().with("Reset").on("click", |_| Message::Reset))
+                .with(" ")
+                .with(h::button().with("Remove").on("click", |_| Message::Remove))
                 .into()
         }
     }
@@ -69,7 +69,7 @@ impl draco::Application for Counters {
     fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
-            .push(h::button().push("Append").on("click", |_| Message::Append))
+            .with(h::button().with("Append").on("click", |_| Message::Append))
             .append(self.counters.iter().enumerate().map(|(index, counter)| {
                 counter
                     .view()

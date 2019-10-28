@@ -15,8 +15,8 @@ impl draco::Application for HelloWorld {
     fn view(&self) -> draco::VNode<Self::Message> {
         // `draco::html::h1()` creates an `<h1>` element.
         draco::html::h1()
-            // `.push()` adds a child to the element. Here we add a Text Node by pushing a string.
-            .push("Hello, world!")
+            // `.with()` adds a child to the element. Here we add a Text Node by pushing a string.
+            .with("Hello, world!")
             // We use `.into()` to convert an `Element` struct to a `Node` struct which this
             // function must return.
             .into()

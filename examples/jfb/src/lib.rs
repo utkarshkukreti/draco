@@ -51,26 +51,26 @@ impl Row {
             let id = row.id;
             h::tr()
                 .class(if *is_selected { "danger" } else { "" })
-                .push(h::td().class("col-md-1").push(row.id))
-                .push(
+                .with(h::td().class("col-md-1").with(row.id))
+                .with(
                     h::td()
                         .class("col-md-4")
                         .on("click", move |_| Message::Select(id))
-                        .push(h::a().push(row.label.clone())),
+                        .with(h::a().with(row.label.clone())),
                 )
-                .push(
-                    h::td().class("col-md-1").push(
+                .with(
+                    h::td().class("col-md-1").with(
                         h::a()
                             .class("remove")
                             .on("click", move |_| Message::Remove(id))
-                            .push(
+                            .with(
                                 h::span()
                                     .class("glyphicon glyphicon-remove")
                                     .attribute("aria-hidden", "true"),
                             ),
                     ),
                 )
-                .push(h::td().class("col-md-6"))
+                .with(h::td().class("col-md-6"))
                 .into()
         })
         .into()
@@ -144,13 +144,13 @@ impl Jfb {
         BUTTONS.iter().map(|button| {
             h::div()
                 .class("col-sm-6 smallpad")
-                .push(
+                .with(
                     h::button()
                         .id(button.id)
                         .class("btn btn-primary btn-block")
                         .type_("button")
                         .on("click", move |_| button.message.clone())
-                        .push(button.description),
+                        .with(button.description),
                 )
                 .into()
         })
@@ -208,18 +208,18 @@ impl draco::Application for Jfb {
 
         h::div()
             .class("container")
-            .push(
-                h::div().class("jumbotron").push(
+            .with(
+                h::div().class("jumbotron").with(
                     h::div()
                         .class("row")
-                        .push(h::div().class("col-md-6").push(h::h1().push("Draco")))
-                        .push(h::div().class("col-md-6").append(Self::buttons())),
+                        .with(h::div().class("col-md-6").with(h::h1().with("Draco")))
+                        .with(h::div().class("col-md-6").append(Self::buttons())),
                 ),
             )
-            .push(
+            .with(
                 h::table()
                     .class("table table-hover table-striped test-data")
-                    .push({
+                    .with({
                         let vnode: draco::VNode<Message> = if self.keyed {
                             draco::html::keyed::tbody()
                                 .id("tbody")
@@ -240,7 +240,7 @@ impl draco::Application for Jfb {
                         vnode
                     }),
             )
-            .push(
+            .with(
                 h::span()
                     .class("preloadicon glyphicon glyphicon-remove")
                     .attribute("aria-hidden", "true"),

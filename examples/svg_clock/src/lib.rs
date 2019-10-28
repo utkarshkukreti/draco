@@ -66,16 +66,16 @@ impl draco::Application for Clock {
                 "style",
                 "display: flex; align-items: center; flex-direction: column;",
             )
-            .push(
+            .with(
                 s::svg()
                     .width("400")
                     .height("400")
                     .view_box("0 0 200 200")
-                    .push(circle)
-                    .push(line(subsecond_rotate, "#e2e8f0", 10, 90))
-                    .push(line(hour_rotate, "#2d3748", 4, 50))
-                    .push(line(minute_rotate, "#2d3748", 3, 70))
-                    .push(line(second_rotate, "#e53e3e", 2, 90)),
+                    .with(circle)
+                    .with(line(subsecond_rotate, "#e2e8f0", 10, 90))
+                    .with(line(hour_rotate, "#2d3748", 4, 50))
+                    .with(line(minute_rotate, "#2d3748", 3, 70))
+                    .with(line(second_rotate, "#e53e3e", 2, 90)),
             )
             .into()
     }

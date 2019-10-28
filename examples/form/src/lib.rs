@@ -70,24 +70,24 @@ impl draco::Application for Form {
                 event.prevent_default();
                 Message::Submit
             })
-            .push(h::pre().push(format!("{:#?}", self)))
-            .push(h::label().for_("username").push("Username: "))
-            .push(
+            .with(h::pre().with(format!("{:#?}", self)))
+            .with(h::label().for_("username").with("Username: "))
+            .with(
                 h::input()
                     .id("username")
                     .name("username")
                     .value(self.username.clone())
                     .on_input(Message::UpdateUsername),
             )
-            .push(
+            .with(
                 h::button()
                     .type_("button")
-                    .push("Clear")
+                    .with("Clear")
                     .on("click", |_| Message::UpdateUsername("".into())),
             )
-            .push(h::br())
-            .push(h::label().for_("password").push("Password: "))
-            .push(
+            .with(h::br())
+            .with(h::label().for_("password").with("Password: "))
+            .with(
                 h::input()
                     .id("password")
                     .name("password")
@@ -95,25 +95,25 @@ impl draco::Application for Form {
                     .value(self.password.clone())
                     .on_input(Message::UpdatePassword),
             )
-            .push(
+            .with(
                 h::button()
                     .type_("button")
-                    .push("Clear")
+                    .with("Clear")
                     .on("click", |_| Message::UpdatePassword("".into())),
             )
-            .push(h::br())
-            .push(
-                h::div().push(h::label().for_("plan").push("Plan")).push(
+            .with(h::br())
+            .with(
+                h::div().with(h::label().for_("plan").with("Plan")).with(
                     h::select()
                         .value(self.plan.clone())
                         .on_input(Message::UpdatePlan)
                         .append(plans.iter().map(|plan| {
-                            h::option().value(plan.to_string()).push(plan.to_string())
+                            h::option().value(plan.to_string()).with(plan.to_string())
                         })),
                 ),
             )
-            .push(h::label().for_("accept").push("Accept "))
-            .push(
+            .with(h::label().for_("accept").with("Accept "))
+            .with(
                 h::input()
                     .id("accept")
                     .name("accept")
@@ -121,25 +121,25 @@ impl draco::Application for Form {
                     .checked(self.accept)
                     .on_checked(Message::UpdateAccept),
             )
-            .push(
+            .with(
                 h::button()
                     .type_("button")
                     .disabled(self.accept)
-                    .push("Agree")
+                    .with("Agree")
                     .on("click", |_| Message::UpdateAccept(true)),
             )
-            .push(
+            .with(
                 h::button()
                     .type_("button")
                     .disabled(!self.accept)
-                    .push("Disagree")
+                    .with("Disagree")
                     .on("click", |_| Message::UpdateAccept(false)),
             )
-            .push(h::br())
-            .push(if self.is_submitting {
-                h::button().push("Submitting...").disabled(true)
+            .with(h::br())
+            .with(if self.is_submitting {
+                h::button().with("Submitting...").disabled(true)
             } else {
-                h::button().push("Submit").disabled(!self.accept)
+                h::button().with("Submit").disabled(!self.accept)
             })
             .into()
     }
