@@ -77,23 +77,19 @@ impl draco::Application for GitHubCommits {
                 event.prevent_default();
                 Message::Fetch
             })
-            .with(
+            .with((
                 h::input()
                     .value(self.repo.clone())
                     .on_input(Message::UpdateRepo),
-            )
-            .with(h::button().with("Fetch").on("click", |_| Message::Fetch))
-            .with(match &self.response {
-                Some(Ok(records)) => h::ul().append(records.iter().map(|record| {
-                    h::li().with(
-                        h::p()
-                            .with(
+                h::button().with("Fetch").on("click", |_| Message::Fetch),
+                match &self.response {
+                    Some(Ok(records)) => h::ul().append(records.iter().map(|record| {
+                        h::li().with(
+                            h::p().with((
                                 h::a()
                                     .href(record.html_url.clone())
                                     .with(record.sha[0..8].to_string()),
-                            )
-                            .with(" ")
-                            .with(
+                                " ",
                                 record
                                     .commit
                                     .message
@@ -101,17 +97,18 @@ impl draco::Application for GitHubCommits {
                                     .next()
                                     .unwrap_or("")
                                     .to_string(),
-                            )
-                            .with(h::br())
-                            .with("By ")
-                            .with(h::strong().with(record.commit.author.name.clone()))
-                            .with(" at ")
-                            .with(record.commit.author.date.clone()),
-                    )
-                })),
-                Some(Err(err)) => h::pre().with(format!("{:#?}", err)),
-                None => h::div(),
-            })
+                                h::br(),
+                                "By ",
+                                h::strong().with(record.commit.author.name.clone()),
+                                " at ",
+                                record.commit.author.date.clone(),
+                            )),
+                        )
+                    })),
+                    Some(Err(err)) => h::pre().with(format!("{:#?}", err)),
+                    None => h::div(),
+                },
+            ))
             .into()
     }
 }
