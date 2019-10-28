@@ -71,11 +71,13 @@ impl draco::Application for Clock {
                     .width("400")
                     .height("400")
                     .view_box("0 0 200 200")
-                    .with(circle)
-                    .with(line(subsecond_rotate, "#e2e8f0", 10, 90))
-                    .with(line(hour_rotate, "#2d3748", 4, 50))
-                    .with(line(minute_rotate, "#2d3748", 3, 70))
-                    .with(line(second_rotate, "#e53e3e", 2, 90)),
+                    .with((
+                        circle,
+                        line(subsecond_rotate, "#e2e8f0", 10, 90),
+                        line(hour_rotate, "#2d3748", 4, 50),
+                        line(minute_rotate, "#2d3748", 3, 70),
+                        line(second_rotate, "#e53e3e", 2, 90),
+                    )),
             )
             .into()
     }
