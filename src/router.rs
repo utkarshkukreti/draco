@@ -38,9 +38,7 @@ impl<R: Route + 'static> Subscription for Router<R> {
         window
             .add_event_listener_with_callback("popstate", closure.as_ref().unchecked_ref())
             .unwrap_throw();
-        window
-            .dispatch_event(&web::Event::new("popstate").unwrap_throw())
-            .unwrap_throw();
+        popstate();
 
         Unsubscribe::new(move || {
             window
