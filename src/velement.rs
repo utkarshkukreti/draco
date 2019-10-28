@@ -408,38 +408,31 @@ pub trait With<C: Children> {
 }
 
 macro_rules! go {
-    ($($($ident:ident)+,)+) => {
-        $(
-            impl<Message: 'static, $($ident: Into<VNode<Message>>,)+> With<NonKeyed<Message>> for ($($ident,)+) {
-                fn with(self, children: &mut NonKeyed<Message>) {
-                    #[allow(non_snake_case)]
-                    let ($($ident,)+) = self;
-                    let mut reserve = 0;
-                    $({ #[allow(non_snake_case, unused)] let $ident: (); reserve += 1; })+
-                    children.0.reserve(reserve);
-                    $(
-                        children.0.push($ident.into());
-                    )*
-                }
+    () => {};
+    ($first:ident $($rest:ident)*) => {
+        impl<Message: 'static, $first: Into<VNode<Message>> $(,$rest: Into<VNode<Message>>)*> With<NonKeyed<Message>> for ($first, $($rest,)*) {
+            fn with(self, children: &mut NonKeyed<Message>) {
+                #[allow(non_snake_case)]
+                let ($first, $($rest,)*) = self;
+                #[allow(unused_mut)]
+                let mut reserve = 1;
+                $({ #[allow(non_snake_case, unused)] let $rest: (); reserve += 1; })*
+                children.0.reserve(reserve);
+                children.0.push($first.into());
+                $(
+                    children.0.push($rest.into());
+                )*
             }
-        )+
+        }
+
+        go! { $($rest)* }
     }
 }
 
 go! {
-    A,
-    A B,
-    A B C,
-    A B C D,
-    A B C D E,
-    A B C D E F,
-    A B C D E F G,
-    A B C D E F G H,
-    A B C D E F G H I,
-    A B C D E F G H I J,
-    A B C D E F G H I J K,
-    A B C D E F G H I J K L,
-    A B C D E F G H I J K L M,
+    T1 T2 T3 T4 T5 T6 T7 T8 T9 T10
+    T11 T12 T13 T14 T15 T16 T17 T18 T19 T20
+    T21 T22 T23 T24
 }
 
 impl<Message: 'static, T: Into<VNode<Message>>> With<NonKeyed<Message>> for T {
