@@ -32,9 +32,8 @@ impl draco::Application for Counter {
     fn view(&self) -> draco::VNode<Self::Message> {
         use draco::html as h;
         h::div()
-            .with(
+            .with((
                 h::button()
-                    .with("-")
                     // `.on` adds an event listener to the element.
                     .on(
                         // `click` is the event we want to listen to.
@@ -46,14 +45,15 @@ impl draco::Application for Counter {
                             // receive when the event is triggered.
                             Message::Decrement
                         },
-                    ),
-            )
-            .with(" ")
-            .with(self.value)
-            .with(" ")
-            .with(h::button().with("+").on("click", |_| Message::Increment))
-            .with(" ")
-            .with(h::button().with("Reset").on("click", |_| Message::Reset))
+                    )
+                    .with("-"),
+                " ",
+                self.value,
+                " ",
+                h::button().with("+").on("click", |_| Message::Increment),
+                " ",
+                h::button().with("Reset").on("click", |_| Message::Reset),
+            ))
             .into()
     }
 }

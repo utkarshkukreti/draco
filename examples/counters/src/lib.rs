@@ -27,15 +27,17 @@ pub mod counter {
         pub fn view(&self) -> draco::VNode<Message> {
             use draco::html as h;
             h::div()
-                .with(h::button().with("-").on("click", |_| Message::Decrement))
-                .with(" ")
-                .with(self.value)
-                .with(" ")
-                .with(h::button().with("+").on("click", |_| Message::Increment))
-                .with(" ")
-                .with(h::button().with("Reset").on("click", |_| Message::Reset))
-                .with(" ")
-                .with(h::button().with("Remove").on("click", |_| Message::Remove))
+                .with((
+                    h::button().with("-").on("click", |_| Message::Decrement),
+                    " ",
+                    self.value,
+                    " ",
+                    h::button().with("+").on("click", |_| Message::Increment),
+                    " ",
+                    h::button().with("Reset").on("click", |_| Message::Reset),
+                    " ",
+                    h::button().with("Remove").on("click", |_| Message::Remove),
+                ))
                 .into()
         }
     }

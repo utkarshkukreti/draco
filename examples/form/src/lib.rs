@@ -70,39 +70,31 @@ impl draco::Application for Form {
                 event.prevent_default();
                 Message::Submit
             })
-            .with(h::pre().with(format!("{:#?}", self)))
-            .with(h::label().for_("username").with("Username: "))
-            .with(
+            .with((
+                h::pre().with(format!("{:#?}", self)),
+                h::label().for_("username").with("Username: "),
                 h::input()
                     .id("username")
                     .name("username")
                     .value(self.username.clone())
                     .on_input(Message::UpdateUsername),
-            )
-            .with(
                 h::button()
                     .type_("button")
                     .with("Clear")
                     .on("click", |_| Message::UpdateUsername("".into())),
-            )
-            .with(h::br())
-            .with(h::label().for_("password").with("Password: "))
-            .with(
+                h::br(),
+                h::label().for_("password").with("Password: "),
                 h::input()
                     .id("password")
                     .name("password")
                     .type_("password")
                     .value(self.password.clone())
                     .on_input(Message::UpdatePassword),
-            )
-            .with(
                 h::button()
                     .type_("button")
                     .with("Clear")
                     .on("click", |_| Message::UpdatePassword("".into())),
-            )
-            .with(h::br())
-            .with(
+                h::br(),
                 h::div().with(h::label().for_("plan").with("Plan")).with(
                     h::select()
                         .value(self.plan.clone())
@@ -111,36 +103,30 @@ impl draco::Application for Form {
                             h::option().value(plan.to_string()).with(plan.to_string())
                         })),
                 ),
-            )
-            .with(h::label().for_("accept").with("Accept "))
-            .with(
+                h::label().for_("accept").with("Accept "),
                 h::input()
                     .id("accept")
                     .name("accept")
                     .type_("checkbox")
                     .checked(self.accept)
                     .on_checked(Message::UpdateAccept),
-            )
-            .with(
                 h::button()
                     .type_("button")
                     .disabled(self.accept)
                     .with("Agree")
                     .on("click", |_| Message::UpdateAccept(true)),
-            )
-            .with(
                 h::button()
                     .type_("button")
                     .disabled(!self.accept)
                     .with("Disagree")
                     .on("click", |_| Message::UpdateAccept(false)),
-            )
-            .with(h::br())
-            .with(if self.is_submitting {
-                h::button().with("Submitting...").disabled(true)
-            } else {
-                h::button().with("Submit").disabled(!self.accept)
-            })
+                h::br(),
+                if self.is_submitting {
+                    h::button().with("Submitting...").disabled(true)
+                } else {
+                    h::button().with("Submit").disabled(!self.accept)
+                },
+            ))
             .into()
     }
 }
