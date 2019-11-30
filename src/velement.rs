@@ -3,8 +3,8 @@ use crate::{aspect, property, Aspect, Attribute, Listener, Mailbox, Property, VN
 use derivative::Derivative;
 use fxhash::FxHashMap as HashMap;
 use std::rc::Rc;
-use wasm_bindgen::JsValue;
 use wasm_bindgen::UnwrapThrowExt;
+use wasm_bindgen::{JsCast, JsValue};
 use web_sys as web;
 
 pub type VNonKeyedElement<Message> = VElement<NonKeyed<Message>>;
@@ -18,6 +18,8 @@ pub struct VElement<C: Children> {
     class: S,
     aspects: Vec<Aspect<C::Message>>,
     children: C,
+    #[derivative(Debug = "ignore")]
+    ref_: Option<Box<dyn Fn(Option<web::Element>) -> C::Message>>,
     node: Option<web::Element>,
 }
 
@@ -54,6 +56,7 @@ where
             aspects: Vec::new(),
             class: "".into(),
             children: C::new(),
+            ref_: None,
             node: None,
         }
     }
@@ -112,6 +115,11 @@ where
         })
     }
 
+    pub fn ref_(mut self, handler: impl Fn(Option<web::Element>) -> C::Message + 'static) -> Self {
+        self.ref_ = Some(Box::new(handler));
+        self
+    }
+
     pub fn create(&mut self, mailbox: &Mailbox<C::Message>) -> web::Element {
         let document = web::window().unwrap_throw().document().unwrap_throw();
 
@@ -138,6 +146,8 @@ where
 
         self.node = Some(element.clone());
 
+        self.did_create(element.as_ref(), mailbox);
+
         element
     }
 
@@ -157,6 +167,20 @@ where
         self.node = Some(old_element.clone());
 
         old_element
+    }
+
+    pub fn did_create(&self, node: &web::Node, mailbox: &Mailbox<C::Message>) {
+        if let Some(ref ref_) = self.ref_ {
+            mailbox.send(ref_(Some(
+                node.dyn_ref::<web::Element>().unwrap_throw().clone(),
+            )));
+        }
+    }
+
+    pub fn did_remove(&self, mailbox: &Mailbox<C::Message>) {
+        if let Some(ref ref_) = self.ref_ {
+            mailbox.send(ref_(None));
+        }
     }
 
     pub fn node(&self) -> Option<web::Element> {
@@ -197,12 +221,19 @@ impl<Message: 'static> VNonKeyedElement<Message> {
             class,
             aspects,
             children,
+            ref_,
             node,
         } = self;
         let aspects = aspects
             .into_iter()
             .map(|aspect| aspect.do_map(f.clone()))
             .collect();
+        let ref_ = {
+            let f = f.clone();
+            ref_.map(|ref_| {
+                Box::new(move |el| f(ref_(el))) as Box<dyn Fn(Option<web::Element>) -> NewMessage>
+            })
+        };
         let children = NonKeyed(
             children
                 .0
@@ -216,6 +247,7 @@ impl<Message: 'static> VNonKeyedElement<Message> {
             class,
             aspects,
             children,
+            ref_,
             node,
         }
     }
@@ -254,12 +286,19 @@ impl<Message: 'static> VKeyedElement<Message> {
             class,
             aspects,
             children,
+            ref_,
             node,
         } = self;
         let aspects = aspects
             .into_iter()
             .map(|aspect| aspect.do_map(f.clone()))
             .collect();
+        let ref_ = {
+            let f = f.clone();
+            ref_.map(|ref_| {
+                Box::new(move |el| f(ref_(el))) as Box<dyn Fn(Option<web::Element>) -> NewMessage>
+            })
+        };
         let children = Keyed(
             children
                 .0
@@ -273,6 +312,7 @@ impl<Message: 'static> VKeyedElement<Message> {
             class,
             aspects,
             children,
+            ref_,
             node,
         }
     }
@@ -305,9 +345,7 @@ impl<Message: 'static> Children for NonKeyed<Message> {
         }
 
         for old in old.0.iter().skip(self.0.len()) {
-            let old_node = old.node().unwrap_throw();
-            let parent_node = old_node.parent_node().unwrap_throw();
-            parent_node.remove_child(&old_node).unwrap_throw();
+            old.remove(mailbox);
         }
 
         for new in self.0.iter_mut().skip(old.0.len()) {
@@ -398,7 +436,7 @@ impl<Message: 'static> Children for Keyed<Message> {
         }
 
         for index in key_to_old_index.values() {
-            old[*index].1.remove();
+            old[*index].1.remove(mailbox);
         }
     }
 }

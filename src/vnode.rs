@@ -15,11 +15,24 @@ pub enum VNode<Message: 'static> {
 
 impl<Message: 'static> VNode<Message> {
     pub fn create(&mut self, mailbox: &Mailbox<Message>) -> web::Node {
-        match self {
+        let node = match self {
             VNode::Element(element) => element.create(mailbox).into(),
             VNode::KeyedElement(keyed_element) => keyed_element.create(mailbox).into(),
             VNode::Text(text) => text.create().into(),
             VNode::Lazy(lazy) => lazy.create(mailbox),
+        };
+
+        self.did_create(&node, mailbox);
+
+        node
+    }
+
+    pub fn did_create(&self, node: &web::Node, mailbox: &Mailbox<Message>) {
+        match self {
+            VNode::Element(element) => element.did_create(node, mailbox),
+            VNode::KeyedElement(keyed_element) => keyed_element.did_create(node, mailbox),
+            VNode::Text(_) => {}
+            VNode::Lazy(lazy) => lazy.did_create(node, mailbox),
         }
     }
 
@@ -40,6 +53,7 @@ impl<Message: 'static> VNode<Message> {
                 let parent_node = old_node.parent_node().unwrap_throw();
                 let node = self_.create(mailbox);
                 parent_node.replace_child(&node, &old_node).unwrap_throw();
+                old.did_remove(mailbox);
                 node
             }
         }
@@ -54,11 +68,21 @@ impl<Message: 'static> VNode<Message> {
         }
     }
 
-    pub fn remove(&self) {
+    pub fn remove(&self, mailbox: &Mailbox<Message>) {
         if let Some(node) = self.node() {
             if let Some(parent_node) = node.parent_node() {
                 parent_node.remove_child(&node).unwrap_throw();
             }
+        }
+        self.did_remove(mailbox);
+    }
+
+    pub fn did_remove(&self, mailbox: &Mailbox<Message>) {
+        match self {
+            VNode::Element(element) => element.did_remove(mailbox),
+            VNode::KeyedElement(keyed_element) => keyed_element.did_remove(mailbox),
+            VNode::Text(_) => {}
+            VNode::Lazy(lazy) => lazy.did_remove(mailbox),
         }
     }
 

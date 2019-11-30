@@ -69,6 +69,18 @@ impl<Message: 'static> Lazy<Message> {
         node
     }
 
+    pub fn did_create(&self, node: &web::Node, mailbox: &Mailbox<Message>) {
+        if let Some(ref vnode) = self.vnode {
+            vnode.did_create(node, mailbox);
+        };
+    }
+
+    pub fn did_remove(&self, mailbox: &Mailbox<Message>) {
+        if let Some(ref vnode) = self.vnode {
+            vnode.did_remove(mailbox);
+        };
+    }
+
     pub(crate) fn do_map<NewMessage: 'static>(
         self,
         f: Rc<impl Fn(Message) -> NewMessage + 'static>,

@@ -25,6 +25,7 @@ struct Inner<A: Application> {
     vnode: RefCell<VNode<A::Message>>,
     queue: RefCell<Vec<A::Message>>,
     is_updating: Cell<bool>,
+    is_rendering: Cell<bool>,
 }
 
 impl<A: Application> Instance<A> {
@@ -38,6 +39,10 @@ impl<A: Application> Instance<A> {
     }
 
     fn update(&self) {
+        if self.inner.is_rendering.get() {
+            return;
+        }
+
         // If we were called from inside the `while` loop below, bail out; the message will be
         // processed by the loop later.
         if self.inner.is_updating.get() {
@@ -59,10 +64,15 @@ impl<A: Application> Instance<A> {
     }
 
     fn render(&self) {
+        self.inner.is_rendering.replace(true);
         let mut new_vnode = self.inner.app.borrow().view();
         let new_node = new_vnode.patch(&mut self.inner.vnode.borrow_mut(), &self.mailbox());
         self.inner.vnode.replace(new_vnode);
         self.inner.node.replace(new_node);
+        self.inner.is_rendering.replace(false);
+        if !self.inner.queue.borrow().is_empty() {
+            self.update()
+        }
     }
 
     fn mailbox(&self) -> Mailbox<A::Message> {
@@ -94,6 +104,7 @@ pub fn start<A: Application>(app: A, node: web::Node) -> Mailbox<A::Message> {
             node: Cell::new(new_node),
             vnode: RefCell::new(vnode.into()),
             is_updating: Cell::new(false),
+            is_rendering: Cell::new(false),
             queue: RefCell::new(Vec::new()),
         }),
     };

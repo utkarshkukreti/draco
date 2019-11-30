@@ -59,6 +59,7 @@ members = [
   "examples/jfb",
   "examples/local_storage",
   "examples/mouse_tracker",
+  "examples/ref_focus",
   "examples/router",
   "examples/router_basic",
   "examples/svg_clock",
