@@ -43,7 +43,6 @@ features = [
 ]
 
 [dev-dependencies]
-rand = "0.5"
 wasm-bindgen-test = "0.3.2"
 
 [profile.release]
