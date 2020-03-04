@@ -96,63 +96,6 @@ impl Jfb {
             keyed,
         }
     }
-
-    fn buttons() -> impl Iterator<Item = draco::VNode<Message>> {
-        use draco::html as h;
-
-        struct Button {
-            id: &'static str,
-            message: Message,
-            description: &'static str,
-        }
-
-        static BUTTONS: &[Button] = &[
-            Button {
-                id: "run",
-                description: "Create 1,000 rows",
-                message: Message::Create(1000),
-            },
-            Button {
-                id: "runlots",
-                description: "Create 10,000 rows",
-                message: Message::Create(10000),
-            },
-            Button {
-                id: "add",
-                description: "Append 1,000 rows",
-                message: Message::Append(1000),
-            },
-            Button {
-                id: "update",
-                description: "Update every 10th row",
-                message: Message::UpdateEvery(10),
-            },
-            Button {
-                id: "clear",
-                description: "Clear",
-                message: Message::Clear,
-            },
-            Button {
-                id: "swaprows",
-                description: "Swap Rows",
-                message: Message::Swap,
-            },
-        ];
-
-        BUTTONS.iter().map(|button| {
-            h::div()
-                .class("col-sm-6 smallpad")
-                .with(
-                    h::button()
-                        .id(button.id)
-                        .class("btn btn-primary btn-block")
-                        .type_("button")
-                        .on("click", move |_| button.message.clone())
-                        .with(button.description),
-                )
-                .into()
-        })
-    }
 }
 
 impl draco::Application for Jfb {
@@ -204,6 +147,20 @@ impl draco::Application for Jfb {
     fn view(&self) -> draco::VNode<Message> {
         use draco::html as h;
 
+        let button = |id, description, message: Message| -> draco::VNode<Message> {
+            h::div()
+                .class("col-sm-6 smallpad")
+                .with(
+                    h::button()
+                        .id(id)
+                        .class("btn btn-primary btn-block")
+                        .type_("button")
+                        .on("click", move |_| message.clone())
+                        .with(description),
+                )
+                .into()
+        };
+
         h::div()
             .class("container")
             .with((
@@ -211,7 +168,14 @@ impl draco::Application for Jfb {
                     .class("jumbotron")
                     .with(h::div().class("row").with((
                         h::div().class("col-md-6").with(h::h1().with("Draco")),
-                        h::div().class("col-md-6").append(Self::buttons()),
+                        h::div().class("col-md-6").with((
+                            button("run", "Create 1,000 rows", Message::Create(1000)),
+                            button("runlots", "Create 10,000 rows", Message::Create(10000)),
+                            button("add", "Append 1,000 rows", Message::Append(1000)),
+                            button("update", "Update every 10th row", Message::UpdateEvery(10)),
+                            button("clear", "Clear", Message::Clear),
+                            button("swaprows", "Swap Rows", Message::Swap),
+                        )),
                     ))),
                 h::table()
                     .class("table table-hover table-striped test-data")
