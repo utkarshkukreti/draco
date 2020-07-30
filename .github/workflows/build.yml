@@ -19,6 +19,13 @@ jobs:
       - uses: actions/setup-node@v2-beta
         with:
           node-version: '14'
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - run: cargo build --verbose
       - run: rake
         working-directory: examples
