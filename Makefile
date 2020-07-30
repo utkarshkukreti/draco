@@ -8,7 +8,7 @@ deploy: default
 
 test: default
 	cargo test
-	wasm-pack test --firefox --headless
+	wasm-pack test --chrome --headless
 	cd tests && yarn test
 
 .PHONY: default deploy test
