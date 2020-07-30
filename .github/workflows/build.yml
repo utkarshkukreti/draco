@@ -16,9 +16,16 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
       - run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
       - run: cargo build --verbose
       - run: rake
         working-directory: examples
       - run: cargo test --verbose
+      - run: yarn install
+        working-directory: tests
+      - run: yarn test
+        working-directory: tests
       - run: cargo clippy
         continue-on-error: true
