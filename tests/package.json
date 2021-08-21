@@ -7,8 +7,8 @@
     "test": "run-p -r http-server cypress:run"
   },
   "dependencies": {
-    "cypress": "^4.11.0",
-    "http-server": "^0.12.3",
+    "cypress": "^8.3.0",
+    "http-server": "^13.0.1",
     "npm-run-all": "^4.1.5"
   }
 }
