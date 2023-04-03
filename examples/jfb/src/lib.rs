@@ -1,9 +1,6 @@
-use rand::{
-    prng::XorShiftRng,
-    {Rng, SeedableRng},
-};
 use wasm_bindgen::prelude::*;
 use web_sys as web;
+use xorshift::Xorshift128;
 
 #[wasm_bindgen(start)]
 pub fn start() {
@@ -23,7 +20,7 @@ pub struct Jfb {
     rows: Vec<Row>,
     next_id: u32,
     selected_id: Option<u32>,
-    rng: XorShiftRng,
+    rng: Xorshift128,
     keyed: bool,
 }
 
@@ -34,7 +31,7 @@ struct Row {
 }
 
 impl Row {
-    fn new<R: Rng>(id: u32, rng: &mut R) -> Row {
+    fn new<R: xorshift::Rng>(id: u32, rng: &mut R) -> Row {
         let label = format!(
             "{} {} {}",
             rng.choose(ADJECTIVES).unwrap(),
@@ -92,7 +89,7 @@ impl Jfb {
             rows: Vec::new(),
             next_id: 1,
             selected_id: None,
-            rng: XorShiftRng::from_seed([0; 16]),
+            rng: xorshift::SeedableRng::from_seed([0].as_slice()),
             keyed,
         }
     }
