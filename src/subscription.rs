@@ -100,6 +100,12 @@ impl Subscription for Interval {
 #[derive(Debug)]
 pub struct AnimationFrame {}
 
+impl AnimationFrame {
+    pub fn new() -> Self {
+        AnimationFrame {}
+    }
+}
+
 impl Subscription for AnimationFrame {
     type Message = f64;
 
