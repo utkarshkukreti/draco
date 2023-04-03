@@ -31,7 +31,7 @@ impl<T: Into<String>> From<T> for Url {
         let (path, query) = split2(path_and_query, '?');
         let path = path
             .split('/')
-            .filter(|str| *str != "")
+            .filter(|str| !str.is_empty())
             .map(Into::into)
             .collect();
         let query = query
@@ -40,7 +40,11 @@ impl<T: Into<String>> From<T> for Url {
             .filter(|(k, v)| !k.is_empty() || !v.is_empty())
             .map(|(k, v)| (k.into(), v.into()))
             .collect();
-        let hash = if hash == "" { None } else { Some(hash.into()) };
+        let hash = if hash.is_empty() {
+            None
+        } else {
+            Some(hash.into())
+        };
 
         return Url { path, query, hash };
 

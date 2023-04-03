@@ -125,12 +125,12 @@ where
 
         let element = match self.ns {
             Ns::Html => document
-                .create_element(wasm_bindgen::intern(&self.name))
+                .create_element(wasm_bindgen::intern(self.name))
                 .unwrap_throw(),
             Ns::Svg => document
                 .create_element_ns(
                     Some("http://www.w3.org/2000/svg"),
-                    wasm_bindgen::intern(&self.name),
+                    wasm_bindgen::intern(self.name),
                 )
                 .unwrap_throw(),
         };
@@ -413,7 +413,7 @@ impl<Message: 'static> Children for Keyed<Message> {
 
         let mut key_to_old_index = HashMap::default();
         for (index, (key, _)) in (start_index..).zip(old[start_index..end_index_old].iter_mut()) {
-            key_to_old_index.insert(key.clone(), index);
+            key_to_old_index.insert(*key, index);
         }
 
         for (index, (key, new_vnode)) in

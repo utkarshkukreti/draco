@@ -100,12 +100,6 @@ impl Subscription for Interval {
 #[derive(Debug)]
 pub struct AnimationFrame {}
 
-impl AnimationFrame {
-    pub fn new() -> Self {
-        AnimationFrame {}
-    }
-}
-
 impl Subscription for AnimationFrame {
     type Message = f64;
 
@@ -117,7 +111,7 @@ impl Subscription for AnimationFrame {
 
         *closure2.borrow_mut() = Some(Closure::wrap(Box::new(move |f64| {
             send(f64);
-            if done.get() == false {
+            if !done.get() {
                 request_animation_frame(closure.borrow().as_ref().unwrap_throw());
             }
         }) as Box<dyn FnMut(f64)>));
